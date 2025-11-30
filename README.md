@@ -155,7 +155,7 @@ Contains original building geometries with volume calculations as attributes.
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+Licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)
 
 ## Contributing
 
