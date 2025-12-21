@@ -192,7 +192,9 @@ Land parcels from the official cadastral survey (Amtliche Vermessung).
 | `area_parcel_m2` | `numeric` | | AV | Grundstücksfläche GSF |
 | `area_footprint_m2` | `numeric` | | Derived | Gebäudegrundfläche GGF (sum of building footprints) |
 | `area_surrounding_m2` | `numeric` | | Derived | Umgebungsfläche UF |
-| `area_sealed_m2` | `numeric` | | Derived | Sealed/impervious area |
+| `area_surrounding_processed_m2` | `numeric` | | Derived | Bearbeitete Umgebungsfläche BUF |
+| `area_surrounding_unprocessed_m2` | `numeric` | | Derived | Unbearbeitete Umgebungsfläche UUF |
+| `area_sealed_m2` | `numeric` | | Derived | Versiegelte Fläche |
 | `area_accuracy` | `text` | | Derived | Accuracy and source of area data |
 
 #### Zoning
