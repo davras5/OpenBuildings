@@ -17,6 +17,34 @@
 | `landcovers` | `id` | Polygon | Landcover polygons including building footprints |
 | `projects` | `id` | Polygon | Construction projects (limited OGD availability) |
 
+```mermaid
+erDiagram
+    buildings ||--o| landcovers : "has footprint"
+    parcels ||--o{ landcovers : "contains"
+
+    buildings {
+        text egid PK
+        geography geog
+    }
+
+    parcels {
+        text egrid PK
+        geography geog
+    }
+
+    landcovers {
+        bigint id PK
+        geography geog
+        text egid FK
+        text egrid FK
+    }
+
+    projects {
+        bigint id PK
+        geography geog
+    }
+```
+
 ---
 
 ## Core Tables
