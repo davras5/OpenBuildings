@@ -61,6 +61,7 @@ Primary entity representing individual buildings.
 |--------|------|-------------|--------|-------------|
 | `id` | `bigint` | `PRIMARY KEY, GENERATED ALWAYS AS IDENTITY` | System | System ID |
 | `egid` | `text` | `UNIQUE` | GWR | Eidgenössischer Gebäudeidentifikator (CH) |
+| `source_fid` | `text` | | Various | Feature ID from source system (for traceability) |
 | `geog` | `geography(POINT, 4326)` | | GWR | Building centroid |
 | `created_at` | `timestamptz` | `DEFAULT NOW()` | System | Record creation timestamp |
 | `updated_at` | `timestamptz` | `DEFAULT NOW()` | System | Record last update timestamp |
@@ -89,19 +90,41 @@ Primary entity representing individual buildings.
 |--------|------|-------------|--------|-------------|
 | `construction_year` | `integer` | | GWR | Year of construction |
 | `renovation_year` | `integer` | | GWR | Year of last renovation |
-| `floors_above` | `integer` | | GWR | Number of floors above ground |
-| `floors_below` | `integer` | | GWR | Number of floors below ground |
 | `dwellings_count` | `integer` | | GWR | Number of dwellings |
 
-#### Dimensions
+#### Dimensions - Volume (SIA 416)
 
 | Column | Type | Constraints | Source | Description |
 |--------|------|-------------|--------|-------------|
-| `volume_total_m3` | `numeric` | | Derived | Total building volume |
-| `volume_above_ground_m3` | `numeric` | | Derived | Volume above ground |
-| `elevation_base_m` | `numeric` | | swissALTI3D | Terrain elevation at base |
+| `volume_total_m3` | `numeric` | | Derived | Gebäudevolumen GV total |
+| `volume_above_ground_m3` | `numeric` | | Derived | GV oberirdisch |
+| `volume_below_ground_m3` | `numeric` | | Derived | GV unterirdisch |
+| `volume_accuracy` | `text` | | Derived | Accuracy and source of volume data |
+
+#### Dimensions - Height
+
+| Column | Type | Constraints | Source | Description |
+|--------|------|-------------|--------|-------------|
+| `elevation_base_m` | `numeric` | | swissALTI3D | Terrain elevation at base (m.a.s.l.) |
 | `height_mean_m` | `numeric` | | Derived | Mean building height |
 | `height_max_m` | `numeric` | | Derived | Maximum building height |
+
+#### Dimensions - Floors (SIA 416)
+
+| Column | Type | Constraints | Source | Description |
+|--------|------|-------------|--------|-------------|
+| `floors_total` | `integer` | | GWR | Anzahl Geschosse total |
+| `floors_above` | `integer` | | GWR | Geschosse oberirdisch |
+| `floors_below` | `integer` | | GWR | Geschosse unterirdisch |
+| `floors_accuracy` | `text` | | Derived | Accuracy and source of floor data |
+
+#### Dimensions - Area (SIA 416)
+
+| Column | Type | Constraints | Source | Description |
+|--------|------|-------------|--------|-------------|
+| `area_footprint_m2` | `numeric` | | AV | Gebäudegrundfläche GGF |
+| `area_ebf_m2` | `numeric` | | Derived | Energiebezugsfläche EBF (SIA 380) |
+| `area_accuracy` | `text` | | Derived | Accuracy and source of area data |
 
 #### Energy
 
@@ -145,6 +168,7 @@ Land parcels from the official cadastral survey (Amtliche Vermessung).
 |--------|------|-------------|--------|-------------|
 | `id` | `bigint` | `PRIMARY KEY, GENERATED ALWAYS AS IDENTITY` | System | System ID |
 | `egrid` | `text` | `UNIQUE` | AV | Eidgenössischer Grundstückidentifikator (CH) |
+| `source_fid` | `text` | | AV | Feature ID from source system (for traceability) |
 | `geog` | `geography(POLYGON, 4326)` | | AV | Parcel geometry |
 | `created_at` | `timestamptz` | `DEFAULT NOW()` | System | Record creation timestamp |
 | `updated_at` | `timestamptz` | `DEFAULT NOW()` | System | Record last update timestamp |
@@ -157,14 +181,15 @@ Land parcels from the official cadastral survey (Amtliche Vermessung).
 | `municipality_nr` | `integer` | | AV | BFS municipality number |
 | `municipality_name` | `text` | | AV | Municipality name |
 
-#### Dimensions
+#### Dimensions - Area (SIA 416)
 
 | Column | Type | Constraints | Source | Description |
 |--------|------|-------------|--------|-------------|
-| `area_parcel_m2` | `numeric` | | AV | Total parcel area |
-| `area_footprint_m2` | `numeric` | | Derived | Sum of building footprints |
-| `area_surrounding_m2` | `numeric` | | Derived | Surrounding area (non-built) |
+| `area_parcel_m2` | `numeric` | | AV | Grundstücksfläche GSF |
+| `area_footprint_m2` | `numeric` | | Derived | Gebäudegrundfläche GGF (sum of building footprints) |
+| `area_surrounding_m2` | `numeric` | | Derived | Umgebungsfläche UF |
 | `area_sealed_m2` | `numeric` | | Derived | Sealed/impervious area |
+| `area_accuracy` | `text` | | Derived | Accuracy and source of area data |
 
 #### Zoning
 
@@ -184,6 +209,7 @@ Landcover polygons from Amtliche Vermessung. Building footprints are a specific 
 | Column | Type | Constraints | Source | Description |
 |--------|------|-------------|--------|-------------|
 | `id` | `bigint` | `PRIMARY KEY, GENERATED ALWAYS AS IDENTITY` | System | System ID |
+| `source_fid` | `text` | | AV | Feature ID from source system (for traceability) |
 | `geog` | `geography(POLYGON, 4326)` | | AV | Landcover geometry |
 | `created_at` | `timestamptz` | `DEFAULT NOW()` | System | Record creation timestamp |
 | `updated_at` | `timestamptz` | `DEFAULT NOW()` | System | Record last update timestamp |
