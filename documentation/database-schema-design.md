@@ -37,8 +37,8 @@ erDiagram
     landcovers {
         bigint id PK
         geography geog
-        text egid FK
-        text egrid FK
+        bigint building_id FK
+        bigint parcel_id FK
     }
 
     projects {
@@ -193,8 +193,8 @@ Landcover polygons from Amtliche Vermessung. Building footprints are a specific 
 | Column | Type | Constraints | Source | Description |
 |--------|------|-------------|--------|-------------|
 | `type` | `text` | `NOT NULL` | AV | Landcover type (building, road, water, etc.) |
-| `egid` | `text` | | AV | Building EGID (for building footprints only) |
-| `egrid` | `text` | | AV | Associated parcel EGRID |
+| `building_id` | `bigint` | `FK → buildings.id` | Derived | Associated building (for footprints only) |
+| `parcel_id` | `bigint` | `FK → parcels.id` | Derived | Associated parcel |
 
 #### Dimensions
 
