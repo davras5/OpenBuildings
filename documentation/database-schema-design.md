@@ -10,12 +10,12 @@
 
 ## Entity Relationship Overview
 
-| Entity | Primary Key | Geometry | Description |
-|--------|-------------|----------|-------------|
-| `buildings` | `egid` | Point | Individual buildings with attributes from GWR, volumes from elevation models |
-| `parcels` | `egrid` | Polygon | Land parcels from cadastral survey |
-| `landcovers` | `id` | Polygon | Landcover polygons including building footprints |
-| `projects` | `id` | Polygon | Construction projects (limited OGD availability) |
+| Entity | Primary Key | Secondary Key | Geometry | Description |
+|--------|-------------|---------------|----------|-------------|
+| `buildings` | `id` | `egid` | Point | Individual buildings with attributes from GWR, volumes from elevation models |
+| `parcels` | `id` | `egrid` | Polygon | Land parcels from cadastral survey |
+| `landcovers` | `id` | | Polygon | Landcover polygons including building footprints |
+| `projects` | `id` | | Polygon | Construction projects (limited OGD availability) |
 
 ```mermaid
 erDiagram
@@ -23,12 +23,14 @@ erDiagram
     parcels ||--o{ landcovers : "contains"
 
     buildings {
-        text egid PK
+        bigint id PK
+        text egid UK
         geography geog
     }
 
     parcels {
-        text egrid PK
+        bigint id PK
+        text egrid UK
         geography geog
     }
 
@@ -51,13 +53,14 @@ erDiagram
 
 ### 1. buildings
 
-Primary entity representing individual buildings. Uses EGID as natural key.
+Primary entity representing individual buildings.
 
 #### System
 
 | Column | Type | Constraints | Source | Description |
 |--------|------|-------------|--------|-------------|
-| `egid` | `text` | `PRIMARY KEY` | GWR | Eidgenössischer Gebäudeidentifikator |
+| `id` | `bigint` | `PRIMARY KEY, GENERATED ALWAYS AS IDENTITY` | System | System ID |
+| `egid` | `text` | `UNIQUE` | GWR | Eidgenössischer Gebäudeidentifikator (CH) |
 | `geog` | `geography(POINT, 4326)` | | GWR | Building centroid |
 | `created_at` | `timestamptz` | `DEFAULT NOW()` | System | Record creation timestamp |
 | `updated_at` | `timestamptz` | `DEFAULT NOW()` | System | Record last update timestamp |
@@ -140,7 +143,8 @@ Land parcels from the official cadastral survey (Amtliche Vermessung).
 
 | Column | Type | Constraints | Source | Description |
 |--------|------|-------------|--------|-------------|
-| `egrid` | `text` | `PRIMARY KEY` | AV | Eidgenössischer Grundstückidentifikator |
+| `id` | `bigint` | `PRIMARY KEY, GENERATED ALWAYS AS IDENTITY` | System | System ID |
+| `egrid` | `text` | `UNIQUE` | AV | Eidgenössischer Grundstückidentifikator (CH) |
 | `geog` | `geography(POLYGON, 4326)` | | AV | Parcel geometry |
 | `created_at` | `timestamptz` | `DEFAULT NOW()` | System | Record creation timestamp |
 | `updated_at` | `timestamptz` | `DEFAULT NOW()` | System | Record last update timestamp |
