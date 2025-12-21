@@ -23,40 +23,12 @@
 
 ## Entity Relationship Overview
 
-```mermaid
-erDiagram
-    buildings ||--o{ buildings_parcels : "located on"
-    parcels ||--o{ buildings_parcels : "contains"
-    buildings ||--o| landcovers : "has footprint"
-    parcels ||--o{ landcovers : "contains"
-
-    buildings {
-        text egid PK
-        geography geog
-    }
-
-    parcels {
-        text egrid PK
-        geography geog
-    }
-
-    landcovers {
-        bigint id PK
-        geography geog
-        text egid FK
-        text egrid FK
-    }
-
-    projects {
-        bigint id PK
-        geography geog
-    }
-
-    buildings_parcels {
-        text egid FK
-        text egrid FK
-    }
-```
+| Entity | Primary Key | Geometry | Description |
+|--------|-------------|----------|-------------|
+| `buildings` | `egid` | Point | Individual buildings with attributes from GWR, volumes from elevation models |
+| `parcels` | `egrid` | Polygon | Land parcels from cadastral survey |
+| `landcovers` | `id` | Polygon | Landcover polygons including building footprints |
+| `projects` | `id` | Polygon | Construction projects (limited OGD availability) |
 
 ---
 
@@ -246,20 +218,6 @@ Construction projects. Note: Limited OGD available - primarily cantonal building
 | `date_approval` | `date` | Building permit approval date |
 | `date_start` | `date` | Construction start date |
 | `date_end` | `date` | Construction end date |
-
----
-
-## Junction Tables
-
-### buildings_parcels
-
-Many-to-many relationship (a building can span multiple parcels).
-
-| Column | Type | Description |
-|--------|------|-------------|
-| `egid` | `text REFERENCES buildings(egid)` | Building FK |
-| `egrid` | `text REFERENCES parcels(egrid)` | Parcel FK |
-| PRIMARY KEY | `(egid, egrid)` | Composite PK |
 
 ---
 
