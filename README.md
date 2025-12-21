@@ -2,6 +2,10 @@
 
 Calculate building volumes in cubic meters using publicly available Swiss geodata. This tool combines building footprints from the Swiss official cadastral survey (Amtliche Vermessung) with height data from swissALTI3D (terrain) and swissSURFACE3D (surface) models.
 
+**Two implementations are available:**
+- **Python script** (`main.py`) - Standalone command-line tool
+- **FME Workbench** (`swissALTI3D Volumen.fmw`) - Visual workflow for FME users
+
 ## Overview
 
 This tool:
@@ -10,6 +14,14 @@ This tool:
 - Samples terrain height (swissALTI3D) to determine base elevation
 - Samples surface height (swissSURFACE3D) for roof elevation
 - Calculates volume as: `Σ(roof_height - base_height) × 1m²`
+
+ <p align="center">
+  <img src="https://github.com/davras5/swissALTI3D-Volumen/blob/main/Preview_2.PNG" width="45%" /> 
+  <img src="https://github.com/davras5/swissALTI3D-Volumen/blob/main/Preview_3.PNG" width="45%" />
+</p>
+ <p align="center">
+  <img src="https://github.com/davras5/swissALTI3D-Volumen/blob/main/Preview_4.PNG" /> 
+</p>
 
 ## Requirements
 
@@ -33,21 +45,24 @@ pip install geopandas rasterio numpy pandas shapely fiona
 
 ## Installation
 
+### Python Version
+
 1. Clone this repository:
 ```bash
-git clone https://github.com/yourusername/swiss-building-volumes.git
-cd swiss-building-volumes
+git clone https://github.com/davras5/swissALTI3D-Volumen.git
+cd swissALTI3D-Volumen
 ```
 
 2. Install dependencies:
 ```bash
-pip install -r requirements.txt
+pip install geopandas rasterio numpy pandas shapely fiona
 ```
 
 3. Download required geodata and organize as follows:
 ```
-project/
+swissALTI3D-Volumen/
 ├── main.py
+├── Python Usage Examples.txt
 ├── data/
 │   ├── av_2056.gpkg
 │   ├── alti3d/
@@ -60,7 +75,15 @@ project/
 │       └── ...
 ```
 
-## Usage
+### FME Version
+
+1. Open `swissALTI3D Volumen.fmw` in FME Desktop (2020 or newer recommended)
+2. Configure the source data readers to point to your geodata
+3. Run the workbench
+
+## Usage (Python)
+
+See `Python Usage Examples.txt` for quick reference examples.
 
 ### Basic Usage
 ```bash
@@ -147,7 +170,7 @@ Contains original building geometries with volume calculations as attributes.
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+Licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)
 
 ## Contributing
 
