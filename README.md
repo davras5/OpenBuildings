@@ -15,12 +15,12 @@ This tool:
 - Samples surface height (swissSURFACE3D) for roof elevation
 - Calculates volume as: `Σ(roof_height - base_height) × 1m²`
 
- <p align="center">
-  <img src="https://github.com/davras5/swissALTI3D-Volumen/blob/main/images/Preview_2.PNG" width="45%" />
-  <img src="https://github.com/davras5/swissALTI3D-Volumen/blob/main/images/Preview_3.PNG" width="45%" />
+<p align="center">
+  <img src="images/Preview_2.PNG" width="45%" />
+  <img src="images/Preview_3.PNG" width="45%" />
 </p>
- <p align="center">
-  <img src="https://github.com/davras5/swissALTI3D-Volumen/blob/main/images/Preview_4.PNG" />
+<p align="center">
+  <img src="images/Preview_4.PNG" />
 </p>
 
 ## Requirements
@@ -172,7 +172,7 @@ Contains original building geometries with volume calculations as attributes.
 
 ## License
 
-Licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)
+This project is licensed under the [MIT License](LICENSE).
 
 ## Contributing
 
