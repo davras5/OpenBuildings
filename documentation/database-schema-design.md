@@ -92,13 +92,13 @@ Primary entity representing individual buildings.
 | `renovation_year` | `integer` | | GWR | Year of last renovation |
 | `dwellings_count` | `integer` | | GWR | Number of dwellings |
 
-#### Dimensions - Volume (SIA 416)
+#### Dimensions - Volume
 
 | Column | Type | Constraints | Source | Description |
 |--------|------|-------------|--------|-------------|
-| `volume_total_m3` | `numeric` | | Derived | Gebäudevolumen GV total |
-| `volume_above_ground_m3` | `numeric` | | Derived | GV oberirdisch |
-| `volume_below_ground_m3` | `numeric` | | Derived | GV unterirdisch |
+| `volume_total_m3` | `numeric` | | Derived | Gebäudevolumen GV total (SIA 416) |
+| `volume_above_ground_m3` | `numeric` | | Derived | GV oberirdisch (SIA 416) |
+| `volume_below_ground_m3` | `numeric` | | Derived | GV unterirdisch (SIA 416) |
 | `volume_accuracy` | `text` | | Derived | Accuracy and source of volume data |
 
 #### Dimensions - Height
@@ -109,24 +109,24 @@ Primary entity representing individual buildings.
 | `height_mean_m` | `numeric` | | Derived | Mean building height |
 | `height_max_m` | `numeric` | | Derived | Maximum building height |
 
-#### Dimensions - Floors (SIA 416)
+#### Dimensions - Floors
 
 | Column | Type | Constraints | Source | Description |
 |--------|------|-------------|--------|-------------|
-| `floors_total` | `integer` | | GWR | Anzahl Geschosse total |
-| `floors_above` | `integer` | | GWR | Geschosse oberirdisch |
-| `floors_below` | `integer` | | GWR | Geschosse unterirdisch |
+| `floors_total` | `integer` | | GWR | Anzahl Geschosse total (SIA 416) |
+| `floors_above` | `integer` | | GWR | Geschosse oberirdisch (SIA 416) |
+| `floors_below` | `integer` | | GWR | Geschosse unterirdisch (SIA 416) |
 | `floors_accuracy` | `text` | | Derived | Accuracy and source of floor data |
 
-#### Dimensions - Area (SIA 416)
+#### Dimensions - Area
 
 | Column | Type | Constraints | Source | Description |
 |--------|------|-------------|--------|-------------|
-| `area_footprint_m2` | `numeric` | | AV | Gebäudegrundfläche GGF |
-| `area_floor_total_m2` | `numeric` | | Derived | Geschossfläche GF total |
-| `area_floor_above_ground_m2` | `numeric` | | Derived | GF oberirdisch |
-| `area_floor_below_ground_m2` | `numeric` | | Derived | GF unterirdisch |
-| `area_floor_net_m2` | `numeric` | | Derived | Netto-Geschossfläche NGF |
+| `area_footprint_m2` | `numeric` | | AV | Gebäudegrundfläche GGF (SIA 416) |
+| `area_floor_total_m2` | `numeric` | | Derived | Geschossfläche GF total (SIA 416) |
+| `area_floor_above_ground_m2` | `numeric` | | Derived | GF oberirdisch (SIA 416) |
+| `area_floor_below_ground_m2` | `numeric` | | Derived | GF unterirdisch (SIA 416) |
+| `area_floor_net_m2` | `numeric` | | Derived | Netto-Geschossfläche NGF (SIA 416) |
 | `area_ebf_m2` | `numeric` | | Derived | Energiebezugsfläche EBF (SIA 380) |
 | `area_accuracy` | `text` | | Derived | Accuracy and source of area data |
 
@@ -185,15 +185,15 @@ Land parcels from the official cadastral survey (Amtliche Vermessung).
 | `municipality_nr` | `integer` | | AV | BFS municipality number |
 | `municipality_name` | `text` | | AV | Municipality name |
 
-#### Dimensions - Area (SIA 416)
+#### Dimensions - Area
 
 | Column | Type | Constraints | Source | Description |
 |--------|------|-------------|--------|-------------|
-| `area_parcel_m2` | `numeric` | | AV | Grundstücksfläche GSF |
-| `area_footprint_m2` | `numeric` | | Derived | Gebäudegrundfläche GGF (sum of building footprints) |
-| `area_surrounding_m2` | `numeric` | | Derived | Umgebungsfläche UF |
-| `area_surrounding_processed_m2` | `numeric` | | Derived | Bearbeitete Umgebungsfläche BUF |
-| `area_surrounding_unprocessed_m2` | `numeric` | | Derived | Unbearbeitete Umgebungsfläche UUF |
+| `area_parcel_m2` | `numeric` | | AV | Grundstücksfläche GSF (SIA 416) |
+| `area_footprint_m2` | `numeric` | | Derived | Gebäudegrundfläche GGF (SIA 416), sum of building footprints |
+| `area_surrounding_m2` | `numeric` | | Derived | Umgebungsfläche UF (SIA 416) |
+| `area_surrounding_processed_m2` | `numeric` | | Derived | Bearbeitete Umgebungsfläche BUF (SIA 416) |
+| `area_surrounding_unprocessed_m2` | `numeric` | | Derived | Unbearbeitete Umgebungsfläche UUF (SIA 416) |
 | `area_sealed_m2` | `numeric` | | Derived | Versiegelte Fläche |
 | `area_accuracy` | `text` | | Derived | Accuracy and source of area data |
 
