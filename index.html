@@ -399,6 +399,38 @@
       color: #333;
     }
 
+    /* 3D Toggle button */
+    .toggle-3d-button {
+      position: absolute;
+      top: 137px;
+      right: 10px;
+      width: 29px;
+      height: 29px;
+      background: white;
+      border: none;
+      border-radius: 4px;
+      box-shadow: 0 0 0 2px rgba(0,0,0,0.1);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+      font-family: var(--font-main);
+      font-size: 11px;
+      font-weight: 600;
+      color: #333;
+      transition: background 0.15s ease;
+    }
+
+    .toggle-3d-button:hover {
+      background: #f0f0f0;
+    }
+
+    .toggle-3d-button.active {
+      background: var(--clr-accent);
+      color: white;
+    }
+
     /* Cluster count label */
     .cluster-count {
       color: white;
@@ -441,6 +473,9 @@
         <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
         <polyline points="9 22 9 12 15 12 15 22"></polyline>
       </svg>
+    </button>
+    <button class="toggle-3d-button" id="toggle3DButton" title="2D/3D Ansicht">
+      3D
     </button>
     <div class="basemap-selector" id="basemapSelector">
       <div class="basemap-toggle light" id="basemapToggle"></div>
@@ -514,7 +549,8 @@
           lon: params.get('lon') ? parseFloat(params.get('lon')) : null,
           lat: params.get('lat') ? parseFloat(params.get('lat')) : null,
           building: params.get('building') ? parseInt(params.get('building')) : null,
-          parcel: params.get('parcel') ? parseInt(params.get('parcel')) : null
+          parcel: params.get('parcel') ? parseInt(params.get('parcel')) : null,
+          is3D: params.get('3d') === 'true'
         };
       }
       
@@ -522,14 +558,15 @@
         const params = new URLSearchParams();
         const center = map.getCenter();
         const zoom = map.getZoom();
-        
+
         params.set('zoom', zoom.toFixed(2));
         params.set('lon', center.lng.toFixed(5));
         params.set('lat', center.lat.toFixed(5));
-        
+
         if (selectedBuilding) params.set('building', selectedBuilding);
         if (selectedParcel) params.set('parcel', selectedParcel);
-        
+        if (is3DMode) params.set('3d', 'true');
+
         window.history.replaceState({}, '', `?${params.toString()}`);
       }
       
@@ -537,6 +574,7 @@
       let selectedBuilding = null;
       let selectedParcel = null;
       let markerClickHandled = false;
+      let is3DMode = false;
       
       // ============================================
       // Functions
@@ -1042,7 +1080,8 @@
       // Apply URL params for initial selection
       if (urlParams.building) selectedBuilding = urlParams.building;
       if (urlParams.parcel) selectedParcel = urlParams.parcel;
-      
+      if (urlParams.is3D) is3DMode = true;
+
       // Set initial view from URL if provided
       if (urlParams.zoom && urlParams.lon && urlParams.lat) {
         map.setCenter([urlParams.lon, urlParams.lat]);
@@ -1054,12 +1093,12 @@
         await fetchParcels();
         addParcelsLayer();
         addBuildingsLayer();
-        
+
         // If no URL params, fit to buildings
         if (!urlParams.zoom) {
           fitBoundsToBuildings();
         }
-        
+
         // Show popup for selected item
         if (selectedBuilding) {
           const building = buildings.find(b => b.id === selectedBuilding);
@@ -1069,7 +1108,15 @@
         if (selectedParcel) {
           updateParcelStyles();
         }
-        
+
+        // Apply 3D mode from URL params
+        if (is3DMode) {
+          setup3DTerrain();
+          map.setPitch(60);
+          toggle3DButton.classList.add('active');
+          toggle3DButton.textContent = '2D';
+        }
+
         loadingOverlay.classList.add('hidden');
       });
       
@@ -1131,8 +1178,77 @@
         if (buildings.length > 0 && !map.getSource('buildings')) {
           addBuildingsLayer();
         }
+        // Re-apply 3D mode if active
+        if (is3DMode) {
+          setup3DTerrain();
+        }
       });
-      
+
+      // ============================================
+      // 3D Toggle
+      // ============================================
+      const toggle3DButton = document.getElementById('toggle3DButton');
+
+      function setup3DTerrain() {
+        // Add terrain source if not exists
+        if (!map.getSource('mapbox-dem')) {
+          map.addSource('mapbox-dem', {
+            type: 'raster-dem',
+            url: 'mapbox://mapbox.mapbox-terrain-dem-v1',
+            tileSize: 512,
+            maxzoom: 14
+          });
+        }
+
+        // Enable terrain
+        map.setTerrain({ source: 'mapbox-dem', exaggeration: 1.5 });
+
+        // Add sky layer for atmosphere
+        if (!map.getLayer('sky')) {
+          map.addLayer({
+            id: 'sky',
+            type: 'sky',
+            paint: {
+              'sky-type': 'atmosphere',
+              'sky-atmosphere-sun': [0.0, 90.0],
+              'sky-atmosphere-sun-intensity': 15
+            }
+          });
+        }
+      }
+
+      function remove3DTerrain() {
+        // Disable terrain
+        map.setTerrain(null);
+
+        // Remove sky layer
+        if (map.getLayer('sky')) {
+          map.removeLayer('sky');
+        }
+      }
+
+      function toggle3D() {
+        is3DMode = !is3DMode;
+
+        if (is3DMode) {
+          setup3DTerrain();
+          // Pitch camera for 3D perspective
+          map.easeTo({ pitch: 60, duration: 1000 });
+          toggle3DButton.classList.add('active');
+          toggle3DButton.textContent = '2D';
+        } else {
+          remove3DTerrain();
+          // Reset camera to flat view
+          map.easeTo({ pitch: 0, duration: 1000 });
+          toggle3DButton.classList.remove('active');
+          toggle3DButton.textContent = '3D';
+        }
+
+        updateUrlParams();
+      }
+
+      toggle3DButton.addEventListener('click', toggle3D);
+
       // ============================================
       // Swisstopo Search
       // ============================================
