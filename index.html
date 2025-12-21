@@ -58,29 +58,153 @@
       letter-spacing: -0.01em;
     }
     
-    .status {
-      font-size: 0.8125rem;
-      color: var(--clr-text-muted);
+    .header-spacer {
+      width: 100px; /* Balance the header */
+    }
+    
+    /* Search */
+    .search-container {
+      position: relative;
+      flex: 1;
+      max-width: 480px;
+      margin: 0 1.5rem;
+    }
+    
+    .search-input-wrapper {
       display: flex;
       align-items: center;
-      gap: 0.5rem;
+      background: var(--clr-bg);
+      border: 1px solid var(--clr-border);
+      border-radius: 4px;
+      padding: 0 0.75rem;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
     }
     
-    .status-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: #ccc;
+    .search-input-wrapper:focus-within {
+      border-color: #999;
+      box-shadow: 0 0 0 3px rgba(0,0,0,0.05);
     }
     
-    .status-dot.connected {
-      background: #4caf50;
+    .search-icon {
+      color: var(--clr-text-muted);
+      flex-shrink: 0;
     }
     
-    .status-dot.error {
-      background: var(--clr-accent);
+    #searchInput {
+      flex: 1;
+      border: none;
+      background: transparent;
+      padding: 0.625rem 0.5rem;
+      font-size: 0.9375rem;
+      font-family: inherit;
+      outline: none;
     }
     
+    #searchInput::placeholder {
+      color: var(--clr-text-muted);
+    }
+    
+    .search-clear {
+      display: none;
+      background: none;
+      border: none;
+      font-size: 1.25rem;
+      color: var(--clr-text-muted);
+      cursor: pointer;
+      padding: 0 0.25rem;
+      line-height: 1;
+    }
+    
+    .search-clear:hover {
+      color: var(--clr-text);
+    }
+    
+    .search-input-wrapper.has-value .search-clear {
+      display: block;
+    }
+    
+    .search-dropdown {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      margin-top: 4px;
+      background: var(--clr-surface);
+      border: 1px solid var(--clr-border);
+      border-radius: 4px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+      max-height: 400px;
+      overflow-y: auto;
+      display: none;
+      z-index: 100;
+    }
+    
+    .search-dropdown.open {
+      display: block;
+    }
+    
+    .search-section {
+      display: none;
+    }
+    
+    .search-section.has-results {
+      display: block;
+    }
+    
+    .search-section-header {
+      padding: 0.5rem 0.75rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--clr-surface);
+      background: #6b7280;
+    }
+    
+    .search-results {
+      max-height: 200px;
+      overflow-y: auto;
+    }
+    
+    .search-result-item {
+      padding: 0.625rem 0.75rem;
+      cursor: pointer;
+      font-size: 0.875rem;
+      border-bottom: 1px solid var(--clr-border);
+      transition: background 0.1s ease;
+    }
+    
+    .search-result-item:last-child {
+      border-bottom: none;
+    }
+    
+    .search-result-item:hover {
+      background: var(--clr-bg);
+    }
+    
+    .search-result-item.disabled {
+      cursor: default;
+      opacity: 0.6;
+    }
+    
+    .search-result-item.disabled:hover {
+      background: transparent;
+    }
+    
+    .search-result-item mark {
+      background: #bfdbfe;
+      color: inherit;
+      padding: 0;
+      border-radius: 2px;
+    }
+    
+    .search-no-results {
+      padding: 0.75rem;
+      color: var(--clr-text-muted);
+      font-size: 0.875rem;
+      text-align: center;
+    }
+
     main {
       flex: 1;
       display: flex;
@@ -89,55 +213,6 @@
     
     #map {
       flex: 1;
-    }
-    
-    .sidebar {
-      width: 320px;
-      background: var(--clr-surface);
-      border-left: 1px solid var(--clr-border);
-      overflow-y: auto;
-    }
-    
-    .sidebar-header {
-      padding: 1rem 1.25rem;
-      border-bottom: 1px solid var(--clr-border);
-      font-weight: 500;
-      font-size: 0.875rem;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: var(--clr-text-muted);
-    }
-    
-    .building-list {
-      list-style: none;
-    }
-    
-    .building-item {
-      padding: 1rem 1.25rem;
-      border-bottom: 1px solid var(--clr-border);
-      cursor: pointer;
-      transition: background 0.15s ease;
-    }
-    
-    .building-item:hover {
-      background: var(--clr-bg);
-    }
-    
-    .building-item.active {
-      background: #fff3e0;
-      border-left: 3px solid var(--clr-accent);
-      padding-left: calc(1.25rem - 3px);
-    }
-    
-    .building-name {
-      font-weight: 500;
-      margin-bottom: 0.25rem;
-    }
-    
-    .building-coords {
-      font-size: 0.8125rem;
-      color: var(--clr-text-muted);
-      font-variant-numeric: tabular-nums;
     }
     
     /* Mapbox popup styling */
@@ -188,28 +263,186 @@
       to { transform: rotate(360deg); }
     }
     
-    @media (max-width: 768px) {
-      .sidebar {
-        display: none;
-      }
+    /* Basemap selector */
+    .basemap-selector {
+      position: absolute;
+      bottom: 48px;
+      right: 24px;
+      display: flex;
+      flex-direction: row-reverse;
+      gap: 8px;
+      z-index: 10;
+    }
+    
+    .basemap-toggle {
+      width: 72px;
+      height: 72px;
+      border-radius: 6px;
+      border: 2px solid white;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      cursor: pointer;
+      overflow: hidden;
+      position: relative;
+      background-size: cover;
+      background-position: center;
+      flex-shrink: 0;
+    }
+    
+    .basemap-toggle::after {
+      content: 'Background';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(0,0,0,0.6);
+      color: white;
+      font-size: 0.625rem;
+      padding: 3px 4px;
+      text-align: center;
+      font-weight: 500;
+    }
+    
+    .basemap-options {
+      display: flex;
+      gap: 8px;
+      overflow: hidden;
+      max-width: 0;
+      opacity: 0;
+      transition: max-width 0.3s ease, opacity 0.2s ease;
+    }
+    
+    .basemap-selector.expanded .basemap-options {
+      max-width: 400px;
+      opacity: 1;
+    }
+    
+    .basemap-option {
+      width: 72px;
+      height: 72px;
+      border-radius: 6px;
+      border: 2px solid white;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      cursor: pointer;
+      overflow: hidden;
+      position: relative;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      background-size: cover;
+      background-position: center;
+      flex-shrink: 0;
+    }
+    
+    .basemap-option:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+    }
+    
+    .basemap-option.active {
+      border-color: var(--clr-accent);
+      box-shadow: 0 0 0 2px var(--clr-accent), 0 2px 8px rgba(0,0,0,0.2);
+    }
+    
+    .basemap-option::after {
+      content: attr(data-label);
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(0,0,0,0.6);
+      color: white;
+      font-size: 0.625rem;
+      padding: 3px 4px;
+      text-align: center;
+      font-weight: 500;
+    }
+    
+    .basemap-option.light, .basemap-toggle.light {
+      background: linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%);
+    }
+    
+    .basemap-option.streets, .basemap-toggle.streets {
+      background: linear-gradient(135deg, #e8f4e5 0%, #ffefd5 50%, #f5f5f5 100%);
+    }
+    
+    .basemap-option.outdoors, .basemap-toggle.outdoors {
+      background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 50%, #b8daff 100%);
+    }
+    
+    .basemap-option.satellite, .basemap-toggle.satellite {
+      background: linear-gradient(135deg, #2d4a3e 0%, #1a3a2a 50%, #3d5a4e 100%);
+    }
+    
+    /* Home button */
+    .home-button {
+      position: absolute;
+      top: 100px;
+      right: 10px;
+      width: 29px;
+      height: 29px;
+      background: white;
+      border: none;
+      border-radius: 4px;
+      box-shadow: 0 0 0 2px rgba(0,0,0,0.1);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+    }
+    
+    .home-button:hover {
+      background: #f0f0f0;
+    }
+    
+    .home-button svg {
+      width: 18px;
+      height: 18px;
+      color: #333;
     }
   </style>
 </head>
 <body>
   <header>
     <h1>Buildings Map</h1>
-    <div class="status">
-      <span class="status-dot" id="statusDot"></span>
-      <span id="statusText">Connecting...</span>
+    <div class="search-container">
+      <div class="search-input-wrapper">
+        <svg class="search-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"></circle>
+          <path d="m21 21-4.35-4.35"></path>
+        </svg>
+        <input type="text" id="searchInput" placeholder="Suchen..." autocomplete="off">
+        <button class="search-clear" id="searchClear" type="button">×</button>
+      </div>
+      <div class="search-dropdown" id="searchDropdown">
+        <div class="search-section" id="locationsSection">
+          <div class="search-section-header">Gehe nach ...</div>
+          <div class="search-results" id="locationsResults"></div>
+        </div>
+        <div class="search-section" id="layersSection">
+          <div class="search-section-header">Karte hinzufügen ...</div>
+          <div class="search-results" id="layersResults"></div>
+        </div>
+      </div>
     </div>
+    <div class="header-spacer"></div>
   </header>
   
   <main>
     <div id="map"></div>
-    <aside class="sidebar">
-      <div class="sidebar-header">Buildings</div>
-      <ul class="building-list" id="buildingList"></ul>
-    </aside>
+    <button class="home-button" id="homeButton" title="Zur Übersicht">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+        <polyline points="9 22 9 12 15 12 15 22"></polyline>
+      </svg>
+    </button>
+    <div class="basemap-selector" id="basemapSelector">
+      <div class="basemap-toggle light" id="basemapToggle"></div>
+      <div class="basemap-options">
+        <div class="basemap-option light active" data-style="light-v11" data-label="Light"></div>
+        <div class="basemap-option streets" data-style="streets-v12" data-label="Streets"></div>
+        <div class="basemap-option outdoors" data-style="outdoors-v12" data-label="Outdoors"></div>
+        <div class="basemap-option satellite" data-style="satellite-streets-v12" data-label="Satellite"></div>
+      </div>
+    </div>
     <div class="loading-overlay" id="loadingOverlay">
       <div class="loading-spinner"></div>
     </div>
@@ -246,7 +479,10 @@
         zoom: 7
       });
       
-      map.addControl(new mapboxgl.NavigationControl(), 'top-left');
+      map.addControl(new mapboxgl.NavigationControl(), 'top-right');
+      
+      // Store initial bounds for home button
+      let initialBounds = null;
       
       // ============================================
       // State
@@ -259,33 +495,148 @@
       // ============================================
       // DOM Elements
       // ============================================
-      const statusDot = document.getElementById('statusDot');
-      const statusText = document.getElementById('statusText');
-      const buildingList = document.getElementById('buildingList');
       const loadingOverlay = document.getElementById('loadingOverlay');
+      
+      // ============================================
+      // URL Parameters
+      // ============================================
+      function getUrlParams() {
+        const params = new URLSearchParams(window.location.search);
+        return {
+          zoom: params.get('zoom') ? parseFloat(params.get('zoom')) : null,
+          lon: params.get('lon') ? parseFloat(params.get('lon')) : null,
+          lat: params.get('lat') ? parseFloat(params.get('lat')) : null,
+          building: params.get('building') ? parseInt(params.get('building')) : null,
+          parcel: params.get('parcel') ? parseInt(params.get('parcel')) : null
+        };
+      }
+      
+      function updateUrlParams() {
+        const params = new URLSearchParams();
+        const center = map.getCenter();
+        const zoom = map.getZoom();
+        
+        params.set('zoom', zoom.toFixed(2));
+        params.set('lon', center.lng.toFixed(5));
+        params.set('lat', center.lat.toFixed(5));
+        
+        if (selectedBuilding) params.set('building', selectedBuilding);
+        if (selectedParcel) params.set('parcel', selectedParcel);
+        
+        window.history.replaceState({}, '', `?${params.toString()}`);
+      }
+      
+      // Selection state
+      let selectedBuilding = null;
+      let selectedParcel = null;
+      let markerClickHandled = false;
       
       // ============================================
       // Functions
       // ============================================
-      function updateStatus(status, message) {
-        statusDot.className = 'status-dot ' + status;
-        statusText.textContent = message;
+      
+      // Simple EWKB parser for Point and Polygon
+      function wkbToGeoJSON(hex) {
+        try {
+          let pos = 0;
+          
+          // Helper to read bytes as little-endian double
+          function readDouble() {
+            const bytes = [];
+            for (let i = 0; i < 8; i++) {
+              bytes.push(parseInt(hex.substr(pos + i * 2, 2), 16));
+            }
+            pos += 16;
+            const buffer = new ArrayBuffer(8);
+            const view = new DataView(buffer);
+            bytes.forEach((b, i) => view.setUint8(i, b));
+            return view.getFloat64(0, true);
+          }
+          
+          // Helper to read uint32 little-endian
+          function readUInt32() {
+            const bytes = [];
+            for (let i = 0; i < 4; i++) {
+              bytes.push(parseInt(hex.substr(pos + i * 2, 2), 16));
+            }
+            pos += 8;
+            return bytes[0] | (bytes[1] << 8) | (bytes[2] << 16) | (bytes[3] << 24);
+          }
+          
+          // Skip byte order (1 byte)
+          pos += 2;
+          
+          // Read type (4 bytes) - includes SRID flag
+          const type = readUInt32();
+          const geomType = type & 0xFF;
+          const hasSRID = (type & 0x20000000) !== 0;
+          
+          // Skip SRID if present (4 bytes)
+          if (hasSRID) {
+            pos += 8;
+          }
+          
+          // Point (type 1)
+          if (geomType === 1) {
+            const x = readDouble();
+            const y = readDouble();
+            return { type: 'Point', coordinates: [x, y] };
+          }
+          
+          // Polygon (type 3)
+          if (geomType === 3) {
+            const numRings = readUInt32();
+            const rings = [];
+            
+            for (let r = 0; r < numRings; r++) {
+              const numPoints = readUInt32();
+              const ring = [];
+              
+              for (let p = 0; p < numPoints; p++) {
+                const x = readDouble();
+                const y = readDouble();
+                ring.push([x, y]);
+              }
+              rings.push(ring);
+            }
+            
+            return { type: 'Polygon', coordinates: rings };
+          }
+          
+          console.warn('Unsupported geometry type:', geomType);
+          return null;
+          
+        } catch (err) {
+          console.error('WKB decode error:', err);
+          return null;
+        }
       }
       
       async function fetchBuildings() {
         try {
           const { data, error } = await db
             .from('buildings')
-            .select('id, name, lon, lat');
+            .select('id, name, geog, egid');
           
           if (error) throw error;
           
-          buildings = data;
+          // Decode WKB and extract coordinates
+          buildings = data.map(b => {
+            const geojson = wkbToGeoJSON(b.geog);
+            return {
+              id: b.id,
+              name: b.name,
+              egid: b.egid,
+              lon: geojson?.coordinates[0],
+              lat: geojson?.coordinates[1],
+              geojson: geojson
+            };
+          }).filter(b => b.lon && b.lat);
+          
           return buildings;
           
         } catch (err) {
           console.error('Error fetching buildings:', err);
-          updateStatus('error', 'Connection failed');
           return [];
         }
       }
@@ -293,12 +644,20 @@
       async function fetchParcels() {
         try {
           const { data, error } = await db
-            .from('parcels_geojson')
-            .select('id, name, building_id, geojson');
+            .from('parcels')
+            .select('id, name, building_id, geog, egrid');
           
           if (error) throw error;
           
-          parcels = data;
+          // Decode WKB to GeoJSON
+          parcels = data.map(p => ({
+            id: p.id,
+            name: p.name,
+            building_id: p.building_id,
+            egrid: p.egrid,
+            geojson: wkbToGeoJSON(p.geog)
+          })).filter(p => p.geojson);
+          
           return parcels;
           
         } catch (err) {
@@ -318,7 +677,8 @@
             properties: {
               id: p.id,
               name: p.name,
-              building_id: p.building_id
+              building_id: p.building_id,
+              egrid: p.egrid
             },
             geometry: p.geojson
           }))
@@ -363,37 +723,34 @@
         
         // Add click popup for parcels
         map.on('click', 'parcels-fill', (e) => {
+          // Skip if a marker was just clicked
+          if (markerClickHandled) return;
+          
           const props = e.features[0].properties;
           
-          if (activePopup) activePopup.remove();
+          selectParcel(props.id);
+          
+          // Safety check (selectParcel should have already removed it)
+          if (activePopup) {
+            activePopup.off('close', onPopupClose);
+            activePopup.remove();
+          }
           
           activePopup = new mapboxgl.Popup()
             .setLngLat(e.lngLat)
-            .setHTML(`<div class="popup-title">${props.name}</div>`)
+            .setHTML(`
+              <div class="popup-title">${props.name || 'Parcel'}</div>
+              <div class="popup-coords">EGRID: ${props.egrid || '–'}</div>
+            `)
             .addTo(map);
-        });
-      }
-      
-      function renderBuildingList() {
-        buildingList.innerHTML = buildings.map(b => `
-          <li class="building-item" data-id="${b.id}">
-            <div class="building-name">${b.name}</div>
-            <div class="building-coords">${b.lat.toFixed(4)}, ${b.lon.toFixed(4)}</div>
-          </li>
-        `).join('');
-        
-        // Add click handlers
-        buildingList.querySelectorAll('.building-item').forEach(item => {
-          item.addEventListener('click', () => {
-            const id = parseInt(item.dataset.id);
-            flyToBuilding(id);
-          });
+          
+          activePopup.on('close', onPopupClose);
         });
       }
       
       function addMarkers() {
         // Clear existing markers
-        markers.forEach(m => m.remove());
+        markers.forEach(m => m.marker.remove());
         markers = [];
         
         buildings.forEach(b => {
@@ -409,6 +766,8 @@
           `;
           
           const dot = document.createElement('div');
+          dot.className = 'marker-dot';
+          dot.dataset.buildingId = b.id;
           dot.style.cssText = `
             width: 14px;
             height: 14px;
@@ -416,17 +775,21 @@
             border: 2px solid white;
             border-radius: 50%;
             box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-            transition: transform 0.15s ease, box-shadow 0.15s ease;
+            transition: transform 0.15s ease, box-shadow 0.15s ease, width 0.15s ease, height 0.15s ease;
           `;
           el.appendChild(dot);
           
           el.addEventListener('mouseenter', () => {
-            dot.style.transform = 'scale(1.3)';
-            dot.style.boxShadow = '0 3px 8px rgba(0,0,0,0.3)';
+            if (selectedBuilding !== b.id) {
+              dot.style.transform = 'scale(1.3)';
+              dot.style.boxShadow = '0 3px 8px rgba(0,0,0,0.3)';
+            }
           });
           el.addEventListener('mouseleave', () => {
-            dot.style.transform = 'scale(1)';
-            dot.style.boxShadow = '0 2px 4px rgba(0,0,0,0.2)';
+            if (selectedBuilding !== b.id) {
+              dot.style.transform = 'scale(1)';
+              dot.style.boxShadow = '0 2px 4px rgba(0,0,0,0.2)';
+            }
           });
           
           const marker = new mapboxgl.Marker(el)
@@ -434,31 +797,124 @@
             .addTo(map);
           
           // Add click handler for popup
-          el.addEventListener('click', () => {
-            showPopup(b);
-            highlightListItem(b.id);
+          el.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            markerClickHandled = true;
+            selectBuilding(b.id);
+            // Reset flag after a short delay
+            setTimeout(() => { markerClickHandled = false; }, 100);
           });
           
-          markers.push(marker);
+          markers.push({ marker, dot, building: b });
+        });
+        
+        // Apply initial selection if set
+        if (selectedBuilding) {
+          updateMarkerStyles();
+        }
+      }
+      
+      function updateMarkerStyles() {
+        markers.forEach(({ dot, building }) => {
+          if (building.id === selectedBuilding) {
+            dot.style.width = '20px';
+            dot.style.height = '20px';
+            dot.style.border = '3px solid #1a1a1a';
+            dot.style.boxShadow = '0 0 0 3px white, 0 4px 12px rgba(0,0,0,0.3)';
+            dot.style.transform = 'scale(1)';
+          } else {
+            dot.style.width = '14px';
+            dot.style.height = '14px';
+            dot.style.border = '2px solid white';
+            dot.style.boxShadow = '0 2px 4px rgba(0,0,0,0.2)';
+            dot.style.transform = 'scale(1)';
+          }
         });
       }
       
+      function selectBuilding(id) {
+        // Remove old popup first to prevent close handler from resetting selection
+        if (activePopup) {
+          activePopup.off('close', onPopupClose);
+          activePopup.remove();
+          activePopup = null;
+        }
+        
+        selectedBuilding = id;
+        selectedParcel = null; // Deselect parcel
+        
+        const building = buildings.find(b => b.id === id);
+        if (building) {
+          showPopup(building);
+        }
+        
+        updateMarkerStyles();
+        updateParcelStyles();
+        updateUrlParams();
+      }
+      
+      function selectParcel(id) {
+        // Remove old popup first to prevent close handler from resetting selection
+        if (activePopup) {
+          activePopup.off('close', onPopupClose);
+          activePopup.remove();
+          activePopup = null;
+        }
+        
+        selectedParcel = id;
+        selectedBuilding = null; // Deselect building
+        
+        updateMarkerStyles();
+        updateParcelStyles();
+        updateUrlParams();
+      }
+      
+      function updateParcelStyles() {
+        if (!map.getLayer('parcels-fill')) return;
+        
+        if (selectedParcel) {
+          map.setPaintProperty('parcels-fill', 'fill-opacity', [
+            'case',
+            ['==', ['get', 'id'], selectedParcel], 0.4,
+            0.15
+          ]);
+          map.setPaintProperty('parcels-outline', 'line-width', [
+            'case',
+            ['==', ['get', 'id'], selectedParcel], 4,
+            2
+          ]);
+        } else {
+          map.setPaintProperty('parcels-fill', 'fill-opacity', 0.15);
+          map.setPaintProperty('parcels-outline', 'line-width', 2);
+        }
+      }
+      
+      // Clear selection when popup is closed
+      function onPopupClose() {
+        selectedBuilding = null;
+        selectedParcel = null;
+        updateMarkerStyles();
+        updateParcelStyles();
+        updateUrlParams();
+      }
+      
       function showPopup(building) {
-        if (activePopup) activePopup.remove();
+        if (activePopup) {
+          activePopup.off('close', onPopupClose);
+          activePopup.remove();
+        }
         
         activePopup = new mapboxgl.Popup({ offset: 15 })
           .setLngLat([building.lon, building.lat])
           .setHTML(`
             <div class="popup-title">${building.name}</div>
-            <div class="popup-coords">${building.lat.toFixed(4)}, ${building.lon.toFixed(4)}</div>
+            <div class="popup-coords">EGID: ${building.egid || '–'}</div>
+            <div class="popup-coords">${building.lat.toFixed(5)}, ${building.lon.toFixed(5)}</div>
           `)
           .addTo(map);
-      }
-      
-      function highlightListItem(id) {
-        buildingList.querySelectorAll('.building-item').forEach(item => {
-          item.classList.toggle('active', parseInt(item.dataset.id) === id);
-        });
+        
+        activePopup.on('close', onPopupClose);
       }
       
       function flyToBuilding(id) {
@@ -472,7 +928,6 @@
         });
         
         showPopup(building);
-        highlightListItem(id);
       }
       
       function fitBoundsToBuildings() {
@@ -481,25 +936,295 @@
         const bounds = new mapboxgl.LngLatBounds();
         buildings.forEach(b => bounds.extend([b.lon, b.lat]));
         
+        // Store for home button
+        initialBounds = bounds;
+        
         map.fitBounds(bounds, { 
           padding: 80,
-          maxZoom: 12,
+          maxZoom: 16,
           duration: 1000
         });
+      }
+      
+      function goHome() {
+        if (initialBounds) {
+          map.fitBounds(initialBounds, {
+            padding: 80,
+            maxZoom: 16,
+            duration: 1000
+          });
+        }
       }
       
       // ============================================
       // Initialize
       // ============================================
+      const urlParams = getUrlParams();
+      
+      // Apply URL params for initial selection
+      if (urlParams.building) selectedBuilding = urlParams.building;
+      if (urlParams.parcel) selectedParcel = urlParams.parcel;
+      
+      // Set initial view from URL if provided
+      if (urlParams.zoom && urlParams.lon && urlParams.lat) {
+        map.setCenter([urlParams.lon, urlParams.lat]);
+        map.setZoom(urlParams.zoom);
+      }
+      
       map.on('load', async () => {
         await fetchBuildings();
         await fetchParcels();
-        updateStatus('connected', `${buildings.length} buildings, ${parcels.length} parcels`);
-        renderBuildingList();
         addParcelsLayer();
         addMarkers();
-        fitBoundsToBuildings();
+        
+        // If no URL params, fit to buildings
+        if (!urlParams.zoom) {
+          fitBoundsToBuildings();
+        }
+        
+        // Show popup for selected item
+        if (selectedBuilding) {
+          const building = buildings.find(b => b.id === selectedBuilding);
+          if (building) showPopup(building);
+          updateParcelStyles();
+        }
+        if (selectedParcel) {
+          updateParcelStyles();
+        }
+        
         loadingOverlay.classList.add('hidden');
+      });
+      
+      // Update URL on map move
+      map.on('moveend', updateUrlParams);
+      
+      // ============================================
+      // Home Button
+      // ============================================
+      const homeButton = document.getElementById('homeButton');
+      homeButton.addEventListener('click', goHome);
+      
+      // ============================================
+      // Basemap Selector
+      // ============================================
+      const basemapSelector = document.getElementById('basemapSelector');
+      const basemapToggle = document.getElementById('basemapToggle');
+      const basemapOptions = document.querySelectorAll('.basemap-option');
+      
+      // Toggle expand/collapse
+      basemapToggle.addEventListener('click', () => {
+        basemapSelector.classList.toggle('expanded');
+      });
+      
+      // Close when clicking outside
+      document.addEventListener('click', (e) => {
+        if (!basemapSelector.contains(e.target)) {
+          basemapSelector.classList.remove('expanded');
+        }
+      });
+      
+      basemapOptions.forEach(option => {
+        option.addEventListener('click', () => {
+          const style = option.dataset.style;
+          const styleClass = option.classList[1]; // light, streets, outdoors, satellite
+          
+          // Update active state
+          basemapOptions.forEach(o => o.classList.remove('active'));
+          option.classList.add('active');
+          
+          // Update toggle appearance
+          basemapToggle.className = 'basemap-toggle ' + styleClass;
+          
+          // Collapse selector
+          basemapSelector.classList.remove('expanded');
+          
+          // Change map style
+          map.setStyle(`mapbox://styles/mapbox/${style}`);
+        });
+      });
+      
+      // Re-add layers after style change
+      map.on('style.load', () => {
+        // Only re-add if we have data
+        if (parcels.length > 0 && !map.getSource('parcels')) {
+          addParcelsLayer();
+        }
+      });
+      
+      // ============================================
+      // Swisstopo Search
+      // ============================================
+      const searchInput = document.getElementById('searchInput');
+      const searchClear = document.getElementById('searchClear');
+      const searchDropdown = document.getElementById('searchDropdown');
+      const locationsSection = document.getElementById('locationsSection');
+      const locationsResults = document.getElementById('locationsResults');
+      const layersSection = document.getElementById('layersSection');
+      const layersResults = document.getElementById('layersResults');
+      const searchInputWrapper = searchInput.parentElement;
+      
+      let searchMarker = null;
+      let searchDebounceTimer = null;
+      
+      // Debounced search
+      function debounce(fn, delay) {
+        return (...args) => {
+          clearTimeout(searchDebounceTimer);
+          searchDebounceTimer = setTimeout(() => fn(...args), delay);
+        };
+      }
+      
+      // Search API call
+      async function searchSwisstopo(query) {
+        if (!query || query.length < 2) {
+          closeSearchDropdown();
+          return;
+        }
+        
+        try {
+          const url = `https://api3.geo.admin.ch/rest/services/ech/SearchServer?searchText=${encodeURIComponent(query)}&type=locations&type=layers&lang=de&sr=4326`;
+          const response = await fetch(url);
+          const data = await response.json();
+          
+          displaySearchResults(data.results, query);
+        } catch (err) {
+          console.error('Search error:', err);
+        }
+      }
+      
+      // Highlight matching text
+      function highlightMatch(text, query) {
+        if (!text) return '';
+        const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+        return text.replace(regex, '<mark>$1</mark>');
+      }
+      
+      // Display results
+      function displaySearchResults(results, query) {
+        const locations = results.filter(r => r.attrs.origin === 'address' || r.attrs.origin === 'zipcode' || r.attrs.origin === 'sn25' || r.attrs.origin === 'gg25' || r.attrs.origin === 'district' || r.attrs.origin === 'canton' || r.attrs.origin === 'gazetteer');
+        const layers = results.filter(r => r.attrs.origin === 'layer');
+        
+        // Clear previous results
+        locationsResults.innerHTML = '';
+        layersResults.innerHTML = '';
+        
+        // Locations
+        if (locations.length > 0) {
+          locationsSection.classList.add('has-results');
+          locations.slice(0, 10).forEach(loc => {
+            const item = document.createElement('div');
+            item.className = 'search-result-item';
+            item.innerHTML = highlightMatch(loc.attrs.label.replace(/<[^>]*>/g, ''), query);
+            item.addEventListener('click', () => {
+              goToLocation(loc);
+            });
+            locationsResults.appendChild(item);
+          });
+        } else {
+          locationsSection.classList.remove('has-results');
+        }
+        
+        // Layers (disabled for now)
+        if (layers.length > 0) {
+          layersSection.classList.add('has-results');
+          layers.slice(0, 10).forEach(layer => {
+            const item = document.createElement('div');
+            item.className = 'search-result-item disabled';
+            item.innerHTML = highlightMatch(layer.attrs.label.replace(/<[^>]*>/g, ''), query);
+            layersResults.appendChild(item);
+          });
+        } else {
+          layersSection.classList.remove('has-results');
+        }
+        
+        // Show dropdown if we have results
+        if (locations.length > 0 || layers.length > 0) {
+          searchDropdown.classList.add('open');
+        } else {
+          closeSearchDropdown();
+        }
+      }
+      
+      // Go to location
+      function goToLocation(loc) {
+        // With sr=4326, y=lat, x=lon in WGS84
+        const lon = loc.attrs.x;
+        const lat = loc.attrs.y;
+        
+        // Remove existing search marker
+        if (searchMarker) {
+          searchMarker.remove();
+        }
+        
+        // Create new search marker (different style from building markers)
+        const el = document.createElement('div');
+        el.innerHTML = `
+          <svg width="32" height="40" viewBox="0 0 32 40" fill="none">
+            <path d="M16 0C7.163 0 0 7.163 0 16c0 12 16 24 16 24s16-12 16-24c0-8.837-7.163-16-16-16z" fill="#d32f2f"/>
+            <circle cx="16" cy="16" r="6" fill="white"/>
+          </svg>
+        `;
+        el.style.cssText = 'cursor: pointer; transform: translate(-50%, -100%);';
+        
+        searchMarker = new mapboxgl.Marker({ element: el })
+          .setLngLat([lon, lat])
+          .addTo(map);
+        
+        // Fly to location
+        map.flyTo({
+          center: [lon, lat],
+          zoom: 17,
+          duration: 1500
+        });
+        
+        closeSearchDropdown();
+      }
+      
+      function closeSearchDropdown() {
+        searchDropdown.classList.remove('open');
+      }
+      
+      // Input handlers
+      const debouncedSearch = debounce(searchSwisstopo, 300);
+      
+      searchInput.addEventListener('input', (e) => {
+        const value = e.target.value.trim();
+        
+        if (value) {
+          searchInputWrapper.classList.add('has-value');
+        } else {
+          searchInputWrapper.classList.remove('has-value');
+        }
+        
+        debouncedSearch(value);
+      });
+      
+      searchInput.addEventListener('focus', () => {
+        if (searchInput.value.trim().length >= 2) {
+          debouncedSearch(searchInput.value.trim());
+        }
+      });
+      
+      searchClear.addEventListener('click', () => {
+        searchInput.value = '';
+        searchInputWrapper.classList.remove('has-value');
+        closeSearchDropdown();
+        searchInput.focus();
+      });
+      
+      // Close dropdown on outside click
+      document.addEventListener('click', (e) => {
+        if (!e.target.closest('.search-container')) {
+          closeSearchDropdown();
+        }
+      });
+      
+      // Close on escape
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          closeSearchDropdown();
+          searchInput.blur();
+        }
       });
     }
   </script>
