@@ -398,6 +398,14 @@
       height: 18px;
       color: #333;
     }
+
+    /* Cluster count label */
+    .cluster-count {
+      color: white;
+      font-weight: 600;
+      font-size: 12px;
+      font-family: var(--font-main);
+    }
   </style>
 </head>
 <body>
@@ -489,7 +497,6 @@
       // ============================================
       let buildings = [];
       let parcels = [];
-      let markers = [];
       let activePopup = null;
       
       // ============================================
@@ -748,89 +755,158 @@
         });
       }
       
-      function addMarkers() {
-        // Clear existing markers
-        markers.forEach(m => m.marker.remove());
-        markers = [];
-        
-        buildings.forEach(b => {
-          // Create custom marker element
-          const el = document.createElement('div');
-          el.style.cssText = `
-            width: 24px;
-            height: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-          `;
-          
-          const dot = document.createElement('div');
-          dot.className = 'marker-dot';
-          dot.dataset.buildingId = b.id;
-          dot.style.cssText = `
-            width: 14px;
-            height: 14px;
-            background: #d32f2f;
-            border: 2px solid white;
-            border-radius: 50%;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-            transition: transform 0.15s ease, box-shadow 0.15s ease, width 0.15s ease, height 0.15s ease;
-          `;
-          el.appendChild(dot);
-          
-          el.addEventListener('mouseenter', () => {
-            if (selectedBuilding !== b.id) {
-              dot.style.transform = 'scale(1.3)';
-              dot.style.boxShadow = '0 3px 8px rgba(0,0,0,0.3)';
+      function addBuildingsLayer() {
+        if (buildings.length === 0) return;
+
+        // Convert buildings to GeoJSON FeatureCollection
+        const geojson = {
+          type: 'FeatureCollection',
+          features: buildings.map(b => ({
+            type: 'Feature',
+            properties: {
+              id: b.id,
+              name: b.name,
+              egid: b.egid
+            },
+            geometry: {
+              type: 'Point',
+              coordinates: [b.lon, b.lat]
             }
-          });
-          el.addEventListener('mouseleave', () => {
-            if (selectedBuilding !== b.id) {
-              dot.style.transform = 'scale(1)';
-              dot.style.boxShadow = '0 2px 4px rgba(0,0,0,0.2)';
-            }
-          });
-          
-          const marker = new mapboxgl.Marker(el)
-            .setLngLat([b.lon, b.lat])
-            .addTo(map);
-          
-          // Add click handler for popup
-          el.addEventListener('click', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            markerClickHandled = true;
-            selectBuilding(b.id);
-            // Reset flag after a short delay
-            setTimeout(() => { markerClickHandled = false; }, 100);
-          });
-          
-          markers.push({ marker, dot, building: b });
+          }))
+        };
+
+        // Add clustered source
+        map.addSource('buildings', {
+          type: 'geojson',
+          data: geojson,
+          cluster: true,
+          clusterMaxZoom: 14,  // Max zoom to cluster points
+          clusterRadius: 50    // Radius of each cluster in pixels
         });
-        
-        // Apply initial selection if set
-        if (selectedBuilding) {
-          updateMarkerStyles();
-        }
-      }
-      
-      function updateMarkerStyles() {
-        markers.forEach(({ dot, building }) => {
-          if (building.id === selectedBuilding) {
-            dot.style.width = '20px';
-            dot.style.height = '20px';
-            dot.style.border = '3px solid #1a1a1a';
-            dot.style.boxShadow = '0 0 0 3px white, 0 4px 12px rgba(0,0,0,0.3)';
-            dot.style.transform = 'scale(1)';
-          } else {
-            dot.style.width = '14px';
-            dot.style.height = '14px';
-            dot.style.border = '2px solid white';
-            dot.style.boxShadow = '0 2px 4px rgba(0,0,0,0.2)';
-            dot.style.transform = 'scale(1)';
+
+        // Add cluster circle layer
+        map.addLayer({
+          id: 'clusters',
+          type: 'circle',
+          source: 'buildings',
+          filter: ['has', 'point_count'],
+          paint: {
+            // Size based on point count
+            'circle-radius': [
+              'step',
+              ['get', 'point_count'],
+              18,    // 18px for count < 10
+              10, 22, // 22px for count >= 10
+              50, 28, // 28px for count >= 50
+              100, 34 // 34px for count >= 100
+            ],
+            'circle-color': '#d32f2f',
+            'circle-stroke-width': 3,
+            'circle-stroke-color': 'white'
           }
         });
+
+        // Add cluster count text layer
+        map.addLayer({
+          id: 'cluster-count',
+          type: 'symbol',
+          source: 'buildings',
+          filter: ['has', 'point_count'],
+          layout: {
+            'text-field': ['get', 'point_count_abbreviated'],
+            'text-font': ['DIN Pro Medium', 'Arial Unicode MS Bold'],
+            'text-size': 13
+          },
+          paint: {
+            'text-color': 'white'
+          }
+        });
+
+        // Add unclustered point layer (individual buildings)
+        map.addLayer({
+          id: 'unclustered-point',
+          type: 'circle',
+          source: 'buildings',
+          filter: ['!', ['has', 'point_count']],
+          paint: {
+            'circle-radius': [
+              'case',
+              ['==', ['get', 'id'], selectedBuilding || -1], 10,
+              7
+            ],
+            'circle-color': '#d32f2f',
+            'circle-stroke-width': [
+              'case',
+              ['==', ['get', 'id'], selectedBuilding || -1], 3,
+              2
+            ],
+            'circle-stroke-color': [
+              'case',
+              ['==', ['get', 'id'], selectedBuilding || -1], '#1a1a1a',
+              'white'
+            ]
+          }
+        });
+
+        // Cluster click handler - zoom in
+        map.on('click', 'clusters', (e) => {
+          const features = map.queryRenderedFeatures(e.point, { layers: ['clusters'] });
+          const clusterId = features[0].properties.cluster_id;
+
+          map.getSource('buildings').getClusterExpansionZoom(clusterId, (err, zoom) => {
+            if (err) return;
+
+            map.easeTo({
+              center: features[0].geometry.coordinates,
+              zoom: zoom
+            });
+          });
+        });
+
+        // Unclustered point click handler - show popup
+        map.on('click', 'unclustered-point', (e) => {
+          markerClickHandled = true;
+          const props = e.features[0].properties;
+          selectBuilding(props.id);
+          setTimeout(() => { markerClickHandled = false; }, 100);
+        });
+
+        // Hover effects
+        map.on('mouseenter', 'clusters', () => {
+          map.getCanvas().style.cursor = 'pointer';
+        });
+
+        map.on('mouseleave', 'clusters', () => {
+          map.getCanvas().style.cursor = '';
+        });
+
+        map.on('mouseenter', 'unclustered-point', () => {
+          map.getCanvas().style.cursor = 'pointer';
+        });
+
+        map.on('mouseleave', 'unclustered-point', () => {
+          map.getCanvas().style.cursor = '';
+        });
+      }
+
+      function updateBuildingStyles() {
+        if (!map.getLayer('unclustered-point')) return;
+
+        map.setPaintProperty('unclustered-point', 'circle-radius', [
+          'case',
+          ['==', ['get', 'id'], selectedBuilding || -1], 10,
+          7
+        ]);
+        map.setPaintProperty('unclustered-point', 'circle-stroke-width', [
+          'case',
+          ['==', ['get', 'id'], selectedBuilding || -1], 3,
+          2
+        ]);
+        map.setPaintProperty('unclustered-point', 'circle-stroke-color', [
+          'case',
+          ['==', ['get', 'id'], selectedBuilding || -1], '#1a1a1a',
+          'white'
+        ]);
       }
       
       function selectBuilding(id) {
@@ -848,8 +924,8 @@
         if (building) {
           showPopup(building);
         }
-        
-        updateMarkerStyles();
+
+        updateBuildingStyles();
         updateParcelStyles();
         updateUrlParams();
       }
@@ -864,8 +940,8 @@
         
         selectedParcel = id;
         selectedBuilding = null; // Deselect building
-        
-        updateMarkerStyles();
+
+        updateBuildingStyles();
         updateParcelStyles();
         updateUrlParams();
       }
@@ -894,7 +970,7 @@
       function onPopupClose() {
         selectedBuilding = null;
         selectedParcel = null;
-        updateMarkerStyles();
+        updateBuildingStyles();
         updateParcelStyles();
         updateUrlParams();
       }
@@ -975,7 +1051,7 @@
         await fetchBuildings();
         await fetchParcels();
         addParcelsLayer();
-        addMarkers();
+        addBuildingsLayer();
         
         // If no URL params, fit to buildings
         if (!urlParams.zoom) {
@@ -1045,9 +1121,13 @@
       
       // Re-add layers after style change
       map.on('style.load', () => {
-        // Only re-add if we have data
+        // Re-add parcels layer if we have data
         if (parcels.length > 0 && !map.getSource('parcels')) {
           addParcelsLayer();
+        }
+        // Re-add buildings layer if we have data
+        if (buildings.length > 0 && !map.getSource('buildings')) {
+          addBuildingsLayer();
         }
       });
       
