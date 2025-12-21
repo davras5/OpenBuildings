@@ -123,6 +123,10 @@ Primary entity representing individual buildings.
 | Column | Type | Constraints | Source | Description |
 |--------|------|-------------|--------|-------------|
 | `area_footprint_m2` | `numeric` | | AV | Gebäudegrundfläche GGF |
+| `area_floor_total_m2` | `numeric` | | Derived | Geschossfläche GF total |
+| `area_floor_above_ground_m2` | `numeric` | | Derived | GF oberirdisch |
+| `area_floor_below_ground_m2` | `numeric` | | Derived | GF unterirdisch |
+| `area_floor_net_m2` | `numeric` | | Derived | Netto-Geschossfläche NGF |
 | `area_ebf_m2` | `numeric` | | Derived | Energiebezugsfläche EBF (SIA 380) |
 | `area_accuracy` | `text` | | Derived | Accuracy and source of area data |
 
