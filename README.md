@@ -3,8 +3,8 @@
 Calculate building volumes in cubic meters using publicly available Swiss geodata. This tool combines building footprints from the Swiss official cadastral survey (Amtliche Vermessung) with height data from swissALTI3D (terrain) and swissSURFACE3D (surface) models.
 
 **Two implementations are available:**
-- **Python script** (`main.py`) - Standalone command-line tool
-- **FME Workbench** (`swissALTI3D Volumen.fmw`) - Visual workflow for FME users
+- **Python script** (`src/main.py`) - Standalone command-line tool
+- **FME Workbench** (`fme/swissALTI3D Volumen.fmw`) - Visual workflow for FME users
 
 ## Overview
 
@@ -16,11 +16,11 @@ This tool:
 - Calculates volume as: `Σ(roof_height - base_height) × 1m²`
 
  <p align="center">
-  <img src="https://github.com/davras5/swissALTI3D-Volumen/blob/main/Preview_2.PNG" width="45%" /> 
-  <img src="https://github.com/davras5/swissALTI3D-Volumen/blob/main/Preview_3.PNG" width="45%" />
+  <img src="https://github.com/davras5/swissALTI3D-Volumen/blob/main/images/Preview_2.PNG" width="45%" />
+  <img src="https://github.com/davras5/swissALTI3D-Volumen/blob/main/images/Preview_3.PNG" width="45%" />
 </p>
  <p align="center">
-  <img src="https://github.com/davras5/swissALTI3D-Volumen/blob/main/Preview_4.PNG" /> 
+  <img src="https://github.com/davras5/swissALTI3D-Volumen/blob/main/images/Preview_4.PNG" />
 </p>
 
 ## Requirements
@@ -61,8 +61,10 @@ pip install geopandas rasterio numpy pandas shapely fiona
 3. Download required geodata and organize as follows:
 ```
 swissALTI3D-Volumen/
-├── main.py
-├── Python Usage Examples.txt
+├── src/
+│   └── main.py
+├── docs/
+│   └── python-usage-examples.txt
 ├── data/
 │   ├── av_2056.gpkg
 │   ├── alti3d/
@@ -77,35 +79,35 @@ swissALTI3D-Volumen/
 
 ### FME Version
 
-1. Open `swissALTI3D Volumen.fmw` in FME Desktop (2020 or newer recommended)
+1. Open `fme/swissALTI3D Volumen.fmw` in FME Desktop (2020 or newer recommended)
 2. Configure the source data readers to point to your geodata
 3. Run the workbench
 
 ## Usage (Python)
 
-See `Python Usage Examples.txt` for quick reference examples.
+See `docs/python-usage-examples.txt` for quick reference examples.
 
 ### Basic Usage
 ```bash
-python main.py data/av_2056.gpkg data/alti3d data/surface3d
+python src/main.py data/av_2056.gpkg data/alti3d data/surface3d
 ```
 
 ### Command Line Options
 ```bash
 # Process limited number of buildings for testing
-python main.py data/av_2056.gpkg data/alti3d data/surface3d --limit 10
+python src/main.py data/av_2056.gpkg data/alti3d data/surface3d --limit 10
 
 # Process specific area (Swiss LV95 coordinates)
-python main.py data/av_2056.gpkg data/alti3d data/surface3d \
+python src/main.py data/av_2056.gpkg data/alti3d data/surface3d \
     --bbox 2680000 1235000 2681000 1236000
 
 # Custom output files
-python main.py data/av_2056.gpkg data/alti3d data/surface3d \
+python src/main.py data/av_2056.gpkg data/alti3d data/surface3d \
     -o results.csv \
     -g buildings_with_volumes.gpkg
 
 # Combine options
-python main.py data/av_2056.gpkg data/alti3d data/surface3d \
+python src/main.py data/av_2056.gpkg data/alti3d data/surface3d \
     --limit 100 \
     --bbox 2680000 1235000 2681000 1236000 \
     -o test_results.csv
