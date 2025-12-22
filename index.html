@@ -1607,6 +1607,34 @@
             }
           });
         }
+
+        // Add 3D buildings layer
+        if (!map.getLayer('3d-buildings')) {
+          // Find the first symbol layer to insert before it
+          const layers = map.getStyle().layers;
+          let labelLayerId;
+          for (let i = 0; i < layers.length; i++) {
+            if (layers[i].type === 'symbol' && layers[i].layout['text-field']) {
+              labelLayerId = layers[i].id;
+              break;
+            }
+          }
+
+          map.addLayer({
+            id: '3d-buildings',
+            source: 'composite',
+            'source-layer': 'building',
+            filter: ['==', 'extrude', 'true'],
+            type: 'fill-extrusion',
+            minzoom: 14,
+            paint: {
+              'fill-extrusion-color': '#ddd',
+              'fill-extrusion-height': ['get', 'height'],
+              'fill-extrusion-base': ['get', 'min_height'],
+              'fill-extrusion-opacity': 0.7
+            }
+          }, labelLayerId);
+        }
       }
 
       function remove3DTerrain() {
@@ -1616,6 +1644,11 @@
         // Remove sky layer
         if (map.getLayer('sky')) {
           map.removeLayer('sky');
+        }
+
+        // Remove 3D buildings layer
+        if (map.getLayer('3d-buildings')) {
+          map.removeLayer('3d-buildings');
         }
       }
 
