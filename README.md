@@ -10,6 +10,8 @@
 
 ## What It Is
 
+Live Demo: https://davras5.github.io/OpenBuildings/
+
 A building data foundation you can see, use, and learn from.
 
 We've done the work most organizations struggle to even scope: defined what data matters, found the best open sources, connected them into a coherent whole.
