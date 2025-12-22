@@ -1,6 +1,6 @@
 # OpenBuildings.ch
 
-**Swiss building data. Public by law. Operational in practice.**
+**Swiss building data. Open by default. Open in practice.**
 
 ![image](/images/style/1.jpg)
 
