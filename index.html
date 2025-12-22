@@ -1390,7 +1390,7 @@
         try {
           const { data, error } = await db
             .from('landcover')
-            .select('id, egid')
+            .select('id, type, area_m2')
             .eq('id', id)
             .single();
 
@@ -1446,12 +1446,12 @@
 
       // Show building panel with details
       function showBuildingPanel(building) {
-        panelBuildingName.textContent = building.name || 'Unknown Building';
+        // Title: name → egid → #id
+        const title = building.name || building.egid || `#${building.id}`;
+        panelBuildingName.textContent = title;
+        panelBuildingLocation.textContent = 'Building';
 
         const hasCoords = building.lat != null && building.lon != null;
-        panelBuildingLocation.textContent = hasCoords
-          ? `${building.lat.toFixed(5)}, ${building.lon.toFixed(5)}`
-          : 'Location not available';
 
         // Build metrics HTML
         const metrics = [
@@ -1474,8 +1474,10 @@
 
       // Show parcel panel with details
       function showParcelPanel(parcel) {
-        panelBuildingName.textContent = parcel.name || 'Parcel';
-        panelBuildingLocation.textContent = 'Land parcel';
+        // Title: egrid → #id
+        const title = parcel.egrid || `#${parcel.id}`;
+        panelBuildingName.textContent = title;
+        panelBuildingLocation.textContent = 'Parcel';
 
         // Build metrics HTML
         const metrics = [
@@ -1498,16 +1500,58 @@
         buildingPanel.classList.add('open');
       }
 
+      // Format landcover type for display (e.g., 'road_path' → 'Road/Path')
+      function formatLandcoverType(type) {
+        if (!type) return 'Unknown';
+
+        const typeLabels = {
+          'building': 'Building',
+          'hardened_area': 'Hardened Area',
+          'greenhouse': 'Greenhouse',
+          'perennial_culture_shelter': 'Perennial Culture Shelter',
+          'reservoir': 'Reservoir',
+          'other_hardened': 'Other Hardened',
+          'railway': 'Railway',
+          'road_path': 'Road/Path',
+          'field_meadow_pasture': 'Field/Meadow/Pasture',
+          'vineyard': 'Vineyard',
+          'other_intensive_culture': 'Other Intensive Culture',
+          'garden': 'Garden',
+          'moor': 'Moor',
+          'other_humusised': 'Other Humusised',
+          'standing_water': 'Standing Water',
+          'flowing_water': 'Flowing Water',
+          'reed_belt': 'Reed Belt',
+          'closed_forest': 'Closed Forest',
+          'dense_wooded_pasture': 'Dense Wooded Pasture',
+          'open_wooded_pasture': 'Open Wooded Pasture',
+          'other_wooded': 'Other Wooded',
+          'rock': 'Rock',
+          'glacier_firn': 'Glacier/Firn',
+          'gravel_sand': 'Gravel/Sand',
+          'quarry_dump': 'Quarry/Dump',
+          'other_unvegetated': 'Other Unvegetated'
+        };
+
+        return typeLabels[type] || type.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+      }
+
       // Show landcover panel with details
       function showLandcoverPanel(landcover) {
-        panelBuildingName.textContent = 'Landcover';
-        panelBuildingLocation.textContent = 'Land usage zone';
+        // Title: formatted type → #id
+        const title = formatLandcoverType(landcover.type) || `#${landcover.id}`;
+        panelBuildingName.textContent = title;
+        panelBuildingLocation.textContent = 'Landcover';
 
         // Build metrics HTML
         const metrics = [
-          { label: 'ID', value: landcover.id || '–' },
-          { label: 'EGID', value: landcover.egid || '–' }
+          { label: 'ID', value: landcover.id || '–' }
         ];
+
+        // Add area if available
+        if (landcover.area_m2) {
+          metrics.push({ label: 'Area', value: `${landcover.area_m2.toLocaleString()} m²` });
+        }
 
         panelMetrics.innerHTML = metrics.map(m => `
           <div class="metric-row">
