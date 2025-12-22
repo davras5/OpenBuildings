@@ -16,8 +16,7 @@ OpenBuildings is a **shared foundation for Swiss building data**—curated, conn
 
 It brings together Switzerland’s most relevant public building datasets into a single, coherent reference layer that can be used for planning, reporting, analysis, and decision-making.
 
-This is not a one-off data project.  
-It is **data infrastructure**.
+This is not a one-off data project. It is **data infrastructure**.
 
 ---
 
