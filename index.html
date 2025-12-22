@@ -457,6 +457,102 @@
             }
         }
 
+        .hero-search {
+            max-width: 500px;
+            margin: var(--space-2xl) auto 0;
+        }
+
+        .hero-search-wrapper {
+            position: relative;
+        }
+
+        .hero-search-icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--slate-400);
+            pointer-events: none;
+        }
+
+        .hero-search-input {
+            width: 100%;
+            padding: 16px 16px 16px 48px;
+            font-size: 1rem;
+            font-family: var(--font-family);
+            border: 2px solid var(--slate-300);
+            border-radius: var(--radius-lg);
+            background-color: var(--white);
+            color: var(--slate-900);
+            transition: all 0.2s ease;
+        }
+
+        .hero-search-input:focus {
+            outline: none;
+            border-color: var(--ocean);
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+        }
+
+        .hero-search-input::placeholder {
+            color: var(--slate-400);
+        }
+
+        .hero-search-hint {
+            display: block;
+            margin-top: var(--space-sm);
+            font-size: 0.875rem;
+            color: var(--slate-400);
+            text-align: center;
+        }
+
+        .hero-search-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            margin-top: 4px;
+            background-color: var(--white);
+            border: 1px solid var(--slate-200);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-lg);
+            max-height: 300px;
+            overflow-y: auto;
+            display: none;
+            z-index: 50;
+            text-align: left;
+        }
+
+        .hero-search-results.active {
+            display: block;
+        }
+
+        .hero-search-result {
+            padding: 12px 16px;
+            cursor: pointer;
+            border-bottom: 1px solid var(--slate-100);
+            transition: background-color 0.15s ease;
+        }
+
+        .hero-search-result:last-child {
+            border-bottom: none;
+        }
+
+        .hero-search-result:hover {
+            background-color: var(--slate-100);
+        }
+
+        .hero-search-result-title {
+            font-weight: 500;
+            color: var(--slate-900);
+            font-size: 0.9rem;
+        }
+
+        .hero-search-result-subtitle {
+            font-size: 0.75rem;
+            color: var(--slate-500);
+            margin-top: 2px;
+        }
+
         /* ===== PROBLEM SECTION ===== */
         .problem {
             background-color: var(--deep-blue);
@@ -1376,6 +1472,15 @@
             <div class="hero-image">
                 <img src="images/style/1.jpg" alt="OpenBuildings.ch - Swiss building data visualization showing transition from traditional architecture to digital data infrastructure">
             </div>
+
+            <div class="hero-search">
+                <div class="hero-search-wrapper">
+                    <i data-lucide="search" class="hero-search-icon" style="width: 20px; height: 20px;"></i>
+                    <input type="text" id="heroSearch" class="hero-search-input" placeholder="Search any address in Switzerland..." autocomplete="off">
+                    <div class="hero-search-results" id="heroSearchResults"></div>
+                </div>
+                <span class="hero-search-hint">e.g. Bundesplatz 3, Bern</span>
+            </div>
         </div>
     </section>
 
@@ -1383,6 +1488,11 @@
     <section class="problem" id="challenge">
         <div class="container">
             <h2>The challenge we're solving</h2>
+
+            <div class="stat-highlight">
+                <div class="stat-number">~40%</div>
+                <div class="stat-label">of Switzerland's CO₂ emissions come from buildings</div>
+            </div>
 
             <div class="problem-grid">
                 <div class="problem-card">
@@ -1417,11 +1527,6 @@
                     <p>Without standardized methods, comparing results across communes, cantons, and portfolios becomes impossible—hindering effective policy-making.</p>
                 </div>
             </div>
-
-            <div class="stat-highlight">
-                <div class="stat-number">~40%</div>
-                <div class="stat-label">of Switzerland's CO₂ emissions come from buildings</div>
-            </div>
         </div>
     </section>
 
@@ -1439,7 +1544,7 @@
                         <i data-lucide="map-pin" style="width: 24px; height: 24px;"></i>
                     </div>
                     <h3>Explore</h3>
-                    <p>Interactive 2D/3D web map with terrain visualization. Search any address or EGID with autocomplete powered by Swisstopo.</p>
+                    <p>Interactive 2D/3D web map with terrain visualization. Search any address or EGID with autocomplete powered by swisstopo.</p>
                 </div>
 
                 <div class="feature-card">
@@ -1585,7 +1690,7 @@
                         </div>
                         <div>
                             <h4>Smart address search</h4>
-                            <p>Find any building by address, EGID, or place name with autocomplete powered by Swisstopo.</p>
+                            <p>Find any building by address, EGID, or place name with autocomplete powered by swisstopo.</p>
                         </div>
                     </div>
 
@@ -1612,15 +1717,10 @@
             </div>
 
             <div class="showcase-actions">
-                <div class="showcase-search">
-                    <div class="showcase-search-wrapper">
-                        <i data-lucide="search" class="showcase-search-icon" style="width: 20px; height: 20px;"></i>
-                        <input type="text" id="showcaseSearch" class="showcase-search-input" placeholder="Search any address in Switzerland..." autocomplete="off">
-                        <div class="showcase-search-results" id="showcaseSearchResults"></div>
-                    </div>
-                    <span class="showcase-search-hint">e.g. Bundesplatz 3, Bern</span>
-                </div>
-
+                <a href="app/" class="btn btn-primary btn-large">
+                    <i data-lucide="map" style="width: 20px; height: 20px;"></i>
+                    Explore the map
+                </a>
             </div>
         </div>
     </section>
@@ -1826,10 +1926,10 @@
     <script>
         lucide.createIcons();
 
-        // Showcase Search Functionality
+        // Hero Search Functionality
         (function() {
-            const searchInput = document.getElementById('showcaseSearch');
-            const searchResults = document.getElementById('showcaseSearchResults');
+            const searchInput = document.getElementById('heroSearch');
+            const searchResults = document.getElementById('heroSearchResults');
             let searchTimeout = null;
 
             async function searchLocations(query) {
@@ -1838,7 +1938,7 @@
                     return;
                 }
 
-                searchResults.innerHTML = '<div class="showcase-search-loading">Searching...</div>';
+                searchResults.innerHTML = '<div class="hero-search-loading">Searching...</div>';
                 searchResults.classList.add('active');
 
                 try {
@@ -1855,7 +1955,7 @@
                     ).slice(0, 8);
 
                     if (locations.length === 0) {
-                        searchResults.innerHTML = '<div class="showcase-search-loading">No results found</div>';
+                        searchResults.innerHTML = '<div class="hero-search-loading">No results found</div>';
                         return;
                     }
 
@@ -1863,18 +1963,18 @@
                         const label = loc.attrs.label.replace(/<[^>]*>/g, '');
                         const detail = loc.attrs.detail || '';
                         return `
-                            <div class="showcase-search-result"
+                            <div class="hero-search-result"
                                  data-lon="${loc.attrs.lon}"
                                  data-lat="${loc.attrs.lat}"
                                  data-label="${label}">
-                                <div class="showcase-search-result-title">${label}</div>
-                                ${detail ? `<div class="showcase-search-result-subtitle">${detail}</div>` : ''}
+                                <div class="hero-search-result-title">${label}</div>
+                                ${detail ? `<div class="hero-search-result-subtitle">${detail}</div>` : ''}
                             </div>
                         `;
                     }).join('');
 
                 } catch (err) {
-                    searchResults.innerHTML = '<div class="showcase-search-loading">Search error. Please try again.</div>';
+                    searchResults.innerHTML = '<div class="hero-search-loading">Search error. Please try again.</div>';
                 }
             }
 
@@ -1892,7 +1992,7 @@
             });
 
             searchResults.addEventListener('click', (e) => {
-                const result = e.target.closest('.showcase-search-result');
+                const result = e.target.closest('.hero-search-result');
                 if (result) {
                     const lon = result.dataset.lon;
                     const lat = result.dataset.lat;
@@ -1904,7 +2004,7 @@
 
             // Close results when clicking outside
             document.addEventListener('click', (e) => {
-                if (!e.target.closest('.showcase-search-wrapper')) {
+                if (!e.target.closest('.hero-search-wrapper')) {
                     searchResults.classList.remove('active');
                 }
             });
@@ -1912,7 +2012,7 @@
             // Handle keyboard navigation
             searchInput.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter') {
-                    const firstResult = searchResults.querySelector('.showcase-search-result');
+                    const firstResult = searchResults.querySelector('.hero-search-result');
                     if (firstResult) {
                         firstResult.click();
                     }
