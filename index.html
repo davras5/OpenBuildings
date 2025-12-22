@@ -90,12 +90,11 @@
     /* Search - Floating overlay style */
     .search-container {
       position: absolute;
-      top: calc(var(--space-sm) + 36px);
+      top: var(--space-md);
       left: var(--space-md);
       z-index: 25;
       width: calc(360px - var(--space-md) * 2);
       max-width: calc(100% - var(--space-md) * 2);
-      transition: left 0.3s ease, width 0.3s ease;
     }
 
     @media (max-width: 640px) {
@@ -273,7 +272,7 @@
       display: flex;
       flex-direction: column;
       overflow: hidden;
-      padding-top: 100px;
+      padding-top: 72px;
     }
 
     .building-panel.open {
@@ -657,8 +656,6 @@
     .map-header-scale {
       display: flex;
       align-items: center;
-      min-width: 80px;
-      justify-content: center;
     }
 
     /* Override Mapbox scale control styles */
@@ -770,10 +767,9 @@
       </div>
     </aside>
 
-    <!-- Map Header - coords, scale, links -->
+    <!-- Map Header - coords, links, scale -->
     <div class="map-header" id="mapHeader">
       <div class="map-header-coords" id="mouseCoords">–</div>
-      <div class="map-header-scale" id="scaleContainer"></div>
       <div class="map-header-links">
         <a href="https://github.com/davras5/OpenBuildings" target="_blank" rel="noopener">Quellencode</a>
         <span class="map-header-divider">·</span>
@@ -781,6 +777,7 @@
         <span class="map-header-divider">·</span>
         <a href="documentation/DATAMODEL.md" target="_blank" rel="noopener">Docs</a>
       </div>
+      <div class="map-header-scale" id="scaleContainer"></div>
     </div>
 
     <div class="loading-overlay" id="loadingOverlay">
