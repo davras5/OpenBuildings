@@ -521,98 +521,6 @@
             color: rgba(255, 255, 255, 0.9);
         }
 
-        /* ===== DATA SOURCES SECTION ===== */
-        .sources {
-            background-color: var(--white);
-        }
-
-        .sources-header {
-            text-align: center;
-            max-width: 700px;
-            margin: 0 auto var(--space-3xl);
-        }
-
-        .sources-header h2 {
-            margin-bottom: var(--space-md);
-        }
-
-        .sources-header p {
-            font-size: 1.125rem;
-            color: var(--slate-500);
-        }
-
-        .sources-grid {
-            display: grid;
-            gap: var(--space-lg);
-            grid-template-columns: repeat(2, 1fr);
-        }
-
-        @media (min-width: 768px) {
-            .sources-grid {
-                grid-template-columns: repeat(3, 1fr);
-            }
-        }
-
-        @media (min-width: 1024px) {
-            .sources-grid {
-                grid-template-columns: repeat(6, 1fr);
-            }
-        }
-
-        .source-card {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-            padding: var(--space-lg);
-            background-color: var(--slate-100);
-            border-radius: var(--radius-md);
-            transition: all 0.2s ease;
-            text-decoration: none;
-        }
-
-        .source-card:hover {
-            background-color: var(--slate-200);
-            transform: translateY(-2px);
-        }
-
-        .source-logo {
-            width: 64px;
-            height: 64px;
-            background-color: var(--white);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--deep-blue);
-            margin-bottom: var(--space-md);
-        }
-
-        .source-card h4 {
-            color: var(--slate-900);
-            font-size: 0.875rem;
-            margin-bottom: var(--space-xs);
-        }
-
-        .source-desc {
-            color: var(--slate-500);
-            font-size: 0.75rem;
-            margin-bottom: var(--space-xs);
-        }
-
-        .source-org {
-            color: var(--slate-400);
-            font-size: 0.7rem;
-            margin-bottom: 0;
-        }
-
-        .sources-note {
-            text-align: center;
-            color: var(--slate-500);
-            margin-top: var(--space-2xl);
-            font-size: 0.9rem;
-        }
-
         /* ===== SOLUTION SECTION ===== */
         .solution {
             background-color: var(--white);
@@ -1121,75 +1029,6 @@
             font-size: 0.9rem;
         }
 
-        /* ===== ACCESS SECTION ===== */
-        .access {
-            background-color: var(--slate-100);
-        }
-
-        .access-header {
-            text-align: center;
-            margin-bottom: var(--space-3xl);
-        }
-
-        .access-header h2 {
-            margin-bottom: 0;
-        }
-
-        .access-grid {
-            display: grid;
-            gap: var(--space-xl);
-        }
-
-        @media (min-width: 768px) {
-            .access-grid {
-                grid-template-columns: repeat(3, 1fr);
-            }
-        }
-
-        .access-card {
-            padding: var(--space-xl);
-            background-color: var(--white);
-            border-radius: var(--radius-md);
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .access-badge {
-            padding: 4px 12px;
-            border-radius: 999px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            margin-bottom: var(--space-md);
-        }
-
-        .access-badge.free {
-            background-color: var(--leaf);
-            color: var(--white);
-        }
-
-        .access-badge.contact {
-            background-color: var(--ocean);
-            color: var(--white);
-        }
-
-        .access-card h3 {
-            margin-bottom: var(--space-sm);
-        }
-
-        .access-card p {
-            color: var(--slate-500);
-            margin-bottom: var(--space-lg);
-            flex-grow: 1;
-        }
-
-        .access-card .btn {
-            width: 100%;
-        }
-
         /* ===== ABOUT SECTION ===== */
         .about {
             background-color: var(--white);
@@ -1273,47 +1112,87 @@
             margin-bottom: var(--space-md);
         }
 
-        .cta p {
+        .cta > .container > p {
             font-size: 1.125rem;
             color: rgba(255, 255, 255, 0.9);
             max-width: 600px;
-            margin: 0 auto var(--space-xl);
+            margin: 0 auto var(--space-2xl);
         }
 
-        .cta-buttons {
-            display: flex;
-            flex-direction: column;
-            gap: var(--space-md);
-            align-items: center;
+        .cta-cards {
+            display: grid;
+            gap: var(--space-xl);
         }
 
-        @media (min-width: 640px) {
-            .cta-buttons {
-                flex-direction: row;
-                justify-content: center;
+        @media (min-width: 768px) {
+            .cta-cards {
+                grid-template-columns: repeat(3, 1fr);
             }
         }
 
-        .cta .btn-primary {
+        .cta-card {
+            padding: var(--space-xl);
             background-color: var(--white);
-            color: var(--deep-blue);
+            border-radius: var(--radius-md);
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
-        .cta .btn-primary:hover {
+        .cta-badge {
+            padding: 4px 12px;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: var(--space-md);
+        }
+
+        .cta-badge.free {
+            background-color: var(--leaf);
+            color: var(--white);
+        }
+
+        .cta-badge.contact {
+            background-color: var(--ocean);
+            color: var(--white);
+        }
+
+        .cta-card h3 {
+            color: var(--slate-900);
+            margin-bottom: var(--space-sm);
+        }
+
+        .cta-card p {
+            color: var(--slate-500);
+            margin-bottom: var(--space-lg);
+            flex-grow: 1;
+        }
+
+        .cta-card .btn {
+            width: 100%;
+        }
+
+        .cta-card .btn-primary {
+            background-color: var(--ocean);
+            color: var(--white);
+        }
+
+        .cta-card .btn-primary:hover {
+            background-color: var(--deep-blue);
+        }
+
+        .cta-card .btn-secondary {
+            background-color: var(--white);
+            border-color: var(--slate-300);
+            color: var(--slate-700);
+        }
+
+        .cta-card .btn-secondary:hover {
             background-color: var(--slate-100);
-            color: var(--deep-blue);
-        }
-
-        .cta .btn-secondary {
-            background-color: transparent;
-            border-color: rgba(255, 255, 255, 0.3);
-            color: var(--white);
-        }
-
-        .cta .btn-secondary:hover {
-            background-color: rgba(255, 255, 255, 0.1);
-            border-color: rgba(255, 255, 255, 0.5);
-            color: var(--white);
+            border-color: var(--slate-400);
         }
 
         /* ===== FOOTER ===== */
@@ -1554,74 +1433,6 @@
                 <div class="stat-number">~40%</div>
                 <div class="stat-label">of Switzerland's CO₂ emissions come from buildings</div>
             </div>
-        </div>
-    </section>
-
-    <!-- Data Sources Section -->
-    <section class="sources">
-        <div class="container">
-            <div class="sources-header">
-                <h2>Built on Switzerland's authoritative data</h2>
-                <p>OpenBuildings integrates data from official Swiss sources—no scraping, no estimates, no black boxes.</p>
-            </div>
-
-            <div class="sources-grid">
-                <a href="https://www.housing-stat.ch/" target="_blank" class="source-card">
-                    <div class="source-logo">
-                        <i data-lucide="database" style="width: 32px; height: 32px;"></i>
-                    </div>
-                    <h4>GWR</h4>
-                    <p class="source-desc">Building & Housing Register</p>
-                    <p class="source-org">Federal Statistical Office (BFS)</p>
-                </a>
-
-                <a href="https://www.swisstopo.admin.ch/" target="_blank" class="source-card">
-                    <div class="source-logo">
-                        <i data-lucide="mountain" style="width: 32px; height: 32px;"></i>
-                    </div>
-                    <h4>swissALTI3D / swissSURFACE3D</h4>
-                    <p class="source-desc">Terrain & Surface Models (0.5m)</p>
-                    <p class="source-org">swisstopo</p>
-                </a>
-
-                <a href="https://geodienste.ch/" target="_blank" class="source-card">
-                    <div class="source-logo">
-                        <i data-lucide="map" style="width: 32px; height: 32px;"></i>
-                    </div>
-                    <h4>Amtliche Vermessung</h4>
-                    <p class="source-desc">Official Cadastral Survey</p>
-                    <p class="source-org">Cantonal Survey Offices</p>
-                </a>
-
-                <a href="https://www.are.admin.ch/" target="_blank" class="source-card">
-                    <div class="source-logo">
-                        <i data-lucide="layout-grid" style="width: 32px; height: 32px;"></i>
-                    </div>
-                    <h4>ARE Zoning</h4>
-                    <p class="source-desc">Land Use & Zoning Data</p>
-                    <p class="source-org">Federal Office for Spatial Development</p>
-                </a>
-
-                <a href="https://www.babs.admin.ch/de/aufgabenbabs/kgs/inventar.html" target="_blank" class="source-card">
-                    <div class="source-logo">
-                        <i data-lucide="landmark" style="width: 32px; height: 32px;"></i>
-                    </div>
-                    <h4>KGS Inventory</h4>
-                    <p class="source-desc">Heritage Protection Status</p>
-                    <p class="source-org">Federal Office for Civil Protection</p>
-                </a>
-
-                <a href="https://opendata.swiss/" target="_blank" class="source-card">
-                    <div class="source-logo">
-                        <i data-lucide="globe" style="width: 32px; height: 32px;"></i>
-                    </div>
-                    <h4>opendata.swiss</h4>
-                    <p class="source-desc">Swiss Open Government Data</p>
-                    <p class="source-org">Federal Administration</p>
-                </a>
-            </div>
-
-            <p class="sources-note">All sources are updated automatically. Methods are documented and reproducible.</p>
         </div>
     </section>
 
@@ -1913,47 +1724,6 @@
         </div>
     </section>
 
-    <!-- Access Section -->
-    <section class="access">
-        <div class="container">
-            <div class="access-header">
-                <h2>How to access</h2>
-            </div>
-
-            <div class="access-grid">
-                <div class="access-card">
-                    <div class="access-badge free">Free</div>
-                    <h3>Explore</h3>
-                    <p>Interactive map, building search, individual lookups. No registration required.</p>
-                    <a href="app/" class="btn btn-primary">
-                        Launch Map
-                        <i data-lucide="arrow-right" style="width: 16px; height: 16px;"></i>
-                    </a>
-                </div>
-
-                <div class="access-card">
-                    <div class="access-badge free">Free</div>
-                    <h3>Download</h3>
-                    <p>Sample datasets, documentation, processing tools. Everything on GitHub.</p>
-                    <a href="https://github.com/davras5/OpenBuildings" target="_blank" class="btn btn-secondary">
-                        <i data-lucide="github" style="width: 16px; height: 16px;"></i>
-                        View on GitHub
-                    </a>
-                </div>
-
-                <div class="access-card">
-                    <div class="access-badge contact">Contact</div>
-                    <h3>Institutional Access</h3>
-                    <p>Bulk data downloads, API access, custom processing for municipalities, cantons, and federal offices.</p>
-                    <a href="mailto:info@openbuildings.ch" class="btn btn-secondary">
-                        <i data-lucide="mail" style="width: 16px; height: 16px;"></i>
-                        Get in touch
-                    </a>
-                </div>
-            </div>
-        </div>
-    </section>
-
     <!-- About Section -->
     <section class="about" id="contact">
         <div class="container">
@@ -1993,19 +1763,36 @@
             <h2>Start using OpenBuildings today</h2>
             <p>Free for exploration. Open source. No registration required.</p>
 
-            <div class="cta-buttons">
-                <a href="app/" class="btn btn-primary btn-large">
-                    Explore the map
-                    <i data-lucide="arrow-right" style="width: 20px; height: 20px;"></i>
-                </a>
-                <a href="https://github.com/davras5/OpenBuildings" class="btn btn-secondary btn-large" target="_blank">
-                    <i data-lucide="github" style="width: 20px; height: 20px;"></i>
-                    View on GitHub
-                </a>
-                <a href="mailto:info@openbuildings.ch" class="btn btn-secondary btn-large">
-                    <i data-lucide="mail" style="width: 20px; height: 20px;"></i>
-                    Contact us
-                </a>
+            <div class="cta-cards">
+                <div class="cta-card">
+                    <div class="cta-badge free">Free</div>
+                    <h3>Explore</h3>
+                    <p>Interactive map, building search, individual lookups. No registration required.</p>
+                    <a href="app/" class="btn btn-primary">
+                        Launch Map
+                        <i data-lucide="arrow-right" style="width: 16px; height: 16px;"></i>
+                    </a>
+                </div>
+
+                <div class="cta-card">
+                    <div class="cta-badge free">Free</div>
+                    <h3>Download</h3>
+                    <p>Sample datasets, documentation, processing tools. Everything on GitHub.</p>
+                    <a href="https://github.com/davras5/OpenBuildings" target="_blank" class="btn btn-secondary">
+                        <i data-lucide="github" style="width: 16px; height: 16px;"></i>
+                        View on GitHub
+                    </a>
+                </div>
+
+                <div class="cta-card">
+                    <div class="cta-badge contact">Contact</div>
+                    <h3>Institutional Access</h3>
+                    <p>Bulk data downloads, API access, custom processing for municipalities, cantons, and federal offices.</p>
+                    <a href="mailto:info@openbuildings.ch" class="btn btn-secondary">
+                        <i data-lucide="mail" style="width: 16px; height: 16px;"></i>
+                        Get in touch
+                    </a>
+                </div>
             </div>
         </div>
     </section>
