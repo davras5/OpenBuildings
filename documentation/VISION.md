@@ -6,47 +6,45 @@
 
 ## What It Is
 
-A free platform to explore, understand, and download Swiss building data. No GIS skills required.
+A building data foundation you can see, use, and learn from.
 
-Enter any address. See the building's footprint, volume, year of construction. Compare it to neighbors. Download the data. Done.
+We've done the work most organizations struggle to even scope: defined what data matters, found the best open sources, connected them into a coherent whole.
+
+Curated. Connected. Maintained. Ready to plug into your planning, reporting, and decision-making.
 
 ---
 
 ## The Problem
 
-Switzerland has world-class open geodata. The GWR, the cadastral survey, swissALTI3D – it's all technically public.
+Everyone wants data-driven decisions. Few know what that requires.
 
-But "technically public" isn't the same as usable.
+Small organizations can't afford specialists to do the work. Large ones do it but keep it locked away – unpublished, unmaintained, forgotten.
 
-Today, if you want to answer a simple question – *What's the total building volume in my commune?* – you need GIS software, technical skills, and hours of work. The data is open. The barrier is expertise.
+Same outcome: no shared foundation. The same work, done a hundred times in isolation.
 
-This creates an invisible divide: specialists can access it, everyone else cannot.
+The workflow is the same whether it's 3,000 buildings or 3 million. But everyone stops at their own portfolio.
+
+We didn't.
 
 ---
 
 ## Why It Matters
 
-**For transparency:** Public data collected with public resources should be publicly understandable. Not just for those who can afford consultants or have technical training.
+Buildings account for 40% of Switzerland's CO₂ emissions. Every path to net zero runs through the building stock.
 
-**For climate:** Buildings account for ~40% of CO₂ emissions. Every path to net zero requires decarbonizing the building stock. But you can't decarbonize what you can't measure.
+But you can't decarbonize what you can't measure. And right now, most organizations are guessing – or paying someone to figure out what should already exist.
 
-Municipalities need to know what they have. Building owners need baselines. Planners need context. Today, that means spreadsheets, guesswork, or expensive consultants.
+A shared foundation changes that. Plan with real numbers. Report with confidence. Compare across portfolios, communes, cantons.
 
-Quality building data shouldn't be a luxury.
+One investment. Everyone benefits.
 
 ---
 
 ## How It Works
 
-We connect to authoritative Swiss sources:
+We select the best open sources. We connect them into something coherent. We maintain it over time.
 
-| Source | What It Provides |
-|--------|------------------|
-| **GWR** | Building and dwelling register – age, use, heating |
-| **Amtliche Vermessung** | Cadastral footprints |
-| **swissALTI3D** | Elevation model for volume calculation |
-
-We calculate meaningful metrics, normalize the formats, and present it simply.
+You get a foundation, not a data project.
 
 The result: decision-ready building information, accessible to anyone.
 
@@ -54,78 +52,45 @@ The result: decision-ready building information, accessible to anyone.
 
 ## Who It's For
 
-**Primary:** Small municipalities without GIS staff who need building stock overviews for planning and climate reporting.
-
-**Secondary:** Building owners, researchers, planners, journalists – anyone who needs to understand Swiss buildings without becoming a geodata specialist.
+Anyone who needs building data and doesn't want to start from scratch.
 
 ---
 
 ## Roadmap
 
-| Phase | Scope | Status |
-|-------|-------|--------|
-| **1. Volume** | Building volumes from swissALTI3D + cadastral footprints | In progress |
-| **2. Registry** | Integrate GWR data (age, use, dwellings) | Planned |
-| **3. Energy** | Heating systems, energy certificates, solar potential | Future |
-| **4. Expand** | Additional cantons, eventually national coverage | Future |
+Start where we are: Switzerland. The basics are there. Now we add insights.
+
+Topics will follow demand – carbon, market data, location. We stay small until we know what's actually useful.
+
+The problem isn't Swiss. We'll expand when the foundation is solid.
 
 ---
 
 ## Business Model
 
-The core platform is free. Forever.
+Free: Explore, search, download individual buildings. The foundation is open.
 
-| Layer | Access | What You Get |
-|-------|--------|--------------|
-| **Explore** | Free | Search any building, view key metrics, browse the map |
-| **Download** | Free | Individual building data, small exports |
-| **API** | Freemium | Programmatic access, rate-limited free tier |
-| **Bulk & Reports** | Paid | Municipal datasets, portfolio analysis, PDF reports |
+Paid: Bulk data, API access, portfolio reports. For organizations that need more and can afford to contribute.
 
-Premium revenue funds ongoing development. The open core stays open.
-
----
-
-## Why Switzerland First
-
-Switzerland offers the best open geodata infrastructure in the world:
-
-- Unified federal APIs (geo.admin.ch)
-- High-precision elevation models
-- Authoritative cadastral data
-- National building register
-
-It's the ideal proving ground. But the problem – open data that isn't truly accessible – exists everywhere.
-
----
-
-## What Exists Today
-
-| Option | The Gap |
-|--------|---------|
-| **geo.admin.ch** | Powerful but technical – requires GIS knowledge |
-| **swisstopo tools** | Raw data, not decision-ready information |
-| **Commercial providers** | Expensive, proprietary, not open |
-
-OpenBuildings.ch sits in the middle: accessible like a consumer product, open like public infrastructure.
+Revenue keeps the foundation maintained. The core stays open.
 
 ---
 
 ## Principles
 
-- **Open in practice, not just theory.** If you need GIS skills to use it, we've failed.
-- **Less data, more insight.** We curate what matters for decisions.
-- **Transparency by default.** Methodology, sources, limitations – all public.
-- **No lock-in.** Open source, standard formats, your data is yours.
+Open by default. If we figured it out, you don't have to. Methods, sources, flaws and limitations – all public.
+
+Quality over quantity. Good data beats more data. Focus, don't get lost.
+
+Interoperable and stable. Technology changes every few years. Buildings last centuries. We follow national and international standards so the architecture outlives the tools.
 
 ---
 
 ## Success Metrics (12 months)
 
-- Buildings indexed: 1M+
-- Monthly active users: 1,000+
-- Cantonal coverage: 5+
-- Municipal users: 10+
+Does it work? Are people using it? Is it sustainable?
+
+That's it. Numbers follow.
 
 ---
 
@@ -133,9 +98,9 @@ OpenBuildings.ch sits in the middle: accessible like a consumer product, open li
 
 This is an open project.
 
-- **Repository:** [github.com/davras5/swissALTI3D-Volumen](https://github.com/davras5/swissALTI3D-Volumen)
-- **Documentation:** Public
-- **Contributions:** Welcome – code, data, feedback
+Use it. Tell us what's broken. Help make it better.
+
+github.com/openbuildings-ch
 
 ---
 
