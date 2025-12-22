@@ -823,6 +823,10 @@
     const SUPABASE_URL = 'https://awnypgafushbsvqlsjyg.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable_PdbeSmuL6XQEaXyaKqhOYQ_fpzIByJQ';
     const MAPBOX_TOKEN = 'pk.eyJ1IjoiZGF2aWRyYXNuZXI1IiwiYSI6ImNtMm5yamVkdjA5MDcycXMyZ2I2MHRhamgifQ.m651j7WIX7MyxNh8KIQ1Gg';
+    const TILE_SERVER = `${SUPABASE_URL}/functions/v1/tiles`;
+
+    // Switzerland bounds for initial view
+    const SWITZERLAND_BOUNDS = [5.9559, 45.818, 10.4921, 47.8084];
     
     // ============================================
     // Wait for DOM and scripts to load
@@ -878,14 +882,9 @@
         mouseCoordsDisplay.textContent = '–';
       });
 
-      // Store initial bounds for home button
-      let initialBounds = null;
-      
       // ============================================
-      // State
+      // State (selection only - data now served via vector tiles)
       // ============================================
-      let buildings = [];
-      let parcels = [];
 
       // ============================================
       // DOM Elements
@@ -1015,93 +1014,39 @@
         }
       }
       
-      async function fetchBuildings() {
-        try {
-          const { data, error } = await db
-            .from('buildings')
-            .select('id, name, geog, egid');
-          
-          if (error) throw error;
-          
-          // Decode WKB and extract coordinates
-          buildings = data.map(b => {
-            const geojson = wkbToGeoJSON(b.geog);
-            return {
-              id: b.id,
-              name: b.name,
-              egid: b.egid,
-              lon: geojson?.coordinates[0],
-              lat: geojson?.coordinates[1],
-              geojson: geojson
-            };
-          }).filter(b => b.lon && b.lat);
-          
-          return buildings;
-          
-        } catch (err) {
-          console.error('Error fetching buildings:', err);
-          return [];
-        }
-      }
-      
-      async function fetchParcels() {
-        try {
-          const { data, error } = await db
-            .from('parcels')
-            .select('id, name, building_id, geog, egrid');
-          
-          if (error) throw error;
-          
-          // Decode WKB to GeoJSON
-          parcels = data.map(p => ({
-            id: p.id,
-            name: p.name,
-            building_id: p.building_id,
-            egrid: p.egrid,
-            geojson: wkbToGeoJSON(p.geog)
-          })).filter(p => p.geojson);
-          
-          return parcels;
-          
-        } catch (err) {
-          console.error('Error fetching parcels:', err);
-          return [];
-        }
-      }
-      
+      // NOTE: fetchBuildings() and fetchParcels() removed - data now served via vector tiles
+
       function addParcelsLayer() {
-        if (parcels.length === 0) return;
-        
-        // Convert to GeoJSON FeatureCollection
-        const geojson = {
-          type: 'FeatureCollection',
-          features: parcels.map(p => ({
-            type: 'Feature',
-            properties: {
-              id: p.id,
-              name: p.name,
-              building_id: p.building_id,
-              egrid: p.egrid
-            },
-            geometry: p.geojson
-          }))
-        };
-        
-        // Add source
+        // Skip if source already exists
+        if (map.getSource('parcels')) return;
+
+        // Add vector tile source for parcels
         map.addSource('parcels', {
-          type: 'geojson',
-          data: geojson
+          type: 'vector',
+          tiles: [`${TILE_SERVER}/parcels/{z}/{x}/{y}.pbf`],
+          minzoom: 10,
+          maxzoom: 14,
+          bounds: SWITZERLAND_BOUNDS
         });
-        
+
         // Add fill layer
         map.addLayer({
           id: 'parcels-fill',
           type: 'fill',
           source: 'parcels',
+          'source-layer': 'parcels',
           minzoom: 12,
           paint: {
-            'fill-color': '#1e3a5f', // Deep Blue
-            'fill-opacity': 0.1
+            'fill-color': [
+              'case',
+              ['==', ['get', 'id'], selectedParcel || -1], '#059669', // Green when selected
+              '#1e3a5f' // Deep Blue default
+            ],
+            'fill-opacity': [
+              'case',
+              ['==', ['get', 'id'], selectedParcel || -1], 0.3,
+              0.1
+            ]
           }
         });
 
@@ -1110,22 +1055,31 @@
           id: 'parcels-outline',
           type: 'line',
           source: 'parcels',
+          'source-layer': 'parcels',
           minzoom: 12,
           paint: {
-            'line-color': '#1e3a5f', // Deep Blue
-            'line-width': 1.5
+            'line-color': [
+              'case',
+              ['==', ['get', 'id'], selectedParcel || -1], '#059669',
+              '#1e3a5f'
+            ],
+            'line-width': [
+              'case',
+              ['==', ['get', 'id'], selectedParcel || -1], 3,
+              1.5
+            ]
           }
         });
-        
+
         // Add hover effect
         map.on('mouseenter', 'parcels-fill', () => {
           map.getCanvas().style.cursor = 'pointer';
         });
-        
+
         map.on('mouseleave', 'parcels-fill', () => {
           map.getCanvas().style.cursor = '';
         });
-        
+
         // Add click handler for parcels
         map.on('click', 'parcels-fill', (e) => {
           // Skip if a marker was just clicked
@@ -1137,83 +1091,54 @@
       }
       
       function addBuildingsLayer() {
-        if (buildings.length === 0) return;
+        // Skip if source already exists
+        if (map.getSource('buildings')) return;
 
-        // Convert buildings to GeoJSON FeatureCollection
-        const geojson = {
-          type: 'FeatureCollection',
-          features: buildings.map(b => ({
-            type: 'Feature',
-            properties: {
-              id: b.id,
-              name: b.name,
-              egid: b.egid
-            },
-            geometry: {
-              type: 'Point',
-              coordinates: [b.lon, b.lat]
-            }
-          }))
-        };
-
-        // Add clustered source
+        // Add vector tile source (streams data on-demand)
         map.addSource('buildings', {
-          type: 'geojson',
-          data: geojson,
-          cluster: true,
-          clusterMaxZoom: 13,  // Max zoom to cluster points (14+ shows all points)
-          clusterRadius: 50    // Radius of each cluster in pixels
+          type: 'vector',
+          tiles: [`${TILE_SERVER}/buildings/{z}/{x}/{y}.pbf`],
+          minzoom: 0,
+          maxzoom: 14,
+          bounds: SWITZERLAND_BOUNDS
         });
 
-        // Add cluster circle layer
+        // Heatmap layer for low zoom (visual clustering alternative)
         map.addLayer({
-          id: 'clusters',
-          type: 'circle',
+          id: 'buildings-heat',
+          type: 'heatmap',
           source: 'buildings',
-          filter: ['has', 'point_count'],
+          'source-layer': 'buildings',
+          maxzoom: 12,
           paint: {
-            // Size based on point count
-            'circle-radius': [
-              'step',
-              ['get', 'point_count'],
-              18,    // 18px for count < 10
-              10, 22, // 22px for count >= 10
-              50, 28, // 28px for count >= 50
-              100, 34 // 34px for count >= 100
-            ],
-            'circle-color': '#1e3a5f', // Deep Blue
-            'circle-stroke-width': 2,
-            'circle-stroke-color': 'white'
+            'heatmap-weight': 1,
+            'heatmap-intensity': ['interpolate', ['linear'], ['zoom'], 0, 0.5, 12, 2],
+            'heatmap-radius': ['interpolate', ['linear'], ['zoom'], 0, 3, 12, 15],
+            'heatmap-opacity': ['interpolate', ['linear'], ['zoom'], 10, 0.8, 12, 0],
+            'heatmap-color': [
+              'interpolate', ['linear'], ['heatmap-density'],
+              0, 'rgba(0,0,0,0)',
+              0.2, '#c7d2fe',  // Light indigo
+              0.4, '#818cf8',  // Indigo
+              0.6, '#4f46e5',  // Darker indigo
+              0.8, '#3730a3',  // Deep indigo
+              1, '#1e3a5f'     // Deep Blue (brand color)
+            ]
           }
         });
 
-        // Add cluster count text layer
-        map.addLayer({
-          id: 'cluster-count',
-          type: 'symbol',
-          source: 'buildings',
-          filter: ['has', 'point_count'],
-          layout: {
-            'text-field': ['get', 'point_count_abbreviated'],
-            'text-font': ['DIN Pro Medium', 'Arial Unicode MS Bold'],
-            'text-size': 13
-          },
-          paint: {
-            'text-color': 'white'
-          }
-        });
-
-        // Add unclustered point layer (individual buildings)
+        // Circle layer for individual buildings (visible at zoom 10+)
         map.addLayer({
           id: 'unclustered-point',
           type: 'circle',
           source: 'buildings',
-          filter: ['!', ['has', 'point_count']],
+          'source-layer': 'buildings',
+          minzoom: 10,
           paint: {
             'circle-radius': [
-              'case',
-              ['==', ['get', 'id'], selectedBuilding || -1], 10,
-              7
+              'interpolate', ['linear'], ['zoom'],
+              10, 2,
+              14, ['case', ['==', ['get', 'id'], selectedBuilding || -1], 10, 7]
             ],
             'circle-color': [
               'case',
@@ -1221,50 +1146,29 @@
               '#64748b' // Slate-500 default
             ],
             'circle-stroke-width': [
-              'case',
-              ['==', ['get', 'id'], selectedBuilding || -1], 3,
-              2
+              'interpolate', ['linear'], ['zoom'],
+              10, 0,
+              12, ['case', ['==', ['get', 'id'], selectedBuilding || -1], 3, 2]
             ],
             'circle-stroke-color': [
               'case',
               ['==', ['get', 'id'], selectedBuilding || -1], '#1e3a5f', // Deep Blue
               'white'
-            ]
+            ],
+            'circle-opacity': ['interpolate', ['linear'], ['zoom'], 10, 0.3, 12, 1]
           }
         });
 
-        // Cluster click handler - zoom in
-        map.on('click', 'clusters', (e) => {
-          const features = map.queryRenderedFeatures(e.point, { layers: ['clusters'] });
-          const clusterId = features[0].properties.cluster_id;
-
-          map.getSource('buildings').getClusterExpansionZoom(clusterId, (err, zoom) => {
-            if (err) return;
-
-            map.easeTo({
-              center: features[0].geometry.coordinates,
-              zoom: zoom
-            });
-          });
-        });
-
-        // Unclustered point click handler - show popup
+        // Click handler for buildings
         map.on('click', 'unclustered-point', (e) => {
           markerClickHandled = true;
           const props = e.features[0].properties;
-          selectBuilding(props.id);
+          const coords = e.features[0].geometry.coordinates;
+          selectBuilding(props.id, coords);
           setTimeout(() => { markerClickHandled = false; }, 100);
         });
 
         // Hover effects
-        map.on('mouseenter', 'clusters', () => {
-          map.getCanvas().style.cursor = 'pointer';
-        });
-
-        map.on('mouseleave', 'clusters', () => {
-          map.getCanvas().style.cursor = '';
-        });
-
         map.on('mouseenter', 'unclustered-point', () => {
           map.getCanvas().style.cursor = 'pointer';
         });
@@ -1299,32 +1203,84 @@
         ]);
       }
       
-      function selectBuilding(id) {
+      async function selectBuilding(id, coords = null) {
         selectedBuilding = id;
         selectedParcel = null; // Deselect parcel
 
-        const building = buildings.find(b => b.id === id);
-        if (building) {
-          showBuildingPanel(building);
-        }
+        // Fetch building details from API
+        await fetchAndShowBuilding(id, coords);
 
         updateBuildingStyles();
         updateParcelStyles();
         updateUrlParams();
       }
 
-      function selectParcel(id) {
+      async function selectParcel(id) {
         selectedParcel = id;
         selectedBuilding = null; // Deselect building
 
-        const parcel = parcels.find(p => p.id === id);
-        if (parcel) {
-          showParcelPanel(parcel);
-        }
+        // Fetch parcel details from API
+        await fetchAndShowParcel(id);
 
         updateBuildingStyles();
         updateParcelStyles();
         updateUrlParams();
+      }
+
+      // Fetch building from Supabase and show panel
+      async function fetchAndShowBuilding(id, coords = null) {
+        try {
+          const { data, error } = await db
+            .from('buildings')
+            .select('id, name, egid, geog')
+            .eq('id', id)
+            .single();
+
+          if (error) throw error;
+
+          if (data) {
+            // Parse coordinates from geog if available
+            let lon, lat;
+            if (coords) {
+              [lon, lat] = coords;
+            } else if (data.geog) {
+              const geojson = wkbToGeoJSON(data.geog);
+              if (geojson) {
+                lon = geojson.coordinates[0];
+                lat = geojson.coordinates[1];
+              }
+            }
+
+            showBuildingPanel({
+              id: data.id,
+              name: data.name,
+              egid: data.egid,
+              lon,
+              lat
+            });
+          }
+        } catch (err) {
+          console.error('Error fetching building:', err);
+        }
+      }
+
+      // Fetch parcel from Supabase and show panel
+      async function fetchAndShowParcel(id) {
+        try {
+          const { data, error } = await db
+            .from('parcels')
+            .select('id, name, egrid, building_id')
+            .eq('id', id)
+            .single();
+
+          if (error) throw error;
+
+          if (data) {
+            showParcelPanel(data);
+          }
+        } catch (err) {
+          console.error('Error fetching parcel:', err);
+        }
       }
 
       function updateParcelStyles() {
@@ -1350,13 +1306,20 @@
       // Show building panel with details
       function showBuildingPanel(building) {
         panelBuildingName.textContent = building.name || 'Unknown Building';
-        panelBuildingLocation.textContent = `${building.lat.toFixed(5)}, ${building.lon.toFixed(5)}`;
+
+        const hasCoords = building.lat != null && building.lon != null;
+        panelBuildingLocation.textContent = hasCoords
+          ? `${building.lat.toFixed(5)}, ${building.lon.toFixed(5)}`
+          : 'Location not available';
 
         // Build metrics HTML
         const metrics = [
-          { label: 'EGID', value: building.egid || '–' },
-          { label: 'Coordinates', value: `${building.lat.toFixed(5)}, ${building.lon.toFixed(5)}` }
+          { label: 'EGID', value: building.egid || '–' }
         ];
+
+        if (hasCoords) {
+          metrics.push({ label: 'Coordinates', value: `${building.lat.toFixed(5)}, ${building.lon.toFixed(5)}` });
+        }
 
         panelMetrics.innerHTML = metrics.map(m => `
           <div class="metric-row">
@@ -1381,10 +1344,7 @@
 
         // Add building reference if exists
         if (parcel.building_id) {
-          const linkedBuilding = buildings.find(b => b.id === parcel.building_id);
-          if (linkedBuilding) {
-            metrics.push({ label: 'Building', value: linkedBuilding.name || `ID: ${parcel.building_id}` });
-          }
+          metrics.push({ label: 'Building ID', value: parcel.building_id });
         }
 
         panelMetrics.innerHTML = metrics.map(m => `
@@ -1410,43 +1370,46 @@
       // Panel close button
       closePanelBtn.addEventListener('click', closeBuildingPanel);
 
-      function flyToBuilding(id) {
-        const building = buildings.find(b => b.id === id);
-        if (!building) return;
+      async function flyToBuilding(id) {
+        try {
+          const { data, error } = await db
+            .from('buildings')
+            .select('id, name, egid, geog')
+            .eq('id', id)
+            .single();
 
-        map.flyTo({
-          center: [building.lon, building.lat],
-          zoom: 14,
-          duration: 1500
-        });
+          if (error) throw error;
 
-        showBuildingPanel(building);
+          if (data && data.geog) {
+            const geojson = wkbToGeoJSON(data.geog);
+            if (geojson) {
+              const [lon, lat] = geojson.coordinates;
+
+              map.flyTo({
+                center: [lon, lat],
+                zoom: 14,
+                duration: 1500
+              });
+
+              showBuildingPanel({
+                id: data.id,
+                name: data.name,
+                egid: data.egid,
+                lon,
+                lat
+              });
+            }
+          }
+        } catch (err) {
+          console.error('Error flying to building:', err);
+        }
       }
-      
-      function fitBoundsToBuildings() {
-        if (buildings.length === 0) return;
-        
-        const bounds = new mapboxgl.LngLatBounds();
-        buildings.forEach(b => bounds.extend([b.lon, b.lat]));
-        
-        // Store for home button
-        initialBounds = bounds;
-        
-        map.fitBounds(bounds, { 
-          padding: 80,
-          maxZoom: 16,
+
+      function goHome() {
+        map.fitBounds(SWITZERLAND_BOUNDS, {
+          padding: 40,
           duration: 1000
         });
-      }
-      
-      function goHome() {
-        if (initialBounds) {
-          map.fitBounds(initialBounds, {
-            padding: 80,
-            maxZoom: 16,
-            duration: 1000
-          });
-        }
       }
       
       // ============================================
@@ -1466,24 +1429,21 @@
       }
       
       map.on('load', async () => {
-        await fetchBuildings();
-        await fetchParcels();
+        // Add vector tile layers (no data fetching needed!)
         addParcelsLayer();
         addBuildingsLayer();
 
-        // If no URL params, fit to buildings
+        // If no URL params, fit to Switzerland
         if (!urlParams.zoom) {
-          fitBoundsToBuildings();
+          map.fitBounds(SWITZERLAND_BOUNDS, { padding: 40, duration: 1000 });
         }
 
-        // Show panel for selected building or parcel
+        // Load selected building/parcel from URL params
         if (selectedBuilding) {
-          const building = buildings.find(b => b.id === selectedBuilding);
-          if (building) showBuildingPanel(building);
+          await fetchAndShowBuilding(selectedBuilding);
         }
         if (selectedParcel) {
-          const parcel = parcels.find(p => p.id === selectedParcel);
-          if (parcel) showParcelPanel(parcel);
+          await fetchAndShowParcel(selectedParcel);
         }
         updateBuildingStyles();
         updateParcelStyles();
@@ -1562,12 +1522,11 @@
       
       // Re-add layers after style change
       map.on('style.load', () => {
-        // Re-add parcels layer if we have data
-        if (parcels.length > 0 && !map.getSource('parcels')) {
+        // Re-add vector tile layers
+        if (!map.getSource('parcels')) {
           addParcelsLayer();
         }
-        // Re-add buildings layer if we have data
-        if (buildings.length > 0 && !map.getSource('buildings')) {
+        if (!map.getSource('buildings')) {
           addBuildingsLayer();
         }
         // Re-apply 3D mode if active
