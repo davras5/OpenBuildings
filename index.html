@@ -1492,7 +1492,6 @@
         if (is3DMode) {
           setup3DTerrain();
           map.setPitch(60);
-          toggle3DButton.classList.add('active');
           toggle3DButton.textContent = '2D';
         }
 
@@ -1660,13 +1659,11 @@
           setup3DTerrain();
           // Pitch camera for 3D perspective
           map.easeTo({ pitch: 60, duration: 1000 });
-          toggle3DButton.classList.add('active');
           toggle3DButton.textContent = '2D';
         } else {
           remove3DTerrain();
           // Reset camera to flat view
           map.easeTo({ pitch: 0, duration: 1000 });
-          toggle3DButton.classList.remove('active');
           toggle3DButton.textContent = '3D';
         }
 
