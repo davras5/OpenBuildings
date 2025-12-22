@@ -68,9 +68,9 @@ The problem isn't Swiss. We'll expand when the foundation is solid.
 
 ## Business Model
 
-Free: Explore, search, download individual buildings. The foundation is open.
+**Free:** Explore, search, download individual buildings. The foundation is open.
 
-Paid: Bulk data, API access, portfolio reports. For organizations that need more and can afford to contribute.
+**Paid:** Bulk data, API access, portfolio reports. For organizations that need more and can afford to contribute.
 
 Revenue keeps the foundation maintained. The core stays open.
 
@@ -78,11 +78,11 @@ Revenue keeps the foundation maintained. The core stays open.
 
 ## Principles
 
-Open by default. If we figured it out, you don't have to. Methods, sources, flaws and limitations – all public.
+**Open by default.** If we figured it out, you don't have to. Methods, sources, flaws and limitations – all public.
 
-Quality over quantity. Good data beats more data. Focus, don't get lost.
+**Quality over quantity.** Good data beats more data. Focus, don't get lost.
 
-Interoperable and stable. Technology changes every few years. Buildings last centuries. We follow national and international standards so the architecture outlives the tools.
+**Interoperable and stable.** Technology changes every few years. Buildings last centuries. We follow national and international standards so the architecture outlives the tools.
 
 ---
 
@@ -100,7 +100,7 @@ This is an open project.
 
 Use it. Tell us what's broken. Help make it better.
 
-github.com/openbuildings-ch
+[github.com/openbuildings-ch](https://github.com/openbuildings-ch)
 
 ---
 
