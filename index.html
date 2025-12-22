@@ -458,11 +458,11 @@
     }
 
     .basemap-toggle {
-      width: 64px;
-      height: 64px;
-      border-radius: var(--radius-md);
-      border: 2px solid var(--clr-white);
-      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      width: 96px;
+      height: 96px;
+      border-radius: var(--radius-lg);
+      border: 3px solid var(--clr-white);
+      box-shadow: 0 2px 12px rgba(0,0,0,0.2);
       cursor: pointer;
       overflow: hidden;
       position: relative;
@@ -473,7 +473,7 @@
     }
 
     .basemap-toggle:hover {
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.25);
     }
 
     .basemap-toggle::after {
@@ -484,8 +484,8 @@
       right: 0;
       background: rgba(0,0,0,0.6);
       color: white;
-      font-size: 0.625rem;
-      padding: 3px 4px;
+      font-size: 0.75rem;
+      padding: 4px 6px;
       text-align: center;
       font-weight: 500;
     }
@@ -500,16 +500,16 @@
     }
 
     .basemap-selector.expanded .basemap-options {
-      max-width: 400px;
+      max-width: 500px;
       opacity: 1;
     }
 
     .basemap-option {
-      width: 64px;
-      height: 64px;
-      border-radius: var(--radius-md);
-      border: 2px solid var(--clr-white);
-      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      width: 96px;
+      height: 96px;
+      border-radius: var(--radius-lg);
+      border: 3px solid var(--clr-white);
+      box-shadow: 0 2px 12px rgba(0,0,0,0.2);
       cursor: pointer;
       overflow: hidden;
       position: relative;
@@ -521,12 +521,12 @@
 
     .basemap-option:hover {
       transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.25);
     }
 
     .basemap-option.active {
       border-color: var(--clr-ocean);
-      box-shadow: 0 0 0 2px var(--clr-ocean), 0 2px 8px rgba(0,0,0,0.15);
+      box-shadow: 0 0 0 3px var(--clr-ocean), 0 2px 12px rgba(0,0,0,0.2);
     }
 
     .basemap-option::after {
@@ -537,8 +537,8 @@
       right: 0;
       background: rgba(0,0,0,0.6);
       color: white;
-      font-size: 0.625rem;
-      padding: 3px 4px;
+      font-size: 0.75rem;
+      padding: 4px 6px;
       text-align: center;
       font-weight: 500;
     }
@@ -649,6 +649,8 @@
     .map-footer-scale {
       display: flex;
       align-items: center;
+      min-width: 80px;
+      justify-content: center;
     }
 
     /* Override Mapbox scale control styles */
@@ -689,7 +691,7 @@
 
     /* Adjust basemap selector position to avoid footer overlap */
     .basemap-selector {
-      bottom: calc(var(--space-xl) + 24px);
+      bottom: calc(var(--space-xl) + 28px);
     }
   </style>
 </head>
