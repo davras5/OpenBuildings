@@ -71,11 +71,12 @@ Primary entity representing individual buildings.
 
 | Column | Type | Constraints | Source | Description |
 |--------|------|-------------|--------|-------------|
-| `street` | `text` | | GWR | Street name |
-| `house_nr` | `text` | | GWR | House number |
-| `postal_code` | `text` | | GWR | Postal code |
-| `city` | `text` | | GWR | City/locality |
+| `country` | `text` | | GWR | Country code (ISO 3166-1 alpha-2) |
 | `region` | `text` | | GWR | Region code (canton in CH) |
+| `city` | `text` | | GWR | City/locality |
+| `postal_code` | `text` | | GWR | Postal code |
+| `street` | `text` | | GWR | Street name |
+| `street_nr` | `text` | | GWR | Street number |
 
 #### Classification
 
