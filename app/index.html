@@ -916,7 +916,8 @@
           lat: params.get('lat') ? parseFloat(params.get('lat')) : null,
           building: params.get('building') ? parseInt(params.get('building')) : null,
           parcel: params.get('parcel') ? parseInt(params.get('parcel')) : null,
-          is3D: params.get('3d') === 'true'
+          is3D: params.get('3d') === 'true',
+          marker: params.get('marker') === 'true'
         };
       }
       
@@ -942,6 +943,7 @@
       let selectedLandcover = null;
       let markerClickHandled = false;
       let is3DMode = false;
+      let searchMarker = null;
       
       // ============================================
       // Functions
@@ -1634,6 +1636,22 @@
       if (urlParams.zoom && urlParams.lon && urlParams.lat) {
         map.setCenter([urlParams.lon, urlParams.lat]);
         map.setZoom(urlParams.zoom);
+
+        // Create search marker if marker param is true
+        if (urlParams.marker) {
+          const el = document.createElement('div');
+          el.innerHTML = `
+            <svg width="32" height="40" viewBox="0 0 32 40" fill="none">
+              <path d="M16 0C7.163 0 0 7.163 0 16c0 12 16 24 16 24s16-12 16-24c0-8.837-7.163-16-16-16z" fill="#2563eb"/>
+              <circle cx="16" cy="16" r="6" fill="white"/>
+            </svg>
+          `;
+          el.style.cssText = 'cursor: pointer; transform: translate(-50%, -100%);';
+
+          searchMarker = new mapboxgl.Marker({ element: el })
+            .setLngLat([urlParams.lon, urlParams.lat])
+            .addTo(map);
+        }
       }
       
       map.on('load', async () => {
@@ -1856,8 +1874,7 @@
       const layersSection = document.getElementById('layersSection');
       const layersResults = document.getElementById('layersResults');
       const searchInputWrapper = searchInput.parentElement;
-      
-      let searchMarker = null;
+
       let searchDebounceTimer = null;
       
       // Debounced search

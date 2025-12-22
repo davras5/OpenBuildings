@@ -795,44 +795,70 @@
             margin-bottom: 0;
         }
 
-        /* ===== DATA & TOOLS SECTION ===== */
-        .data-tools {
+        /* ===== TOOLS SECTION (CAROUSEL) ===== */
+        .tools {
             background-color: var(--slate-100);
         }
 
-        .data-tools-header {
+        .tools-header {
             text-align: center;
             max-width: 700px;
-            margin: 0 auto var(--space-3xl);
+            margin: 0 auto var(--space-2xl);
         }
 
-        .data-tools-header h2 {
+        .tools-header h2 {
             margin-bottom: var(--space-md);
         }
 
-        .data-tools-header p {
+        .tools-header p {
             font-size: 1.125rem;
             color: var(--slate-500);
         }
 
-        .data-tools-content {
-            display: grid;
+        .tools-carousel-wrapper {
+            position: relative;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .tools-carousel {
+            display: flex;
             gap: var(--space-lg);
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+            padding: var(--space-sm) 0 var(--space-lg);
+            scrollbar-width: none;
+            -ms-overflow-style: none;
         }
 
-        @media (min-width: 768px) {
-            .data-tools-content {
-                grid-template-columns: repeat(3, 1fr);
-            }
+        .tools-carousel::-webkit-scrollbar {
+            display: none;
         }
 
-        .data-tools-card {
+        .tool-card {
+            flex: 0 0 280px;
+            scroll-snap-align: start;
             padding: var(--space-xl);
             background-color: var(--white);
             border-radius: var(--radius-md);
+            box-shadow: var(--shadow-sm);
+            transition: all 0.2s ease;
         }
 
-        .data-tools-icon {
+        .tool-card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+        @media (min-width: 768px) {
+            .tool-card {
+                flex: 0 0 320px;
+            }
+        }
+
+        .tool-icon {
             width: 56px;
             height: 56px;
             background-color: var(--slate-100);
@@ -844,23 +870,24 @@
             margin-bottom: var(--space-md);
         }
 
-        .data-tools-card h3 {
+        .tool-card h3 {
             margin-bottom: var(--space-sm);
         }
 
-        .data-tools-card p {
+        .tool-card p {
             color: var(--slate-500);
             margin-bottom: var(--space-md);
             font-size: 0.9rem;
+            line-height: 1.5;
         }
 
-        .data-tools-tags {
+        .tool-tags {
             display: flex;
             flex-wrap: wrap;
             gap: var(--space-xs);
         }
 
-        .data-tools-tags span {
+        .tool-tags span {
             padding: 4px 10px;
             background-color: var(--slate-100);
             border-radius: var(--radius-sm);
@@ -868,23 +895,50 @@
             color: var(--slate-600);
         }
 
-        .data-tools-tags span.available {
+        .tool-tags span.available {
             background-color: var(--leaf);
             color: var(--white);
         }
 
-        .data-tools-tags span.coming-soon {
+        .tool-tags span.coming-soon {
             background-color: var(--amber);
             color: var(--white);
         }
 
-        .data-tools-cta {
-            text-align: center;
-            margin-top: var(--space-2xl);
+        .tools-nav {
             display: flex;
             justify-content: center;
-            gap: var(--space-md);
-            flex-wrap: wrap;
+            gap: var(--space-sm);
+            margin-top: var(--space-lg);
+        }
+
+        .tools-nav-btn {
+            width: 40px;
+            height: 40px;
+            border: 1px solid var(--slate-300);
+            background-color: var(--white);
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--slate-700);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .tools-nav-btn:hover {
+            background-color: var(--slate-100);
+            border-color: var(--slate-400);
+        }
+
+        .tools-nav-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .tools-cta {
+            text-align: center;
+            margin-top: var(--space-2xl);
         }
 
         /* ===== SHOWCASE SECTION ===== */
@@ -1013,47 +1067,46 @@
             margin-bottom: 0;
         }
 
-        /* ===== PRINCIPLES & STANDARDS SECTION ===== */
-        .principles-standards {
+        /* ===== PRINCIPLES SECTION ===== */
+        .principles {
             background-color: var(--slate-100);
         }
 
-        .principles-standards-header {
+        .principles-header {
             text-align: center;
             max-width: 700px;
             margin: 0 auto var(--space-3xl);
         }
 
-        .principles-standards-header h2 {
+        .principles-header h2 {
             margin-bottom: var(--space-md);
         }
 
-        .principles-standards-header p {
+        .principles-header p {
             font-size: 1.125rem;
             color: var(--slate-500);
         }
 
-        .principles-standards-content {
+        .principles-grid {
             display: grid;
-            gap: var(--space-xl);
+            gap: var(--space-md);
+            max-width: 900px;
+            margin: 0 auto;
         }
 
         @media (min-width: 768px) {
-            .principles-standards-content {
-                grid-template-columns: 1fr 1fr;
+            .principles-grid {
+                grid-template-columns: repeat(3, 1fr);
             }
-        }
-
-        .principles-column {
-            display: flex;
-            flex-direction: column;
-            gap: var(--space-md);
         }
 
         .principle-item {
             display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
             gap: var(--space-md);
-            padding: var(--space-lg);
+            padding: var(--space-xl);
             background-color: var(--white);
             border-radius: var(--radius-md);
         }
@@ -1061,7 +1114,6 @@
         .principle-item i {
             color: var(--ocean);
             flex-shrink: 0;
-            margin-top: 2px;
         }
 
         .principle-item strong {
@@ -1073,34 +1125,6 @@
         .principle-item span {
             color: var(--slate-500);
             font-size: 0.9rem;
-        }
-
-        .standards-column {
-            padding: var(--space-xl);
-            background-color: var(--white);
-            border-radius: var(--radius-md);
-        }
-
-        .standards-list {
-            display: flex;
-            flex-wrap: wrap;
-            gap: var(--space-sm);
-            margin-bottom: var(--space-lg);
-        }
-
-        .standard-tag {
-            padding: 6px 12px;
-            background-color: var(--ocean);
-            color: var(--white);
-            border-radius: var(--radius-sm);
-            font-size: 0.8rem;
-            font-weight: 500;
-        }
-
-        .standards-desc {
-            color: var(--slate-500);
-            font-size: 0.9rem;
-            margin-bottom: 0;
         }
 
         /* ===== ACCESS SECTION ===== */
@@ -1428,7 +1452,7 @@
 
             <nav class="nav">
                 <a href="#features">Features</a>
-                <a href="#data">Data & Tools</a>
+                <a href="#data">Tools</a>
                 <a href="#contact">About</a>
                 <a href="https://github.com/davras5/OpenBuildings" target="_blank">GitHub</a>
             </nav>
@@ -1663,65 +1687,96 @@
         </div>
     </section>
 
-    <!-- Data & Tools Section -->
-    <section class="data-tools" id="data">
+    <!-- Tools Section (Carousel) -->
+    <section class="tools" id="data">
         <div class="container">
-            <div class="data-tools-header">
-                <h2>Data & Tools</h2>
-                <p>60+ attributes per building, plus open-source processing tools you can run locally.</p>
+            <div class="tools-header">
+                <h2>Processing Tools</h2>
+                <p>Open-source tools to process, enrich, and analyze Swiss building data.</p>
             </div>
 
-            <div class="data-tools-content">
-                <div class="data-tools-card">
-                    <div class="data-tools-icon">
-                        <i data-lucide="database" style="width: 32px; height: 32px;"></i>
+            <div class="tools-carousel-wrapper">
+                <div class="tools-carousel" id="toolsCarousel">
+                    <div class="tool-card">
+                        <div class="tool-icon">
+                            <i data-lucide="database" style="width: 32px; height: 32px;"></i>
+                        </div>
+                        <h3>Base Worker</h3>
+                        <p>Foundational data processing. Ensures ID, geometry, and measurements are up-to-date and correct. Everything else builds on top of it.</p>
+                        <div class="tool-tags">
+                            <span class="available">Available</span>
+                            <span>EGID</span>
+                            <span>Geometry</span>
+                            <span>Measurements</span>
+                        </div>
                     </div>
-                    <h3>Building Attributes</h3>
-                    <p>Every building includes: EGID, address, coordinates, construction year, dimensions (area, volume, height), energy systems, zoning, heritage status, and more.</p>
-                    <div class="data-tools-tags">
-                        <span>Identification</span>
-                        <span>Dimensions</span>
-                        <span>Energy</span>
-                        <span>Heritage</span>
-                        <span>Zoning</span>
-                        <span>+50 more</span>
+
+                    <div class="tool-card">
+                        <div class="tool-icon">
+                            <i data-lucide="box" style="width: 32px; height: 32px;"></i>
+                        </div>
+                        <h3>Volume Estimator</h3>
+                        <p>Calculate building volumes from swissALTI3D and swissSURFACE3D at 1m² resolution. Python CLI and FME Workbench available.</p>
+                        <div class="tool-tags">
+                            <span class="available">Available</span>
+                            <span>Python</span>
+                            <span>FME</span>
+                        </div>
+                    </div>
+
+                    <div class="tool-card">
+                        <div class="tool-icon">
+                            <i data-lucide="home" style="width: 32px; height: 32px;"></i>
+                        </div>
+                        <h3>Roof Estimator</h3>
+                        <p>Derive roof form, orientation, slope, and area from elevation data. Essential for solar potential and renovation planning.</p>
+                        <div class="tool-tags">
+                            <span class="coming-soon">Coming Soon</span>
+                            <span>Python</span>
+                        </div>
+                    </div>
+
+                    <div class="tool-card">
+                        <div class="tool-icon">
+                            <i data-lucide="leaf" style="width: 32px; height: 32px;"></i>
+                        </div>
+                        <h3>Grünflächen</h3>
+                        <p>Green roof detection and biodiversity index per parcel. Assess urban greening potential and ecological value of building surfaces.</p>
+                        <div class="tool-tags">
+                            <span class="coming-soon">Coming Soon</span>
+                            <span>Green Roofs</span>
+                            <span>Biodiversity</span>
+                        </div>
+                    </div>
+
+                    <div class="tool-card">
+                        <div class="tool-icon">
+                            <i data-lucide="cloud" style="width: 32px; height: 32px;"></i>
+                        </div>
+                        <h3>Carbon Reporting</h3>
+                        <p>Calculate embodied carbon and operational emissions per building. Support climate risk assessment and decarbonization planning.</p>
+                        <div class="tool-tags">
+                            <span class="coming-soon">Coming Soon</span>
+                            <span>CO₂</span>
+                            <span>Climate Risk</span>
+                        </div>
                     </div>
                 </div>
 
-                <div class="data-tools-card">
-                    <div class="data-tools-icon">
-                        <i data-lucide="box" style="width: 32px; height: 32px;"></i>
-                    </div>
-                    <h3>Volume Estimator</h3>
-                    <p>Calculate building volumes from swissALTI3D and swissSURFACE3D at 1m² resolution. Available as Python CLI and FME Workbench.</p>
-                    <div class="data-tools-tags">
-                        <span class="available">Available</span>
-                        <span>Python</span>
-                        <span>FME</span>
-                    </div>
-                </div>
-
-                <div class="data-tools-card">
-                    <div class="data-tools-icon">
-                        <i data-lucide="home" style="width: 32px; height: 32px;"></i>
-                    </div>
-                    <h3>Roof Estimator</h3>
-                    <p>Derive roof form, orientation, slope, and area from elevation data. Essential for solar potential and renovation planning.</p>
-                    <div class="data-tools-tags">
-                        <span class="coming-soon">Coming Soon</span>
-                        <span>Python</span>
-                    </div>
+                <div class="tools-nav">
+                    <button class="tools-nav-btn" id="toolsPrev" aria-label="Previous tools">
+                        <i data-lucide="chevron-left" style="width: 20px; height: 20px;"></i>
+                    </button>
+                    <button class="tools-nav-btn" id="toolsNext" aria-label="Next tools">
+                        <i data-lucide="chevron-right" style="width: 20px; height: 20px;"></i>
+                    </button>
                 </div>
             </div>
 
-            <div class="data-tools-cta">
-                <a href="https://github.com/davras5/OpenBuildings/blob/main/documentation/DATAMODEL.md" target="_blank" class="btn btn-secondary">
-                    <i data-lucide="book-open" style="width: 18px; height: 18px;"></i>
-                    Data Model
-                </a>
-                <a href="https://github.com/davras5/OpenBuildings/tree/main/tools" target="_blank" class="btn btn-secondary">
+            <div class="tools-cta">
+                <a href="https://github.com/davras5/OpenBuildings/tree/main/tools" target="_blank" class="btn btn-primary">
                     <i data-lucide="wrench" style="width: 18px; height: 18px;"></i>
-                    Tools
+                    Explore All Tools
                 </a>
             </div>
         </div>
@@ -1828,49 +1883,35 @@
         </div>
     </section>
 
-    <!-- Principles & Standards Section -->
-    <section class="principles-standards">
+    <!-- Principles Section -->
+    <section class="principles">
         <div class="container">
-            <div class="principles-standards-header">
-                <h2>Principles & Standards</h2>
-                <p>Built for long-term institutional use. Aligned with established Swiss standards.</p>
+            <div class="principles-header">
+                <h2>Our Principles</h2>
+                <p>Built for long-term institutional use.</p>
             </div>
 
-            <div class="principles-standards-content">
-                <div class="principles-column">
-                    <div class="principle-item">
-                        <i data-lucide="unlock" style="width: 20px; height: 20px;"></i>
-                        <div>
-                            <strong>Open by default</strong>
-                            <span>Methods, sources, and limitations are documented and public.</span>
-                        </div>
-                    </div>
-                    <div class="principle-item">
-                        <i data-lucide="check-circle" style="width: 20px; height: 20px;"></i>
-                        <div>
-                            <strong>Institutional quality</strong>
-                            <span>Reproducibility and traceability over novelty.</span>
-                        </div>
-                    </div>
-                    <div class="principle-item">
-                        <i data-lucide="link" style="width: 20px; height: 20px;"></i>
-                        <div>
-                            <strong>Interoperability</strong>
-                            <span>Data outlives tools. We align with established standards.</span>
-                        </div>
+            <div class="principles-grid">
+                <div class="principle-item">
+                    <i data-lucide="unlock" style="width: 28px; height: 28px;"></i>
+                    <div>
+                        <strong>Open by default</strong>
+                        <span>Methods, sources, and limitations are documented and public.</span>
                     </div>
                 </div>
-
-                <div class="standards-column">
-                    <div class="standards-list">
-                        <span class="standard-tag">SIA 416</span>
-                        <span class="standard-tag">SIA 380</span>
-                        <span class="standard-tag">DM.01-AV-CH</span>
-                        <span class="standard-tag">GWR 4.2</span>
-                        <span class="standard-tag">eCH-0206</span>
-                        <span class="standard-tag">OGC/MVT</span>
+                <div class="principle-item">
+                    <i data-lucide="check-circle" style="width: 28px; height: 28px;"></i>
+                    <div>
+                        <strong>Institutional quality</strong>
+                        <span>Reproducibility and traceability over novelty.</span>
                     </div>
-                    <p class="standards-desc">Swiss cadastral, building register, and energy standards. All transformations are documented and reproducible.</p>
+                </div>
+                <div class="principle-item">
+                    <i data-lucide="link" style="width: 28px; height: 28px;"></i>
+                    <div>
+                        <strong>Interoperability</strong>
+                        <span>Data outlives tools. We align with established standards.</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -2105,8 +2146,8 @@
                     const lat = result.dataset.lat;
                     const label = result.dataset.label;
 
-                    // Navigate to app with coordinates
-                    window.location.href = `app/?zoom=17&lon=${lon}&lat=${lat}`;
+                    // Navigate to app with coordinates and marker
+                    window.location.href = `app/?zoom=17&lon=${lon}&lat=${lat}&marker=true`;
                 }
             });
 
@@ -2129,6 +2170,22 @@
                     searchResults.classList.remove('active');
                     searchInput.blur();
                 }
+            });
+        })();
+
+        // Tools Carousel Navigation
+        (function() {
+            const carousel = document.getElementById('toolsCarousel');
+            const prevBtn = document.getElementById('toolsPrev');
+            const nextBtn = document.getElementById('toolsNext');
+            const cardWidth = 320 + 24; // card width + gap
+
+            prevBtn.addEventListener('click', () => {
+                carousel.scrollBy({ left: -cardWidth, behavior: 'smooth' });
+            });
+
+            nextBtn.addEventListener('click', () => {
+                carousel.scrollBy({ left: cardWidth, behavior: 'smooth' });
             });
         })();
     </script>
