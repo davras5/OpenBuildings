@@ -166,6 +166,43 @@ OpenBuildings/
 
 ---
 
+## Technology Stack
+
+### Frontend
+
+| Technology | Purpose |
+|------------|---------|
+| **HTML/CSS/JS** | Core web application |
+| **Mapbox GL JS** | Interactive 2D/3D mapping |
+| **Inter** | Typography (Google Fonts) |
+
+### Backend
+
+| Technology | Purpose |
+|------------|---------|
+| **Supabase** | Database and API (PostgreSQL + PostGIS) |
+| **GitHub Pages** | Static hosting |
+
+### Python Tools
+
+| Library | Purpose |
+|---------|---------|
+| **GeoPandas** | Geospatial data processing |
+| **Rasterio** | Raster data (elevation models) |
+| **Shapely** | Geometric operations |
+| **NumPy/Pandas** | Numerical computation |
+| **Fiona** | Vector data I/O |
+
+### Data Processing
+
+| Tool | Purpose |
+|------|---------|
+| **FME Desktop** | Visual ETL workflows |
+| **Swisstopo API** | Address search and geocoding |
+| **geo.admin.ch** | Federal geodata access |
+
+---
+
 ## Technical Details
 
 ### Coordinate System
