@@ -45,6 +45,8 @@ One investment. Everyone benefits.
 | **Landcovers** | Building footprints and land use classifications |
 | **Projects** | Construction projects and building permits |
 
+![image](/images/4.jpg)
+
 ### Tools
 
 | Tool | Description |
