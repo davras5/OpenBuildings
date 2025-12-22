@@ -182,6 +182,13 @@ Land parcels from the official cadastral survey (Amtliche Vermessung).
 | `created_at` | `timestamptz` | `DEFAULT NOW()` | System | Record creation timestamp |
 | `updated_at` | `timestamptz` | `DEFAULT NOW()` | System | Record last update timestamp |
 
+#### Classification
+
+| Column | Type | Constraints | Source | Description |
+|--------|------|-------------|--------|-------------|
+| `status` | `text` | | AV | Parcel status (rechtskräftig, etc.) |
+| `type` | `text` | | AV | Parcel type (Liegenschaft, etc.) |
+
 #### Identification
 
 | Column | Type | Constraints | Source | Description |
@@ -229,7 +236,13 @@ Landcover polygons from Amtliche Vermessung. Building footprints are a specific 
 
 | Column | Type | Constraints | Source | Description |
 |--------|------|-------------|--------|-------------|
+| `status` | `text` | | AV | Landcover status |
 | `type` | `text` | `NOT NULL` | AV | Landcover type (building, road, water, etc.) |
+
+#### Relations
+
+| Column | Type | Constraints | Source | Description |
+|--------|------|-------------|--------|-------------|
 | `building_id` | `bigint` | `FK → buildings.id` | Derived | Associated building (for footprints only) |
 | `parcel_id` | `bigint` | `FK → parcels.id` | Derived | Associated parcel |
 
@@ -259,13 +272,18 @@ Construction projects. Note: Limited OGD available - primarily cantonal building
 | `created_at` | `timestamptz` | `DEFAULT NOW()` | System | Record creation timestamp |
 | `updated_at` | `timestamptz` | `DEFAULT NOW()` | System | Record last update timestamp |
 
+#### Classification
+
+| Column | Type | Constraints | Source | Description |
+|--------|------|-------------|--------|-------------|
+| `status` | `text` | | Various | Status (planned, approved, under construction, completed) |
+| `project_type` | `text` | | Various | Project type |
+
 #### Identification
 
 | Column | Type | Constraints | Source | Description |
 |--------|------|-------------|--------|-------------|
 | `name` | `text` | | Various | Project name |
-| `status` | `text` | | Various | Status (planned, approved, under construction, completed) |
-| `project_type` | `text` | | Various | Project type |
 | `municipality_nr` | `integer` | | Various | BFS municipality number |
 
 #### Timeline
@@ -348,6 +366,30 @@ Values defined by GWR (Gebäudeklasse). See [GWR documentation](https://www.hous
 | `A` | Objects of national importance |
 | `B` | Objects of regional importance |
 
+### parcels.status (AV)
+
+| Value | Description DE | Description EN |
+|-------|----------------|----------------|
+| `rechtskraeftig` | Rechtskräftig | Legally valid |
+
+*Additional values to be defined from AV data model.*
+
+### parcels.type (AV)
+
+| Value | Description DE | Description EN |
+|-------|----------------|----------------|
+| `liegenschaft` | Liegenschaft | Property |
+
+*Additional values to be defined from AV data model.*
+
+### landcovers.status (AV)
+
+*Values to be defined from AV data model.*
+
+### landcovers.type (AV)
+
+Values defined by Amtliche Vermessung (Bodenbedeckung). See `landcover_types` lookup table.
+
 ### projects.status
 
 | Value | Description DE | Description EN |
@@ -356,10 +398,6 @@ Values defined by GWR (Gebäudeklasse). See [GWR documentation](https://www.hous
 | `approved` | Bewilligt | Approved |
 | `under_construction` | Im Bau | Under construction |
 | `completed` | Fertiggestellt | Completed |
-
-### landcovers.type (AV)
-
-Values defined by Amtliche Vermessung (Bodenbedeckung). See `landcover_types` lookup table.
 
 ---
 
