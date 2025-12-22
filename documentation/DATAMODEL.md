@@ -192,17 +192,37 @@ Land parcels from cadastral survey.
 | `created_at` | Created | Erstellt | `timestamptz` | `NOT NULL DEFAULT NOW()` | System | Record creation timestamp |
 | `updated_at` | Updated | Aktualisiert | `timestamptz` | `NOT NULL DEFAULT NOW()` | System | Record last update timestamp |
 
+#### Classification
+
+| Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
+|--------|------------|------------|------|-------------|--------|-------------|
+| `status` | Status | Status | `parcel_status` | | AV | Parcel status |
+| `type` | Type | Typ | `parcel_type` | | AV | Parcel type (LTYP) |
+
 #### Dimensions
 
 | Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
 |--------|------------|------------|------|-------------|--------|-------------|
-| `area_m2` | Area | Fläche | `numeric` | `CHECK (area_m2 >= 0)` | AV | Parcel area in m² |
+| `area_m2` | Area | Fläche | `numeric` | `CHECK (area_m2 >= 0)` | AV | Parcel area GSF in m² (Grundstücksfläche) |
+| `area_ggf_m2` | Building Footprint Area | Gebäudegrundfläche | `numeric` | `CHECK (area_ggf_m2 >= 0)` | Derived | Sum of building footprints in m² (GGF) |
+| `area_uf_m2` | Surrounding Area | Umgebungsfläche | `numeric` | `CHECK (area_uf_m2 >= 0)` | Derived | Surrounding area in m² (UF, SIA 416) |
+| `area_buf_m2` | Processed Surrounding | Bearbeitete Umgebung | `numeric` | `CHECK (area_buf_m2 >= 0)` | Derived | Processed surrounding area in m² (BUF, SIA 416) |
+| `area_uuf_m2` | Unprocessed Surrounding | Unbearbeitete Umgebung | `numeric` | `CHECK (area_uuf_m2 >= 0)` | Derived | Unprocessed surrounding area in m² (UUF, SIA 416) |
+| `sealed_area_m2` | Sealed Area | Versiegelte Fläche | `numeric` | `CHECK (sealed_area_m2 >= 0)` | Derived | Sealed/impervious surface in m² |
 
 #### Administrative
 
 | Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
 |--------|------------|------------|------|-------------|--------|-------------|
 | `municipality_nr` | Municipality Number | Gemeindenummer | `integer` | `CHECK (municipality_nr BETWEEN 1 AND 6999)` | AV | BFS municipality number |
+| `municipality_name` | Municipality Name | Gemeindename | `text` | | AV | Municipality name |
+
+#### Zoning
+
+| Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
+|--------|------------|------------|------|-------------|--------|-------------|
+| `zone_main` | Main Zone | Hauptnutzungszone | `text` | | ARE | Main zoning classification |
+| `zone_type` | Zone Type | Zonentyp | `text` | | ARE | Specific zone type |
 
 ---
 
@@ -224,13 +244,17 @@ Landcover polygons from cadastral survey.
 
 | Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
 |--------|------------|------------|------|-------------|--------|-------------|
+| `status` | Status | Status | `text` | | AV | Landcover status |
 | `type` | Type | Typ | `landcover_type` | `NOT NULL` | AV | Landcover classification |
 
 #### Dimensions
 
 | Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
 |--------|------------|------------|------|-------------|--------|-------------|
-| `area_m2` | Area | Fläche | `numeric` | `CHECK (area_m2 >= 0)` | AV | Area in m² |
+| `area_m2` | Area | Fläche | `numeric` | `CHECK (area_m2 >= 0)` | Derived | Surface area in m² |
+| `volume_total_m3` | Volume | Volumen | `numeric` | `CHECK (volume_total_m3 >= 0)` | Derived | Building volume in m³ (for type=building) |
+| `height_mean_m` | Mean Height | Mittlere Höhe | `numeric` | `CHECK (height_mean_m >= 0)` | Derived | Mean height in m (for type=building) |
+| `height_max_m` | Max Height | Maximale Höhe | `numeric` | `CHECK (height_max_m >= 0)` | Derived | Maximum height in m (for type=building) |
 
 #### Relations
 
@@ -262,6 +286,12 @@ Construction projects from GWR.
 |--------|------------|------------|------|-------------|--------|-------------|
 | `building_id` | Building | Gebäude | `bigint` | `REFERENCES buildings(id)` | GWR | Associated building (EGID) |
 | `parcel_id` | Parcel | Grundstück | `bigint` | `REFERENCES parcels(id)` | Derived | Associated parcel |
+
+#### Identification
+
+| Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
+|--------|------------|------------|------|-------------|--------|-------------|
+| `name` | Name | Bezeichnung | `text` | | GWR | Project name (PBEZ) |
 
 #### Classification
 
@@ -456,6 +486,46 @@ CREATE TYPE landcover_type AS ENUM (
     'gravel_sand',           -- 23
     'quarry_dump',           -- 24
     'other_unvegetated'      -- 25
+);
+```
+
+---
+
+### parcels.status — AV
+
+From DM.01-AV-CH Liegenschaft model.
+
+| Value | Alias (DE) | Alias (EN) |
+|-------|------------|------------|
+| `legally_valid` | Rechtskräftig | Legally valid |
+| `in_progress` | In Bearbeitung | In progress |
+| `projected` | Projektiert | Projected |
+
+```sql
+CREATE TYPE parcel_status AS ENUM (
+    'legally_valid',
+    'in_progress',
+    'projected'
+);
+```
+
+---
+
+### parcels.type (LTYP) — AV/GWR
+
+From GWR Merkmalskatalog, LTYP enumeration.
+
+| Code | Value | Alias (DE) | Alias (EN) |
+|------|-------|------------|------------|
+| 1 | `property` | Liegenschaft | Property (land parcel) |
+| 2 | `sdp_on_parcel` | Selbständiges und dauerndes Recht auf Grundstück | Independent and permanent right on a parcel |
+| 3 | `mining_right` | Bergwerk | Mining concession |
+
+```sql
+CREATE TYPE parcel_type AS ENUM (
+    'property',        -- 1
+    'sdp_on_parcel',   -- 2
+    'mining_right'     -- 3
 );
 ```
 
