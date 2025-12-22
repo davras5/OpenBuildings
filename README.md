@@ -45,8 +45,6 @@ One investment. Everyone benefits.
 | **Landcovers** | Building footprints and land use classifications |
 | **Projects** | Construction projects and building permits |
 
-![image](/images/4.jpg)
-
 ### Tools
 
 | Tool | Description |
@@ -54,6 +52,8 @@ One investment. Everyone benefits.
 | **Web Map** | Interactive map interface for exploring building data |
 | **Python CLI** | Calculate building volumes from geodata |
 | **FME Workbench** | Visual workflow for FME Desktop users |
+
+![image](/images/Preview1.jpg)
 
 ---
 
