@@ -163,160 +163,94 @@ Primary entity representing individual buildings.
 
 | Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
 |--------|------------|------------|------|-------------|--------|-------------|
-| `zone_designation` | Zone Designation | Zonenbezeichnung | `text` | | ARE | Zoning designation |
-| `zone_usage` | Zone Usage | Zonennutzung | `text` | | ARE | Permitted zone usage |
+| `zone_main` | Main Zone | Hauptnutzungszone | `text` | | ARE | Main zoning classification |
+| `zone_type` | Zone Type | Zonentyp | `text` | | ARE | Specific zone type |
 
 ---
 
 ### 2. parcels
 
-Land parcels from the official cadastral survey (Amtliche Vermessung).
-
-#### System
+Land parcels from cadastral survey.
 
 | Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
 |--------|------------|------------|------|-------------|--------|-------------|
 | `id` | ID | ID | `bigint` | `PRIMARY KEY, GENERATED ALWAYS AS IDENTITY` | System | System ID |
-| `egrid` | Parcel ID | Grundstückidentifikator | `text` | `UNIQUE, CHECK (egrid ~ '^CH[0-9]{12,14}$')` | AV | Eidgenössischer Grundstückidentifikator (EGRID) |
-| `source_fid` | Source Feature ID | Quell-Feature-ID | `text` | | AV | Feature ID from source system (for traceability) |
-| `geog` | Geometry | Geometrie | `geography(POLYGON, 4326)` | `NOT NULL` | AV | Parcel geometry |
+| `egrid` | Parcel ID | Grundstückidentifikator | `text` | `UNIQUE, CHECK (egrid ~ '^CH[0-9]{12}$')` | AV | E-GRID identifier |
+| `source_fid` | Source Feature ID | Quell-Feature-ID | `text` | | AV | Feature ID from source system |
+| `geog` | Geometry | Geometrie | `geography(POLYGON, 4326)` | `NOT NULL` | AV | Parcel boundary |
+| `area_m2` | Area | Fläche | `numeric` | `CHECK (area_m2 >= 0)` | AV | Parcel area in m² |
+| `municipality_nr` | Municipality Number | Gemeindenummer | `integer` | `CHECK (municipality_nr BETWEEN 1 AND 6999)` | AV | BFS municipality number |
 | `created_at` | Created | Erstellt | `timestamptz` | `NOT NULL DEFAULT NOW()` | System | Record creation timestamp |
 | `updated_at` | Updated | Aktualisiert | `timestamptz` | `NOT NULL DEFAULT NOW()` | System | Record last update timestamp |
-
-#### Classification
-
-| Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
-|--------|------------|------------|------|-------------|--------|-------------|
-| `status` | Status | Status | `parcel_status` | | AV | Parcel status |
-| `type` | Type | Typ | `parcel_type` | | AV | Parcel type (LTYP) |
-
-#### Identification
-
-| Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
-|--------|------------|------------|------|-------------|--------|-------------|
-| `parcel_nr` | Parcel Number | Parzellennummer | `text` | `NOT NULL` | AV | Parcel number (per municipality) |
-| `municipality_nr` | Municipality Number | Gemeindenummer | `integer` | `CHECK (municipality_nr BETWEEN 1 AND 6999)` | AV | BFS municipality number |
-| `municipality_name` | Municipality Name | Gemeindename | `text` | | AV | Municipality name |
-
-#### Dimensions - Area
-
-| Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
-|--------|------------|------------|------|-------------|--------|-------------|
-| `area_parcel_m2` | Parcel Area | Grundstücksfläche | `numeric` | `CHECK (area_parcel_m2 >= 0)` | AV | Grundstücksfläche GSF (SIA 416) |
-| `area_footprint_m2` | Building Footprint | Gebäudegrundfläche | `numeric` | `CHECK (area_footprint_m2 >= 0)` | Derived | Gebäudegrundfläche GGF (SIA 416), sum of building footprints |
-| `area_surrounding_m2` | Surrounding Area | Umgebungsfläche | `numeric` | `CHECK (area_surrounding_m2 >= 0)` | Derived | Umgebungsfläche UF (SIA 416) |
-| `area_surrounding_processed_m2` | Processed Surrounding | Bearbeitete Umgebung | `numeric` | `CHECK (area_surrounding_processed_m2 >= 0)` | Derived | Bearbeitete Umgebungsfläche BUF (SIA 416) |
-| `area_surrounding_unprocessed_m2` | Unprocessed Surrounding | Unbearbeitete Umgebung | `numeric` | `CHECK (area_surrounding_unprocessed_m2 >= 0)` | Derived | Unbearbeitete Umgebungsfläche UUF (SIA 416) |
 
 ---
 
 ### 3. landcovers
 
-Landcover polygons from Amtliche Vermessung. Building footprints are a specific type.
-
-#### System
+Landcover polygons from cadastral survey.
 
 | Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
 |--------|------------|------------|------|-------------|--------|-------------|
 | `id` | ID | ID | `bigint` | `PRIMARY KEY, GENERATED ALWAYS AS IDENTITY` | System | System ID |
-| `source_fid` | Source Feature ID | Quell-Feature-ID | `text` | | AV | Feature ID from source system (for traceability) |
-| `geog` | Geometry | Geometrie | `geography(POLYGON, 4326)` | `NOT NULL` | AV | Landcover geometry |
+| `source_fid` | Source Feature ID | Quell-Feature-ID | `text` | | AV | Feature ID from source system |
+| `geog` | Geometry | Geometrie | `geography(POLYGON, 4326)` | `NOT NULL` | AV | Landcover polygon |
+| `type` | Type | Typ | `landcover_type` | `NOT NULL` | AV | Landcover classification |
+| `area_m2` | Area | Fläche | `numeric` | `CHECK (area_m2 >= 0)` | AV | Area in m² |
+| `building_id` | Building | Gebäude | `bigint` | `REFERENCES buildings(id)` | Derived | Link to building (for footprints) |
+| `parcel_id` | Parcel | Grundstück | `bigint` | `REFERENCES parcels(id)` | Derived | Containing parcel |
 | `created_at` | Created | Erstellt | `timestamptz` | `NOT NULL DEFAULT NOW()` | System | Record creation timestamp |
 | `updated_at` | Updated | Aktualisiert | `timestamptz` | `NOT NULL DEFAULT NOW()` | System | Record last update timestamp |
-
-#### Classification
-
-| Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
-|--------|------------|------------|------|-------------|--------|-------------|
-| `status` | Status | Status | `text` | | AV | Landcover status |
-| `type` | Type | Typ | `landcover_type` | `NOT NULL` | AV | Landcover type (BB-Art) |
-
-#### Relations
-
-| Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
-|--------|------------|------------|------|-------------|--------|-------------|
-| `building_id` | Building | Gebäude | `bigint` | `REFERENCES buildings(id) ON DELETE SET NULL` | Derived | Associated building (for footprints only) |
-| `parcel_id` | Parcel | Parzelle | `bigint` | `REFERENCES parcels(id) ON DELETE SET NULL` | Derived | Associated parcel |
-
-#### Dimensions
-
-| Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
-|--------|------------|------------|------|-------------|--------|-------------|
-| `area_m2` | Area | Fläche | `numeric` | `CHECK (area_m2 >= 0)` | Derived | Surface area |
-| `volume_total_m3` | Volume | Volumen | `numeric` | `CHECK (volume_total_m3 >= 0)` | Derived | Volume (for buildings) |
-| `height_mean_m` | Mean Height | Mittlere Höhe | `numeric` | `CHECK (height_mean_m >= 0)` | Derived | Mean height (for buildings) |
-| `height_max_m` | Max Height | Maximale Höhe | `numeric` | `CHECK (height_max_m >= 0)` | Derived | Maximum height (for buildings) |
 
 ---
 
 ### 4. projects
 
-Construction projects. Note: Limited OGD available - primarily cantonal building permit data where published.
-
-#### System
+Construction projects from GWR (limited OGD availability).
 
 | Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
 |--------|------------|------------|------|-------------|--------|-------------|
 | `id` | ID | ID | `bigint` | `PRIMARY KEY, GENERATED ALWAYS AS IDENTITY` | System | System ID |
-| `eproid` | Project ID | Bauprojektidentifikator | `text` | `UNIQUE, CHECK (eproid ~ '^[0-9]{1,9}$')` | GWR | Eidgenössischer Bauprojektidentifikator (EPROID) |
-| `source_fid` | Source Feature ID | Quell-Feature-ID | `text` | | Various | Feature ID from source system (for traceability) |
-| `geog` | Geometry | Geometrie | `geography(POLYGON, 4326)` | | Various | Project perimeter |
+| `eproid` | Project ID | Bauprojektidentifikator | `text` | `UNIQUE, CHECK (eproid ~ '^[0-9]{1,15}$')` | GWR | EPROID identifier |
+| `source_fid` | Source Feature ID | Quell-Feature-ID | `text` | | GWR | Feature ID from source system |
+| `geog` | Geometry | Geometrie | `geography(POLYGON, 4326)` | | GWR | Project perimeter |
+| `status` | Status | Status | `project_status` | | GWR | Project status (PSTAT) |
+| `project_type` | Project Type | Projektart | `project_type` | | GWR | Type of construction (PARTBW) |
+| `building_type` | Building Type | Bauwerkstyp | `text` | | GWR | Specific building type (PTYPBW) |
+| `date_submitted` | Submitted | Beantragt | `date` | | GWR | Permit application date (PDATIN) |
+| `date_approved` | Approved | Bewilligt | `date` | | GWR | Permit approval date (PDATOK) |
+| `date_started` | Started | Baubeginn | `date` | | GWR | Construction start date (PDATBB) |
+| `date_completed` | Completed | Abgeschlossen | `date` | | GWR | Completion date (PDATBE) |
+| `municipality_nr` | Municipality Number | Gemeindenummer | `integer` | `CHECK (municipality_nr BETWEEN 1 AND 6999)` | GWR | BFS municipality number |
 | `created_at` | Created | Erstellt | `timestamptz` | `NOT NULL DEFAULT NOW()` | System | Record creation timestamp |
 | `updated_at` | Updated | Aktualisiert | `timestamptz` | `NOT NULL DEFAULT NOW()` | System | Record last update timestamp |
-
-#### Classification
-
-| Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
-|--------|------------|------------|------|-------------|--------|-------------|
-| `status` | Status | Status | `project_status` | | GWR | Project status (PSTAT) |
-| `project_type` | Project Type | Art der Bauwerke | `project_type` | | GWR | Project type (PARTBW) |
-| `building_type` | Building Type | Typ der Bauwerke | `text` | `CHECK (building_type ~ '^62[0-9]{2}$')` | GWR | Building type code (PTYPBW) |
-
-#### Identification
-
-| Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
-|--------|------------|------------|------|-------------|--------|-------------|
-| `name` | Name | Bezeichnung | `text` | | Various | Project name (PBEZ) |
-| `municipality_nr` | Municipality Number | Gemeindenummer | `integer` | `CHECK (municipality_nr BETWEEN 1 AND 6999)` | Various | BFS municipality number (PGDENR) |
-
-#### Timeline
-
-| Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
-|--------|------------|------------|------|-------------|--------|-------------|
-| `date_submission` | Submission Date | Datum Baueingabe | `date` | `CHECK (date_submission >= '2000-01-01')` | Various | Building permit submission date (PDATIN) |
-| `date_approval` | Approval Date | Datum Baubewilligung | `date` | `CHECK (date_approval >= date_submission)` | Various | Building permit approval date (PDATOK) |
-| `date_start` | Start Date | Datum Baubeginn | `date` | `CHECK (date_start >= date_approval)` | Various | Construction start date (PDATBB) |
-| `date_end` | End Date | Datum Bauende | `date` | `CHECK (date_end >= date_start)` | Various | Construction end date (PDATBE) |
 
 ---
 
 ## Enumerations
 
-Standard values for enumerated fields. All enumerations validated against official Swiss sources (GWR Merkmalskatalog 4.2, DM.01-AV-CH).
-
 ### buildings.status (GSTAT) — GWR
 
-| Code | Value | Alias (DE) | Alias (EN) | Notes |
-|------|-------|------------|------------|-------|
-| 1001 | `planned` | Projektiert | Planned | Building project submitted, not yet approved |
-| 1002 | `approved` | Bewilligt | Approved | Building permit granted, construction not started |
-| 1003 | `under_construction` | Im Bau | Under construction | Construction has begun |
-| 1004 | `existing` | Bestehend | Existing | Building is completed and in use |
-| 1005 | `not_usable` | Nicht nutzbar | Not usable | Building exists but cannot be used |
-| 1007 | `demolished` | Abgebrochen | Demolished | Building has been torn down |
-| 1008 | `not_realized` | Nicht realisiert | Not realized | Approved project was not built |
+From GWR Merkmalskatalog 4.2, Gebäudestatus.
 
-**Note**: Code 1006 is not used in the current GWR schema.
+| Code | Value | Alias (DE) | Alias (EN) |
+|------|-------|------------|------------|
+| 1001 | `planned` | projektiert | Planned |
+| 1002 | `approved` | bewilligt | Approved |
+| 1003 | `under_construction` | im Bau | Under construction |
+| 1004 | `existing` | bestehend | Existing |
+| 1005 | `unusable` | nicht nutzbar | Unusable |
+| 1007 | `demolished` | abgebrochen | Demolished |
+| 1008 | `not_realized` | nicht realisiert | Not realized |
 
 ```sql
 CREATE TYPE building_status AS ENUM (
-    'planned',            -- 1001
-    'approved',           -- 1002
+    'planned',           -- 1001
+    'approved',          -- 1002
     'under_construction', -- 1003
-    'existing',           -- 1004
-    'not_usable',         -- 1005
-    'demolished',         -- 1007
-    'not_realized'        -- 1008
+    'existing',          -- 1004
+    'unusable',          -- 1005
+    'demolished',        -- 1007
+    'not_realized'       -- 1008
 );
 ```
 
@@ -324,67 +258,61 @@ CREATE TYPE building_status AS ENUM (
 
 ### buildings.category (GKAT) — GWR
 
-| Code | Value | Alias (DE) | Alias (EN) | Includes |
-|------|-------|------------|------------|----------|
-| 1010 | `provisional_accommodation` | Provisorische Unterkünfte | Provisional accommodations | Mobilhomes, caravans, wagons, houseboats, barracks |
-| 1020 | `residential_only` | Gebäude mit ausschliesslicher Wohnnutzung | Residential buildings (exclusive) | Villas, multi-family houses, chalets, weekend houses, row houses |
-| 1030 | `residential_with_secondary` | Andere Wohngebäude (mit Nebennutzung) | Other residential buildings (with secondary use) | Residential with shops, workshops, offices, agricultural buildings with living quarters |
-| 1040 | `partial_residential` | Gebäude mit teilweiser Wohnnutzung | Buildings with partial residential use | Schools, factories, admin buildings with caretaker flat; collective housing (clinics, homes, prisons); tourist buildings |
-| 1060 | `non_residential` | Gebäude ohne Wohnnutzung | Non-residential buildings | Schools, cultural, industrial, warehouse, office, admin buildings; churches, sports halls, agricultural buildings, garages |
-| 1080 | `special_structures` | Sonderbauten | Special structures | Telephone booths, billboards, cisterns, open halls, carports, parking structures, platform roofs, underground structures |
+From GWR Merkmalskatalog 4.2, Gebäudekategorie.
+
+| Code | Value | Alias (DE) | Alias (EN) |
+|------|-------|------------|------------|
+| 1010 | `provisional` | Provisorische Unterkunft | Provisional dwelling |
+| 1020 | `detached_single` | Einfamilienhaus freistehend | Single-family house, detached |
+| 1021 | `attached_single` | Einfamilienhaus angebaut | Single-family house, attached |
+| 1025 | `row_house` | Reihenhaus | Row house |
+| 1030 | `multi_family` | Mehrfamilienhaus | Multi-family house |
+| 1040 | `residential_mixed` | Gebäude mit Wohn- und Nebennutzung | Building with residential and secondary use |
+| 1060 | `residential_commercial` | Gebäude mit teilweiser Wohnnutzung | Building with partial residential use |
+| 1080 | `commercial_only` | Gebäude ohne Wohnnutzung | Building without residential use |
+| 1110 | `special` | Sonderbau | Special building |
 
 ```sql
 CREATE TYPE building_category AS ENUM (
-    'provisional_accommodation',  -- 1010
-    'residential_only',           -- 1020
-    'residential_with_secondary', -- 1030
-    'partial_residential',        -- 1040
-    'non_residential',            -- 1060
-    'special_structures'          -- 1080
+    'provisional',          -- 1010
+    'detached_single',      -- 1020
+    'attached_single',      -- 1021
+    'row_house',            -- 1025
+    'multi_family',         -- 1030
+    'residential_mixed',    -- 1040
+    'residential_commercial', -- 1060
+    'commercial_only',      -- 1080
+    'special'               -- 1110
 );
 ```
 
 ---
 
-### buildings.class (GKLAS) — GWR
-
-Selected values from Merkmalskatalog 4.2. Full catalog contains ~50 codes.
-
-#### Residential Buildings (1xxx)
-
-| Code | Value | Alias (DE) | Alias (EN) |
-|------|-------|------------|------------|
-| 1110 | `single_family_detached` | Einfamilienhaus freistehend | Single-family house, detached |
-| 1121 | `single_family_attached` | Einfamilienhaus angebaut | Single-family house, attached |
-| 1122 | `row_house` | Reiheneinfamilienhaus | Row house |
-| 1130 | `multi_family` | Mehrfamilienhaus | Multi-family house |
-| 1212 | `mobile_home` | Mobile Unterkunft (Mobilhome) | Mobile home |
-
-**Reference**: [GWR Merkmalskatalog 4.2](https://www.housing-stat.ch/files/881-2200.pdf) for complete GKLAS enumeration.
-
----
-
 ### buildings.roof_form — Derived
 
-Derived enumeration based on common Swiss roof types (not an official GWR field).
+Inferred from elevation models.
 
-| Value | Alias (DE) | Alias (EN) | Notes |
-|-------|------------|------------|-------|
-| `flat` | Flachdach | Flat roof | Common in modern/urban buildings |
-| `gable` | Satteldach | Gable roof | Most common traditional form |
-| `hip` | Walmdach | Hip roof | All sides slope down |
-| `half_hip` | Krüppelwalmdach | Half-hip roof | Hybrid gable/hip |
-| `mansard` | Mansarddach | Mansard roof | Gambrel-style with living space |
-| `shed` | Pultdach | Shed/mono-pitch roof | Single slope |
-| `pyramid` | Pyramidendach | Pyramid roof | Four equal triangular sides |
-| `dome` | Kuppeldach | Dome roof | Curved hemispherical |
-| `complex` | Komplexes Dach | Complex roof | Multiple forms combined |
-| `unknown` | Unbekannt | Unknown | Cannot be determined |
+| Value | Alias (DE) | Alias (EN) |
+|-------|------------|------------|
+| `flat` | Flachdach | Flat roof |
+| `gable` | Satteldach | Gable roof |
+| `hip` | Walmdach | Hip roof |
+| `mansard` | Mansarddach | Mansard roof |
+| `pyramid` | Pyramidendach | Pyramid roof |
+| `dome` | Kuppeldach | Dome roof |
+| `shed` | Pultdach | Shed roof |
+| `other` | Andere | Other |
 
 ```sql
 CREATE TYPE roof_form AS ENUM (
-    'flat', 'gable', 'hip', 'half_hip', 'mansard',
-    'shed', 'pyramid', 'dome', 'complex', 'unknown'
+    'flat',
+    'gable',
+    'hip',
+    'mansard',
+    'pyramid',
+    'dome',
+    'shed',
+    'other'
 );
 ```
 
@@ -392,109 +320,62 @@ CREATE TYPE roof_form AS ENUM (
 
 ### buildings.heritage_category — KGS
 
-From the KGS Inventar (Kulturgüterschutz).
+From KGS Inventar (Kulturgüterschutz).
 
-| Value | Alias (DE) | Alias (EN) |
-|-------|------------|------------|
-| `A` | Objekte von nationaler Bedeutung | Objects of national importance |
-| `B` | Objekte von regionaler Bedeutung | Objects of regional importance |
-
-**Source**: [KGS Inventar](https://www.babs.admin.ch/de/aufgabenbabs/kgs/kgsinventar.html)
+| Value | Alias (DE) | Alias (EN) | Description |
+|-------|------------|------------|-------------|
+| `a` | Kategorie A | Category A | Objects of national importance |
+| `b` | Kategorie B | Category B | Objects of regional importance |
 
 ```sql
-CREATE TYPE heritage_category AS ENUM ('A', 'B');
+CREATE TYPE heritage_category AS ENUM ('a', 'b');
 ```
 
 ---
 
-### parcels.status — AV
+### landcovers.type — AV
 
-From DM.01-AV-CH Liegenschaft model.
+From DM.01-AV-CH, Bodenbedeckungsarten. 25 official types.
 
-| Value | Alias (DE) | Alias (EN) |
-|-------|------------|------------|
-| `legally_valid` | Rechtskräftig | Legally valid |
-| `in_progress` | In Bearbeitung | In progress |
-| `projected` | Projektiert | Projected |
-
-```sql
-CREATE TYPE parcel_status AS ENUM (
-    'legally_valid',
-    'in_progress',
-    'projected'
-);
-```
-
----
-
-### parcels.type (LTYP) — AV/GWR
-
-From GWR Merkmalskatalog, LTYP enumeration.
-
-| Code | Value | Alias (DE) | Alias (EN) |
-|------|-------|------------|------------|
-| 1 | `property` | Liegenschaft | Property (land parcel) |
-| 2 | `sdp_on_parcel` | Selbständiges und dauerndes Recht auf Grundstück | Independent and permanent right on a parcel |
-| 3 | `mining_right` | Bergwerk | Mining concession |
-
-```sql
-CREATE TYPE parcel_type AS ENUM (
-    'property',        -- 1
-    'sdp_on_parcel',   -- 2
-    'mining_right'     -- 3
-);
-```
-
----
-
-### landcovers.type (BB-Art) — AV
-
-Complete official enumeration from KKVA Richtlinie Detaillierungsgrad BB (DM.01-AV-CH).
-
-| Code | Category | Value | Alias (DE) | Alias (EN) |
-|------|----------|-------|------------|------------|
-| 0 | — | `building` | Gebäude | Building |
-| **Befestigt (Surfaced)** |||||
-| 1 | befestigt | `road_path` | Strasse_Weg | Road/Path |
-| 2 | befestigt | `sidewalk` | Trottoir | Sidewalk |
-| 3 | befestigt | `traffic_island` | Verkehrsinsel | Traffic island |
-| 4 | befestigt | `railway` | Bahn | Railway |
-| 5 | befestigt | `airport` | Flugplatz | Airport |
-| 6 | befestigt | `water_basin` | Wasserbecken | Water basin |
-| 7 | befestigt | `other_surfaced` | übrige_befestigte | Other surfaced |
-| **Humusiert (Soil-covered)** |||||
-| 8 | humusiert | `field_meadow_pasture` | Acker_Wiese_Weide | Field/Meadow/Pasture |
-| 9 | humusiert | `vineyard` | Reben | Vineyard |
-| 10 | humusiert | `other_intensive_culture` | übrige_Intensivkultur | Other intensive culture |
-| 11 | humusiert | `garden` | Gartenanlage | Garden |
-| 12 | humusiert | `moor` | Hoch_Flachmoor | High/Low moor |
-| 13 | humusiert | `other_humusized` | übrige_humusierte | Other soil-covered |
-| **Gewässer (Water)** |||||
-| 14 | Gewässer | `standing_water` | stehendes Gewässer | Standing water (lake, pond) |
-| 15 | Gewässer | `flowing_water` | fliessendes Gewässer | Flowing water (river, stream) |
-| 16 | Gewässer | `reed_belt` | Schilfgürtel | Reed belt |
-| **Bestockt (Forested)** |||||
-| 17 | bestockt | `closed_forest` | geschlossener_Wald | Closed forest |
-| 18 | bestockt | `dense_wooded_pasture` | Wytweide_dicht | Dense wooded pasture |
-| 19 | bestockt | `open_wooded_pasture` | Wytweide_offen | Open wooded pasture |
-| 20 | bestockt | `other_wooded` | übrige_bestockte | Other wooded |
-| **Vegetationslos (Unvegetated)** |||||
-| 21 | vegetationslos | `rock` | Fels | Rock |
-| 22 | vegetationslos | `glacier_firn` | Gletscher_Firn | Glacier/Firn |
-| 23 | vegetationslos | `gravel_sand` | Geröll_Sand | Gravel/Sand |
-| 24 | vegetationslos | `quarry_dump` | Abbau_Deponie | Quarry/Dump |
-| 25 | vegetationslos | `other_unvegetated` | übrige_vegetationslose | Other unvegetated |
+| Code | Value | Category (DE) | Alias (DE) | Alias (EN) |
+|------|-------|---------------|------------|------------|
+| 0 | `building` | Befestigte Flächen | Gebäude | Building |
+| 1 | `hardened_area` | Befestigte Flächen | Befestigte Fläche | Hardened area |
+| 2 | `greenhouse` | Befestigte Flächen | Gewächshaus | Greenhouse |
+| 3 | `perennial_culture_shelter` | Befestigte Flächen | Unterstand Dauerkultur | Perennial culture shelter |
+| 4 | `reservoir` | Befestigte Flächen | Wasserbecken | Reservoir |
+| 5 | `other_hardened` | Befestigte Flächen | Übrige befestigte | Other hardened |
+| 6 | `railway` | Verkehrsflächen | Bahn | Railway |
+| 7 | `road_path` | Verkehrsflächen | Strasse/Weg | Road/Path |
+| 8 | `field_meadow_pasture` | Landwirtschaft | Acker/Wiese/Weide | Field/Meadow/Pasture |
+| 9 | `vineyard` | Landwirtschaft | Reben | Vineyard |
+| 10 | `other_intensive_culture` | Landwirtschaft | Übrige Intensivkultur | Other intensive culture |
+| 11 | `garden` | Landwirtschaft | Garten | Garden |
+| 12 | `moor` | Humusierte Flächen | Moor | Moor |
+| 13 | `other_humusized` | Humusierte Flächen | Übrige humusierte | Other humusized |
+| 14 | `standing_water` | Gewässer | Stehendes Gewässer | Standing water |
+| 15 | `flowing_water` | Gewässer | Fliessendes Gewässer | Flowing water |
+| 16 | `reed_belt` | Gewässer | Schilfgürtel | Reed belt |
+| 17 | `closed_forest` | Bestockte Flächen | Geschlossener Wald | Closed forest |
+| 18 | `dense_wooded_pasture` | Bestockte Flächen | Übrige dicht bestockte | Dense wooded pasture |
+| 19 | `open_wooded_pasture` | Bestockte Flächen | Übrige locker bestockte | Open wooded pasture |
+| 20 | `other_wooded` | Bestockte Flächen | Gehölz | Other wooded |
+| 21 | `rock` | Vegetationslose Flächen | Fels | Rock |
+| 22 | `glacier_firn` | Vegetationslose Flächen | Gletscher/Firn | Glacier/Firn |
+| 23 | `gravel_sand` | Vegetationslose Flächen | Kies/Sand | Gravel/Sand |
+| 24 | `quarry_dump` | Vegetationslose Flächen | Abbau/Deponie | Quarry/Dump |
+| 25 | `other_unvegetated` | Vegetationslose Flächen | Übrige vegetationslose | Other unvegetated |
 
 ```sql
 CREATE TYPE landcover_type AS ENUM (
     'building',              -- 0
-    'road_path',             -- 1
-    'sidewalk',              -- 2
-    'traffic_island',        -- 3
-    'railway',               -- 4
-    'airport',               -- 5
-    'water_basin',           -- 6
-    'other_surfaced',        -- 7
+    'hardened_area',         -- 1
+    'greenhouse',            -- 2
+    'perennial_culture_shelter', -- 3
+    'reservoir',             -- 4
+    'other_hardened',        -- 5
+    'railway',               -- 6
+    'road_path',             -- 7
     'field_meadow_pasture',  -- 8
     'vineyard',              -- 9
     'other_intensive_culture', -- 10
@@ -632,30 +513,57 @@ BFS municipality register.
 
 ## Data Sources
 
-| Source | Full Name | Data Provider | Access |
-|--------|-----------|---------------|--------|
-| AV | Amtliche Vermessung | Cantonal Survey Offices via geodienste.ch | OGD |
-| GWR | Gebäude- und Wohnungsregister | BFS (Federal Statistical Office) | OGD |
-| ARE | Bauzonen Schweiz | ARE (Federal Office for Spatial Development) | OGD |
-| KGS | KGS Inventar | BABS (Federal Office for Civil Protection) | OGD |
-| swissALTI3D | swissALTI3D | swisstopo | OGD |
-| swissSURFACE3D | swissSURFACE3D | swisstopo | OGD |
+Primary data access is through the **Federal Spatial Data Infrastructure (FSDI)** via geo.admin.ch services.
 
-### Data Sources Reference
+| Key | Dataset | Provider | Layer ID | Access | Update | Content |
+|-----|---------|----------|----------|--------|--------|---------|
+| GWR | Gebäude- und Wohnungsregister | BFS | `ch.bfs.gebaeude_wohnungs_register` | OGD | Daily | Building attributes, dwellings, addresses |
+| GWR-GENH | GWR Energie-/Wärmequelle Heizung | BFS | `ch.bfs.gebaeude_wohnungs_register_waermequelle_heizung` | OGD | Daily | Heating energy sources |
+| AV | Amtliche Vermessung | Cantonal Offices | via geodienste.ch | OGD | Varies | Footprints, parcels, landcovers |
+| swissALTI3D | swissALTI3D | swisstopo | `ch.swisstopo.swissalti3d` | OGD | Annual | Terrain elevation model (DTM) |
+| swissSURFACE3D | swissSURFACE3D | swisstopo | `ch.swisstopo.swisssurface3d` | OGD | Annual | Surface elevation model (DSM) |
+| swissBUILDINGS3D | swissBUILDINGS3D | swisstopo | `ch.swisstopo.swissbuildings3d` | OGD | Annual | 3D building models |
+| swissBOUNDARIES3D | swissBOUNDARIES3D | swisstopo | `ch.swisstopo.swissboundaries3d-gemeinde-flaeche.fill` | OGD | Annual | Municipality boundaries |
+| ARE | Bauzonen Schweiz | ARE | `ch.are.bauzonen` | OGD | Annual | Zoning classifications |
+| KGS | KGS Inventar | BABS | `ch.babs.kulturgueter` | OGD | Occasional | Heritage protection (A/B) |
 
-| Dataset | API/Download | Update Frequency | Notes |
-|---------|--------------|------------------|-------|
-| Amtliche Vermessung | geodienste.ch WFS/Download | Varies by canton | Building footprints, parcels |
-| GWR | api3.geo.admin.ch | Quarterly | Building attributes |
-| swissALTI3D | swisstopo STAC/Download | Annual | Terrain model |
-| swissSURFACE3D | swisstopo STAC/Download | Annual | Surface model |
-| Bauzonen | opendata.swiss | Annual | Zoning data |
-| KGS Inventar | opendata.swiss | Occasional | Heritage protection |
-| BFS Municipalities | bfs.admin.ch | Annual | Municipality register |
+### API Endpoints
 
-### Key Documentation
+| Service | URL | Description |
+|---------|-----|-------------|
+| Tech Docs | https://docs.geo.admin.ch | API documentation and guides |
+| Layer Catalog | https://api3.geo.admin.ch/rest/services/ech/MapServer | Complete list of available layers |
+| Identify | https://api3.geo.admin.ch/rest/services/api/MapServer/identify | Query features by location |
+| Find | https://api3.geo.admin.ch/rest/services/api/MapServer/find | Search features by attribute |
+| Search | https://api3.geo.admin.ch/rest/services/api/SearchServer | Full-text search (addresses, layers, features) |
+| WMS | https://wms.geo.admin.ch | OGC Web Map Service |
+| WMTS | https://wmts.geo.admin.ch | OGC Web Map Tile Service |
+| STAC | https://data.geo.admin.ch/api/stac/v1 | Spatiotemporal Asset Catalog for downloads |
+| Data Browser | https://data.geo.admin.ch/browser | Interactive data download |
 
-- [GWR Merkmalskatalog 4.2 (PDF)](https://www.housing-stat.ch/files/881-2200.pdf)
-- [KKVA Richtlinie Detaillierungsgrad BB](https://www.cadastre-manual.admin.ch/dam/de/sd-web/J969zG4lGjuV/Richtlinie-Detaillierungsgrad-BB-de.pdf)
-- [Weisung AV-GWR Gebäudeerfassung](https://www.housing-stat.ch/files/1754-2300.pdf)
-- [Cadastre Manual](https://www.cadastre-manual.admin.ch)
+### Example API Calls
+
+```bash
+# Get building by EGID
+curl "https://api3.geo.admin.ch/rest/services/api/MapServer/find?layer=ch.bfs.gebaeude_wohnungs_register&searchText=1231641&searchField=egid&returnGeometry=true"
+
+# Identify features at coordinates (LV95)
+curl "https://api3.geo.admin.ch/rest/services/api/MapServer/identify?geometryType=esriGeometryPoint&geometry=2600000,1200000&layers=all:ch.bfs.gebaeude_wohnungs_register&tolerance=50&returnGeometry=true&sr=2056"
+
+# Search for address
+curl "https://api3.geo.admin.ch/rest/services/api/SearchServer?searchText=bundesplatz%203%20bern&type=locations"
+```
+
+---
+
+## Key Documentation
+
+| Document | URL |
+|----------|-----|
+| geo.admin.ch Tech Docs | https://docs.geo.admin.ch |
+| GWR Merkmalskatalog 4.2 | https://www.housing-stat.ch/files/881-2200.pdf |
+| GWR Public Data | https://www.housing-stat.ch/__publicdata |
+| KKVA Richtlinie Detaillierungsgrad BB | https://www.cadastre-manual.admin.ch/dam/de/sd-web/J969zG4lGjuV/Richtlinie-Detaillierungsgrad-BB-de.pdf |
+| Weisung AV-GWR Gebäudeerfassung | https://www.housing-stat.ch/files/1754-2300.pdf |
+| Cadastre Manual | https://www.cadastre-manual.admin.ch |
+| swisstopo Products | https://www.swisstopo.admin.ch/de/geodata |
