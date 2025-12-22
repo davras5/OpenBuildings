@@ -553,16 +553,7 @@
         }
 
         .feature-card {
-            padding: var(--space-xl);
-            background-color: var(--white);
-            border: 1px solid var(--slate-200);
-            border-radius: var(--radius-md);
-            transition: all 0.2s ease;
-        }
-
-        .feature-card:hover {
-            box-shadow: var(--shadow-md);
-            transform: translateY(-2px);
+            padding: var(--space-lg) 0;
         }
 
         .feature-icon {
@@ -997,7 +988,15 @@
             gap: var(--space-md);
             padding: var(--space-xl);
             background-color: var(--white);
+            border: 1px solid var(--slate-200);
             border-radius: var(--radius-md);
+            box-shadow: var(--shadow-sm);
+            transition: all 0.2s ease;
+        }
+
+        .principle-item:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
         }
 
         .principle-item i {
