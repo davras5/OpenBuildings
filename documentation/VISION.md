@@ -18,7 +18,7 @@ Curated. Connected. Maintained. Ready to plug into your planning, reporting, and
 
 Everyone wants data-driven decisions. Few know what that requires.
 
-Small organizations can't afford specialists to do the work. Large ones do it but keep it locked away – unpublished, unmaintained, forgotten.
+Small organizations can't afford specialists to do the work. Large ones do, but keep the results locked away – unpublished, unmaintained, forgotten.
 
 Same outcome: no shared foundation. The same work, done a hundred times in isolation.
 
