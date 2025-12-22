@@ -13,13 +13,14 @@
 
 | Entity | Primary Key | Secondary Key | Geometry | Description |
 |--------|-------------|---------------|----------|-------------|
-| `buildings` | `id` | `egid` | Point | Individual buildings with attributes from GWR, volumes from elevation models |
+| `buildings` | `id` | `egid` | Point | Individual buildings linked to parcels, with attributes from GWR and volumes from elevation models |
 | `parcels` | `id` | `egrid` | Polygon | Land parcels from cadastral survey |
 | `landcovers` | `id` | | Polygon | Landcover polygons including building footprints |
 | `projects` | `id` | `eproid` | Polygon | Construction projects linked to buildings and parcels |
 
 ```mermaid
 erDiagram
+    parcels ||--o{ buildings : "contains"
     buildings ||--o| landcovers : "has footprint"
     parcels ||--o{ landcovers : "contains"
     buildings ||--o{ projects : "has"
@@ -29,11 +30,13 @@ erDiagram
         bigint id PK
         text egid UK
         geography geog
+        bigint parcel_id FK
     }
 
     parcels {
         bigint id PK
         text egrid UK
+        text parcel_number
         geography geog
     }
 
@@ -68,6 +71,7 @@ Primary entity representing individual buildings.
 | `id` | ID | ID | `bigint` | `PRIMARY KEY, GENERATED ALWAYS AS IDENTITY` | System | System ID |
 | `egid` | Building ID | Gebäudeidentifikator | `text` | `UNIQUE, CHECK (egid ~ '^[0-9]{1,9}$')` | GWR | Eidgenössischer Gebäudeidentifikator (EGID) |
 | `source_fid` | Source Feature ID | Quell-Feature-ID | `text` | | Various | Feature ID from source system (for traceability) |
+| `parcel_id` | Parcel | Grundstück | `bigint` | `REFERENCES parcels(id)` | Derived | Containing parcel |
 | `geog` | Location | Standort | `geography(POINT, 4326)` | `NOT NULL` | GWR | Building centroid |
 | `created_at` | Created | Erstellt | `timestamptz` | `NOT NULL DEFAULT NOW()` | System | Record creation timestamp |
 | `updated_at` | Updated | Aktualisiert | `timestamptz` | `NOT NULL DEFAULT NOW()` | System | Record last update timestamp |
@@ -176,16 +180,29 @@ Primary entity representing individual buildings.
 
 Land parcels from cadastral survey.
 
+#### System
+
 | Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
 |--------|------------|------------|------|-------------|--------|-------------|
 | `id` | ID | ID | `bigint` | `PRIMARY KEY, GENERATED ALWAYS AS IDENTITY` | System | System ID |
 | `egrid` | Parcel ID | Grundstückidentifikator | `text` | `UNIQUE, CHECK (egrid ~ '^CH[0-9]{12}$')` | AV | E-GRID identifier |
+| `parcel_number` | Parcel Number | Parzellennummer | `text` | | AV | Local parcel number (Grundstücksnummer) |
 | `source_fid` | Source Feature ID | Quell-Feature-ID | `text` | | AV | Feature ID from source system |
 | `geog` | Geometry | Geometrie | `geography(POLYGON, 4326)` | `NOT NULL` | AV | Parcel boundary |
-| `area_m2` | Area | Fläche | `numeric` | `CHECK (area_m2 >= 0)` | AV | Parcel area in m² |
-| `municipality_nr` | Municipality Number | Gemeindenummer | `integer` | `CHECK (municipality_nr BETWEEN 1 AND 6999)` | AV | BFS municipality number |
 | `created_at` | Created | Erstellt | `timestamptz` | `NOT NULL DEFAULT NOW()` | System | Record creation timestamp |
 | `updated_at` | Updated | Aktualisiert | `timestamptz` | `NOT NULL DEFAULT NOW()` | System | Record last update timestamp |
+
+#### Dimensions
+
+| Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
+|--------|------------|------------|------|-------------|--------|-------------|
+| `area_m2` | Area | Fläche | `numeric` | `CHECK (area_m2 >= 0)` | AV | Parcel area in m² |
+
+#### Administrative
+
+| Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
+|--------|------------|------------|------|-------------|--------|-------------|
+| `municipality_nr` | Municipality Number | Gemeindenummer | `integer` | `CHECK (municipality_nr BETWEEN 1 AND 6999)` | AV | BFS municipality number |
 
 ---
 
@@ -193,23 +210,42 @@ Land parcels from cadastral survey.
 
 Landcover polygons from cadastral survey.
 
+#### System
+
 | Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
 |--------|------------|------------|------|-------------|--------|-------------|
 | `id` | ID | ID | `bigint` | `PRIMARY KEY, GENERATED ALWAYS AS IDENTITY` | System | System ID |
 | `source_fid` | Source Feature ID | Quell-Feature-ID | `text` | | AV | Feature ID from source system |
 | `geog` | Geometry | Geometrie | `geography(POLYGON, 4326)` | `NOT NULL` | AV | Landcover polygon |
-| `type` | Type | Typ | `landcover_type` | `NOT NULL` | AV | Landcover classification |
-| `area_m2` | Area | Fläche | `numeric` | `CHECK (area_m2 >= 0)` | AV | Area in m² |
-| `building_id` | Building | Gebäude | `bigint` | `REFERENCES buildings(id)` | Derived | Link to building (for footprints) |
-| `parcel_id` | Parcel | Grundstück | `bigint` | `REFERENCES parcels(id)` | Derived | Containing parcel |
 | `created_at` | Created | Erstellt | `timestamptz` | `NOT NULL DEFAULT NOW()` | System | Record creation timestamp |
 | `updated_at` | Updated | Aktualisiert | `timestamptz` | `NOT NULL DEFAULT NOW()` | System | Record last update timestamp |
+
+#### Classification
+
+| Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
+|--------|------------|------------|------|-------------|--------|-------------|
+| `type` | Type | Typ | `landcover_type` | `NOT NULL` | AV | Landcover classification |
+
+#### Dimensions
+
+| Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
+|--------|------------|------------|------|-------------|--------|-------------|
+| `area_m2` | Area | Fläche | `numeric` | `CHECK (area_m2 >= 0)` | AV | Area in m² |
+
+#### Relations
+
+| Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
+|--------|------------|------------|------|-------------|--------|-------------|
+| `building_id` | Building | Gebäude | `bigint` | `REFERENCES buildings(id)` | Derived | Link to building (for footprints) |
+| `parcel_id` | Parcel | Grundstück | `bigint` | `REFERENCES parcels(id)` | Derived | Containing parcel |
 
 ---
 
 ### 4. projects
 
-Construction projects from GWR (limited OGD availability).
+Construction projects from GWR.
+
+#### System
 
 | Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
 |--------|------------|------------|------|-------------|--------|-------------|
@@ -217,18 +253,38 @@ Construction projects from GWR (limited OGD availability).
 | `eproid` | Project ID | Bauprojektidentifikator | `text` | `UNIQUE, CHECK (eproid ~ '^[0-9]{1,15}$')` | GWR | EPROID identifier |
 | `source_fid` | Source Feature ID | Quell-Feature-ID | `text` | | GWR | Feature ID from source system |
 | `geog` | Geometry | Geometrie | `geography(POLYGON, 4326)` | | GWR | Project perimeter |
+| `created_at` | Created | Erstellt | `timestamptz` | `NOT NULL DEFAULT NOW()` | System | Record creation timestamp |
+| `updated_at` | Updated | Aktualisiert | `timestamptz` | `NOT NULL DEFAULT NOW()` | System | Record last update timestamp |
+
+#### Relations
+
+| Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
+|--------|------------|------------|------|-------------|--------|-------------|
 | `building_id` | Building | Gebäude | `bigint` | `REFERENCES buildings(id)` | GWR | Associated building (EGID) |
 | `parcel_id` | Parcel | Grundstück | `bigint` | `REFERENCES parcels(id)` | Derived | Associated parcel |
+
+#### Classification
+
+| Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
+|--------|------------|------------|------|-------------|--------|-------------|
 | `status` | Status | Status | `project_status` | | GWR | Project status (PSTAT) |
 | `project_type` | Project Type | Projektart | `project_type` | | GWR | Type of construction (PARTBW) |
 | `building_type` | Building Type | Bauwerkstyp | `text` | | GWR | Specific building type (PTYPBW) |
+
+#### Timeline
+
+| Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
+|--------|------------|------------|------|-------------|--------|-------------|
 | `date_submitted` | Submitted | Beantragt | `date` | | GWR | Permit application date (PDATIN) |
 | `date_approved` | Approved | Bewilligt | `date` | | GWR | Permit approval date (PDATOK) |
 | `date_started` | Started | Baubeginn | `date` | | GWR | Construction start date (PDATBB) |
 | `date_completed` | Completed | Abgeschlossen | `date` | | GWR | Completion date (PDATBE) |
+
+#### Administrative
+
+| Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
+|--------|------------|------------|------|-------------|--------|-------------|
 | `municipality_nr` | Municipality Number | Gemeindenummer | `integer` | `CHECK (municipality_nr BETWEEN 1 AND 6999)` | GWR | BFS municipality number |
-| `created_at` | Created | Erstellt | `timestamptz` | `NOT NULL DEFAULT NOW()` | System | Record creation timestamp |
-| `updated_at` | Updated | Aktualisiert | `timestamptz` | `NOT NULL DEFAULT NOW()` | System | Record last update timestamp |
 
 ---
 
@@ -401,17 +457,6 @@ CREATE TYPE landcover_type AS ENUM (
     'quarry_dump',           -- 24
     'other_unvegetated'      -- 25
 );
-
--- Lookup table with multilingual names
-CREATE TABLE landcover_types (
-    code text PRIMARY KEY,
-    av_code integer UNIQUE NOT NULL,
-    category text NOT NULL,
-    name_de text NOT NULL,
-    name_fr text,
-    name_it text,
-    name_en text NOT NULL
-);
 ```
 
 ---
@@ -504,14 +549,46 @@ Typ der Bauwerke. 48 official types in 11 groups.
 
 ---
 
+## Reference Tables
+
+### landcover_types — AV
+
+Lookup table for landcover classifications with multilingual names.
+
+#### System
+
+| Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
+|--------|------------|------------|------|-------------|--------|-------------|
+| `code` | Code | Code | `text` | `PRIMARY KEY` | AV | Landcover type code |
+| `av_code` | AV Code | AV-Code | `integer` | `UNIQUE NOT NULL` | AV | Numeric code from DM.01-AV-CH |
+| `category` | Category | Kategorie | `text` | `NOT NULL` | AV | Landcover category |
+
+#### Names
+
+| Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
+|--------|------------|------------|------|-------------|--------|-------------|
+| `name_de` | Name (DE) | Name (DE) | `text` | `NOT NULL` | AV | German name |
+| `name_fr` | Name (FR) | Name (FR) | `text` | | AV | French name |
+| `name_it` | Name (IT) | Name (IT) | `text` | | AV | Italian name |
+| `name_en` | Name (EN) | Name (EN) | `text` | `NOT NULL` | AV | English name |
+
+---
+
 ### municipalities — BFS
 
 BFS municipality register.
+
+#### System
 
 | Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
 |--------|------------|------------|------|-------------|--------|-------------|
 | `bfs_nr` | BFS Number | BFS-Nummer | `integer` | `PRIMARY KEY, CHECK (bfs_nr BETWEEN 1 AND 6999)` | BFS | BFS municipality number |
 | `name` | Name | Name | `text` | `NOT NULL` | BFS | Municipality name |
+
+#### Administrative
+
+| Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
+|--------|------------|------------|------|-------------|--------|-------------|
 | `region` | Region | Region | `text` | `CHECK (region ~ '^[A-Z]{2}$')` | BFS | Canton code |
 | `district` | District | Bezirk | `text` | | BFS | District name |
 
