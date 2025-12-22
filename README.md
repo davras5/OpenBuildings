@@ -1,4 +1,3 @@
-
 # OpenBuildings.ch
 
 **Swiss building data. Open in theory. Now open in practice.**
