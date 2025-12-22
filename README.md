@@ -1,6 +1,9 @@
+
 # OpenBuildings.ch
 
 **Swiss building data. Open in theory. Now open in practice.**
+
+![image](/images/style/1.jpg)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
@@ -28,8 +31,6 @@ A shared foundation changes that:
 - Compare across portfolios, communes, cantons
 
 One investment. Everyone benefits.
-
-![image](/images/style/1.jpg)
 
 ---
 
