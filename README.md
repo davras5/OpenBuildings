@@ -198,7 +198,7 @@ The foundation remains open.
 
 * **Open by default** — methods, sources, assumptions, limitations
 * **Quality over quantity** — correctness beats coverage
-* **Interoperable** — aligned with national standards
+* **Interoperable** — independent from technology, aligned with internalnational standards, stable
 
 ---
 
