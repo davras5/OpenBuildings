@@ -413,9 +413,9 @@
 
         .hero-search {
             position: absolute;
-            bottom: var(--space-2xl);
+            top: 50%;
             left: 50%;
-            transform: translateX(-50%);
+            transform: translate(-50%, -50%);
             width: 90%;
             max-width: 500px;
             z-index: 10;
@@ -466,19 +466,23 @@
         }
 
         .hero-partners {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: var(--space-md);
             flex-wrap: wrap;
-            margin-top: var(--space-xl);
-            padding-top: var(--space-lg);
-            border-top: 1px solid var(--slate-200);
+            padding: var(--space-md) var(--space-lg);
+            background: linear-gradient(to top, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0) 100%);
+            border-radius: 0 0 var(--radius-lg) var(--radius-lg);
         }
 
         .hero-partners-label {
-            font-size: 0.8rem;
-            color: var(--slate-400);
+            font-size: 0.75rem;
+            color: rgba(255,255,255,0.7);
             text-transform: uppercase;
             letter-spacing: 0.05em;
             font-weight: 500;
@@ -487,26 +491,27 @@
         .hero-partners-list {
             display: flex;
             align-items: center;
-            gap: var(--space-lg);
+            gap: var(--space-md);
             flex-wrap: wrap;
         }
 
         .hero-partners-list span {
-            font-size: 0.9rem;
-            color: var(--slate-600);
+            font-size: 0.85rem;
+            color: var(--white);
             font-weight: 500;
         }
 
         .hero-partners-divider {
             width: 1px;
-            height: 16px;
-            background-color: var(--slate-300);
+            height: 14px;
+            background-color: rgba(255,255,255,0.4);
         }
 
         @media (max-width: 640px) {
             .hero-partners {
                 flex-direction: column;
-                gap: var(--space-sm);
+                gap: var(--space-xs);
+                padding: var(--space-sm) var(--space-md);
             }
 
             .hero-partners-divider {
@@ -1468,16 +1473,6 @@
                     </div>
                 </div>
 
-                <div class="hero-partners">
-                    <span class="hero-partners-label">Supported by</span>
-                    <div class="hero-partners-list">
-                        <span>BBL</span>
-                        <div class="hero-partners-divider"></div>
-                        <span>KBOB</span>
-                        <div class="hero-partners-divider"></div>
-                        <span>swisstopo</span>
-                    </div>
-                </div>
             </div>
 
             <div class="hero-image">
@@ -1489,6 +1484,16 @@
                         <div class="hero-search-results" id="heroSearchResults"></div>
                     </div>
                     <span class="hero-search-hint">e.g. Bundesplatz 3, Bern</span>
+                </div>
+                <div class="hero-partners">
+                    <span class="hero-partners-label">Supported by</span>
+                    <div class="hero-partners-list">
+                        <span>BBL</span>
+                        <div class="hero-partners-divider"></div>
+                        <span>KBOB</span>
+                        <div class="hero-partners-divider"></div>
+                        <span>swisstopo</span>
+                    </div>
                 </div>
             </div>
         </div>
