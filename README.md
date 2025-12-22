@@ -27,14 +27,6 @@ We've done the work most organizations struggle to scope: defined what data matt
 
 **Curated. Connected. Maintained. Decision-ready.**
 
-<p align="center">
-  <img src="images/Preview_2.PNG" width="45%" alt="Building volume visualization" />
-  <img src="images/Preview_3.PNG" width="45%" alt="3D building model" />
-</p>
-<p align="center">
-  <img src="images/Preview_4.PNG" alt="Volume calculation results" />
-</p>
-
 ---
 
 ## How It Works
