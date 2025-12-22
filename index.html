@@ -1,9 +1,10 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Buildings Map</title>
+  <meta name="description" content="Explore Swiss building data. Open, accessible, and designed for everyone.">
+  <title>OpenBuildings.ch</title>
   
   <!-- Mapbox GL JS -->
   <script src="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.js"></script>
@@ -14,7 +15,8 @@
   
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   
   <style>
     * {
@@ -24,13 +26,51 @@
     }
     
     :root {
-      --clr-bg: #f4f4f4;
-      --clr-surface: #ffffff;
-      --clr-text: #1a1a1a;
-      --clr-text-muted: #6b6b6b;
-      --clr-accent: #d32f2f;
-      --clr-border: #e0e0e0;
-      --font-main: 'IBM Plex Sans', -apple-system, sans-serif;
+      /* Primary Colors */
+      --clr-deep-blue: #1e3a5f;
+      --clr-ocean: #2563eb;
+      --clr-sky: #3b82f6;
+
+      /* Accent Colors */
+      --clr-leaf: #059669;
+      --clr-amber: #d97706;
+      --clr-coral: #dc2626;
+
+      /* Neutral Colors (Slate scale) */
+      --clr-slate-900: #0f172a;
+      --clr-slate-700: #334155;
+      --clr-slate-500: #64748b;
+      --clr-slate-300: #cbd5e1;
+      --clr-slate-200: #e2e8f0;
+      --clr-slate-100: #f1f5f9;
+      --clr-white: #ffffff;
+
+      /* Semantic mappings */
+      --clr-bg: var(--clr-slate-100);
+      --clr-surface: var(--clr-white);
+      --clr-text: var(--clr-slate-900);
+      --clr-text-secondary: var(--clr-slate-700);
+      --clr-text-muted: var(--clr-slate-500);
+      --clr-border: var(--clr-slate-300);
+      --clr-accent: var(--clr-ocean);
+      --clr-accent-hover: var(--clr-sky);
+      --clr-success: var(--clr-leaf);
+
+      /* Spacing scale (base 4px) */
+      --space-xs: 4px;
+      --space-sm: 8px;
+      --space-md: 16px;
+      --space-lg: 24px;
+      --space-xl: 32px;
+      --space-2xl: 48px;
+
+      /* Typography */
+      --font-main: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+      /* Borders */
+      --radius-sm: 4px;
+      --radius-md: 6px;
+      --radius-lg: 8px;
     }
     
     body {
@@ -42,68 +82,60 @@
       flex-direction: column;
     }
     
-    header {
-      background: var(--clr-surface);
-      border-bottom: 1px solid var(--clr-border);
-      padding: 1rem 1.5rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      z-index: 10;
-    }
-    
-    header h1 {
-      font-size: 1.125rem;
-      font-weight: 600;
-      letter-spacing: -0.01em;
-    }
-    
-    .header-spacer {
-      width: 100px; /* Balance the header */
-    }
-    
-    /* Search */
+    /* Search - Floating overlay style */
     .search-container {
-      position: relative;
-      flex: 1;
-      max-width: 480px;
-      margin: 0 1.5rem;
+      position: absolute;
+      top: var(--space-md);
+      left: var(--space-md);
+      z-index: 10;
+      width: 100%;
+      max-width: 400px;
     }
-    
+
+    @media (max-width: 640px) {
+      .search-container {
+        left: var(--space-sm);
+        right: var(--space-sm);
+        max-width: calc(100% - var(--space-md));
+      }
+    }
+
     .search-input-wrapper {
       display: flex;
       align-items: center;
-      background: var(--clr-bg);
+      background: var(--clr-surface);
       border: 1px solid var(--clr-border);
-      border-radius: 4px;
-      padding: 0 0.75rem;
+      border-radius: var(--radius-md);
+      padding: 0 var(--space-md);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
       transition: border-color 0.15s ease, box-shadow 0.15s ease;
     }
-    
+
     .search-input-wrapper:focus-within {
-      border-color: #999;
-      box-shadow: 0 0 0 3px rgba(0,0,0,0.05);
+      border-color: var(--clr-ocean);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1), 0 0 0 3px rgba(37, 99, 235, 0.1);
     }
-    
+
     .search-icon {
       color: var(--clr-text-muted);
       flex-shrink: 0;
     }
-    
+
     #searchInput {
       flex: 1;
       border: none;
       background: transparent;
-      padding: 0.625rem 0.5rem;
-      font-size: 0.9375rem;
+      padding: 0.75rem 0.5rem;
+      font-size: 1rem;
       font-family: inherit;
       outline: none;
+      color: var(--clr-text);
     }
-    
+
     #searchInput::placeholder {
       color: var(--clr-text-muted);
     }
-    
+
     .search-clear {
       display: none;
       background: none;
@@ -111,95 +143,99 @@
       font-size: 1.25rem;
       color: var(--clr-text-muted);
       cursor: pointer;
-      padding: 0 0.25rem;
+      padding: 0 var(--space-xs);
       line-height: 1;
+      transition: color 0.15s ease;
     }
-    
+
     .search-clear:hover {
       color: var(--clr-text);
     }
-    
+
     .search-input-wrapper.has-value .search-clear {
       display: block;
     }
-    
+
     .search-dropdown {
       position: absolute;
       top: 100%;
       left: 0;
       right: 0;
-      margin-top: 4px;
+      margin-top: var(--space-xs);
       background: var(--clr-surface);
-      border: 1px solid var(--clr-border);
-      border-radius: 4px;
+      border: 1px solid var(--clr-slate-200);
+      border-radius: var(--radius-lg);
       box-shadow: 0 4px 16px rgba(0,0,0,0.12);
       max-height: 400px;
       overflow-y: auto;
       display: none;
       z-index: 100;
     }
-    
+
     .search-dropdown.open {
       display: block;
     }
-    
+
     .search-section {
       display: none;
     }
-    
+
     .search-section.has-results {
       display: block;
     }
-    
+
     .search-section-header {
-      padding: 0.5rem 0.75rem;
+      padding: var(--space-sm) var(--space-md);
       font-size: 0.75rem;
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.05em;
-      color: var(--clr-surface);
-      background: #6b7280;
+      color: var(--clr-text-muted);
+      background: var(--clr-slate-100);
+      border-bottom: 1px solid var(--clr-slate-200);
     }
-    
+
     .search-results {
       max-height: 200px;
       overflow-y: auto;
     }
-    
+
     .search-result-item {
-      padding: 0.625rem 0.75rem;
+      padding: var(--space-sm) var(--space-md);
       cursor: pointer;
       font-size: 0.875rem;
-      border-bottom: 1px solid var(--clr-border);
+      color: var(--clr-text-secondary);
+      border-bottom: 1px solid var(--clr-slate-100);
       transition: background 0.1s ease;
     }
-    
+
     .search-result-item:last-child {
       border-bottom: none;
     }
-    
+
     .search-result-item:hover {
-      background: var(--clr-bg);
+      background: var(--clr-slate-100);
+      color: var(--clr-text);
     }
-    
+
     .search-result-item.disabled {
       cursor: default;
       opacity: 0.6;
     }
-    
+
     .search-result-item.disabled:hover {
       background: transparent;
     }
-    
+
     .search-result-item mark {
-      background: #bfdbfe;
-      color: inherit;
-      padding: 0;
+      background: rgba(37, 99, 235, 0.15);
+      color: var(--clr-ocean);
+      padding: 0 2px;
       border-radius: 2px;
     }
-    
+
     .search-no-results {
-      padding: 0.75rem;
+      padding: var(--space-md);
       color: var(--clr-text-muted);
       font-size: 0.875rem;
       text-align: center;
@@ -215,24 +251,166 @@
       flex: 1;
     }
     
-    /* Mapbox popup styling */
-    .mapboxgl-popup-content {
-      font-family: var(--font-main);
-      padding: 0.75rem 1rem;
-      border-radius: 4px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    /* Building Panel - Slide-in */
+    .building-panel {
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      width: 360px;
+      max-width: 100%;
+      background: var(--clr-surface);
+      box-shadow: -4px 0 24px rgba(0,0,0,0.12);
+      z-index: 20;
+      transform: translateX(100%);
+      transition: transform 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
     }
-    
-    .popup-title {
+
+    .building-panel.open {
+      transform: translateX(0);
+    }
+
+    .building-panel-header {
+      padding: var(--space-lg);
+      border-bottom: 1px solid var(--clr-slate-200);
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: var(--space-md);
+    }
+
+    .building-panel-title {
+      flex: 1;
+    }
+
+    .building-panel-title h2 {
+      font-size: 1.125rem;
       font-weight: 600;
-      margin-bottom: 0.25rem;
+      color: var(--clr-text);
+      margin: 0 0 var(--space-xs) 0;
+      line-height: 1.3;
     }
-    
-    .popup-coords {
-      font-size: 0.8125rem;
+
+    .building-panel-title .location {
+      font-size: 0.875rem;
       color: var(--clr-text-muted);
     }
-    
+
+    .building-panel-close {
+      background: none;
+      border: none;
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--clr-text-muted);
+      transition: background 0.15s ease, color 0.15s ease;
+      flex-shrink: 0;
+    }
+
+    .building-panel-close:hover {
+      background: var(--clr-slate-100);
+      color: var(--clr-text);
+    }
+
+    .building-panel-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: var(--space-lg);
+    }
+
+    .building-panel-metrics {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-md);
+    }
+
+    .metric-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding: var(--space-sm) 0;
+      border-bottom: 1px solid var(--clr-slate-100);
+    }
+
+    .metric-row:last-child {
+      border-bottom: none;
+    }
+
+    .metric-label {
+      font-size: 0.875rem;
+      color: var(--clr-text-muted);
+    }
+
+    .metric-value {
+      font-size: 0.9375rem;
+      font-weight: 500;
+      color: var(--clr-text);
+      text-align: right;
+    }
+
+    .building-panel-footer {
+      padding: var(--space-lg);
+      border-top: 1px solid var(--clr-slate-200);
+    }
+
+    .btn-primary {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-sm);
+      width: 100%;
+      padding: 12px var(--space-lg);
+      background: var(--clr-ocean);
+      color: var(--clr-white);
+      border: none;
+      border-radius: var(--radius-md);
+      font-size: 0.9375rem;
+      font-weight: 500;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background 0.15s ease;
+    }
+
+    .btn-primary:hover {
+      background: var(--clr-sky);
+    }
+
+    .btn-primary:focus {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.3);
+    }
+
+    .btn-primary svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    /* Mobile: Panel slides from bottom */
+    @media (max-width: 640px) {
+      .building-panel {
+        top: auto;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        width: 100%;
+        max-height: 60vh;
+        border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+        transform: translateY(100%);
+        box-shadow: 0 -4px 24px rgba(0,0,0,0.12);
+      }
+
+      .building-panel.open {
+        transform: translateY(0);
+      }
+    }
+
     .loading-overlay {
       position: absolute;
       inset: 0;
@@ -251,10 +429,10 @@
     }
     
     .loading-spinner {
-      width: 32px;
-      height: 32px;
-      border: 3px solid var(--clr-border);
-      border-top-color: var(--clr-accent);
+      width: 36px;
+      height: 36px;
+      border: 3px solid var(--clr-slate-200);
+      border-top-color: var(--clr-ocean);
       border-radius: 50%;
       animation: spin 0.8s linear infinite;
     }
@@ -266,30 +444,35 @@
     /* Basemap selector */
     .basemap-selector {
       position: absolute;
-      bottom: 48px;
-      right: 24px;
+      bottom: var(--space-xl);
+      right: var(--space-lg);
       display: flex;
       flex-direction: row-reverse;
-      gap: 8px;
+      gap: var(--space-sm);
       z-index: 10;
     }
-    
+
     .basemap-toggle {
-      width: 72px;
-      height: 72px;
-      border-radius: 6px;
-      border: 2px solid white;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      width: 64px;
+      height: 64px;
+      border-radius: var(--radius-md);
+      border: 2px solid var(--clr-white);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
       cursor: pointer;
       overflow: hidden;
       position: relative;
       background-size: cover;
       background-position: center;
       flex-shrink: 0;
+      transition: box-shadow 0.15s ease;
     }
-    
+
+    .basemap-toggle:hover {
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+
     .basemap-toggle::after {
-      content: 'Background';
+      content: 'Basemap';
       position: absolute;
       bottom: 0;
       left: 0;
@@ -301,27 +484,27 @@
       text-align: center;
       font-weight: 500;
     }
-    
+
     .basemap-options {
       display: flex;
-      gap: 8px;
+      gap: var(--space-sm);
       overflow: hidden;
       max-width: 0;
       opacity: 0;
       transition: max-width 0.3s ease, opacity 0.2s ease;
     }
-    
+
     .basemap-selector.expanded .basemap-options {
       max-width: 400px;
       opacity: 1;
     }
-    
+
     .basemap-option {
-      width: 72px;
-      height: 72px;
-      border-radius: 6px;
-      border: 2px solid white;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      width: 64px;
+      height: 64px;
+      border-radius: var(--radius-md);
+      border: 2px solid var(--clr-white);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
       cursor: pointer;
       overflow: hidden;
       position: relative;
@@ -330,17 +513,17 @@
       background-position: center;
       flex-shrink: 0;
     }
-    
+
     .basemap-option:hover {
       transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
     }
-    
+
     .basemap-option.active {
-      border-color: var(--clr-accent);
-      box-shadow: 0 0 0 2px var(--clr-accent), 0 2px 8px rgba(0,0,0,0.2);
+      border-color: var(--clr-ocean);
+      box-shadow: 0 0 0 2px var(--clr-ocean), 0 2px 8px rgba(0,0,0,0.15);
     }
-    
+
     .basemap-option::after {
       content: attr(data-label);
       position: absolute;
@@ -371,32 +554,50 @@
       background: linear-gradient(135deg, #2d4a3e 0%, #1a3a2a 50%, #3d5a4e 100%);
     }
     
-    /* Home button */
-    .home-button {
-      position: absolute;
-      top: 100px;
-      right: 10px;
+    /* Map control buttons */
+    .map-control-btn {
       width: 29px;
       height: 29px;
-      background: white;
+      background: var(--clr-surface);
       border: none;
-      border-radius: 4px;
-      box-shadow: 0 0 0 2px rgba(0,0,0,0.1);
+      border-radius: var(--radius-sm);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.15);
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
+      font-family: var(--font-main);
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--clr-slate-700);
+      transition: background 0.15s ease, color 0.15s ease;
+    }
+
+    .map-control-btn:hover {
+      background: var(--clr-slate-100);
+    }
+
+    .map-control-btn:focus {
+      outline: none;
+      box-shadow: 0 0 0 2px var(--clr-ocean);
+    }
+
+    .map-control-btn svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .map-control-btn.active {
+      background: var(--clr-ocean);
+      color: var(--clr-white);
+    }
+
+    /* Home button - positioned below zoom controls */
+    .home-button {
+      position: absolute;
+      top: 100px;
+      right: 10px;
       z-index: 10;
-    }
-    
-    .home-button:hover {
-      background: #f0f0f0;
-    }
-    
-    .home-button svg {
-      width: 18px;
-      height: 18px;
-      color: #333;
     }
 
     /* 3D Toggle button */
@@ -404,31 +605,7 @@
       position: absolute;
       top: 137px;
       right: 10px;
-      width: 29px;
-      height: 29px;
-      background: white;
-      border: none;
-      border-radius: 4px;
-      box-shadow: 0 0 0 2px rgba(0,0,0,0.1);
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
       z-index: 10;
-      font-family: var(--font-main);
-      font-size: 11px;
-      font-weight: 600;
-      color: #333;
-      transition: background 0.15s ease;
-    }
-
-    .toggle-3d-button:hover {
-      background: #f0f0f0;
-    }
-
-    .toggle-3d-button.active {
-      background: var(--clr-accent);
-      color: white;
     }
 
     /* Cluster count label */
@@ -441,40 +618,38 @@
   </style>
 </head>
 <body>
-  <header>
-    <h1>Buildings Map</h1>
+  <main>
+    <div id="map"></div>
+
+    <!-- Search overlay -->
     <div class="search-container">
       <div class="search-input-wrapper">
         <svg class="search-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
           <circle cx="11" cy="11" r="8"></circle>
           <path d="m21 21-4.35-4.35"></path>
         </svg>
-        <input type="text" id="searchInput" placeholder="Suchen..." autocomplete="off">
-        <button class="search-clear" id="searchClear" type="button">×</button>
+        <input type="text" id="searchInput" placeholder="Search by address, EGID, or place..." autocomplete="off">
+        <button class="search-clear" id="searchClear" type="button" aria-label="Clear search">×</button>
       </div>
       <div class="search-dropdown" id="searchDropdown">
         <div class="search-section" id="locationsSection">
-          <div class="search-section-header">Gehe nach ...</div>
+          <div class="search-section-header">Locations</div>
           <div class="search-results" id="locationsResults"></div>
         </div>
         <div class="search-section" id="layersSection">
-          <div class="search-section-header">Karte hinzufügen ...</div>
+          <div class="search-section-header">Layers</div>
           <div class="search-results" id="layersResults"></div>
         </div>
       </div>
     </div>
-    <div class="header-spacer"></div>
-  </header>
-  
-  <main>
-    <div id="map"></div>
-    <button class="home-button" id="homeButton" title="Zur Übersicht">
+
+    <button class="map-control-btn home-button" id="homeButton" title="Reset view" aria-label="Reset view">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
         <polyline points="9 22 9 12 15 12 15 22"></polyline>
       </svg>
     </button>
-    <button class="toggle-3d-button" id="toggle3DButton" title="2D/3D Ansicht">
+    <button class="map-control-btn toggle-3d-button" id="toggle3DButton" title="Toggle 3D view" aria-label="Toggle 3D view">
       3D
     </button>
     <div class="basemap-selector" id="basemapSelector">
@@ -486,6 +661,34 @@
         <div class="basemap-option satellite" data-style="satellite-streets-v12" data-label="Satellite"></div>
       </div>
     </div>
+    <!-- Building Panel -->
+    <aside class="building-panel" id="buildingPanel">
+      <div class="building-panel-header">
+        <div class="building-panel-title">
+          <h2 id="panelBuildingName">Building Name</h2>
+          <div class="location" id="panelBuildingLocation">Location</div>
+        </div>
+        <button class="building-panel-close" id="closePanelBtn" aria-label="Close panel">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 6L6 18M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+      <div class="building-panel-content">
+        <div class="building-panel-metrics" id="panelMetrics">
+          <!-- Metrics will be populated dynamically -->
+        </div>
+      </div>
+      <div class="building-panel-footer">
+        <button class="btn-primary" id="downloadReportBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"></path>
+          </svg>
+          Download Report
+        </button>
+      </div>
+    </aside>
+
     <div class="loading-overlay" id="loadingOverlay">
       <div class="loading-spinner"></div>
     </div>
@@ -532,12 +735,16 @@
       // ============================================
       let buildings = [];
       let parcels = [];
-      let activePopup = null;
-      
+
       // ============================================
       // DOM Elements
       // ============================================
       const loadingOverlay = document.getElementById('loadingOverlay');
+      const buildingPanel = document.getElementById('buildingPanel');
+      const panelBuildingName = document.getElementById('panelBuildingName');
+      const panelBuildingLocation = document.getElementById('panelBuildingLocation');
+      const panelMetrics = document.getElementById('panelMetrics');
+      const closePanelBtn = document.getElementById('closePanelBtn');
       
       // ============================================
       // URL Parameters
@@ -742,8 +949,8 @@
           source: 'parcels',
           minzoom: 12,
           paint: {
-            'fill-color': '#d32f2f',
-            'fill-opacity': 0.15
+            'fill-color': '#1e3a5f', // Deep Blue
+            'fill-opacity': 0.1
           }
         });
 
@@ -754,8 +961,8 @@
           source: 'parcels',
           minzoom: 12,
           paint: {
-            'line-color': '#d32f2f',
-            'line-width': 2
+            'line-color': '#1e3a5f', // Deep Blue
+            'line-width': 1.5
           }
         });
         
@@ -768,30 +975,13 @@
           map.getCanvas().style.cursor = '';
         });
         
-        // Add click popup for parcels
+        // Add click handler for parcels
         map.on('click', 'parcels-fill', (e) => {
           // Skip if a marker was just clicked
           if (markerClickHandled) return;
-          
+
           const props = e.features[0].properties;
-          
           selectParcel(props.id);
-          
-          // Safety check (selectParcel should have already removed it)
-          if (activePopup) {
-            activePopup.off('close', onPopupClose);
-            activePopup.remove();
-          }
-          
-          activePopup = new mapboxgl.Popup()
-            .setLngLat(e.lngLat)
-            .setHTML(`
-              <div class="popup-title">${props.name || 'Parcel'}</div>
-              <div class="popup-coords">EGRID: ${props.egrid || '–'}</div>
-            `)
-            .addTo(map);
-          
-          activePopup.on('close', onPopupClose);
         });
       }
       
@@ -840,8 +1030,8 @@
               50, 28, // 28px for count >= 50
               100, 34 // 34px for count >= 100
             ],
-            'circle-color': '#d32f2f',
-            'circle-stroke-width': 3,
+            'circle-color': '#1e3a5f', // Deep Blue
+            'circle-stroke-width': 2,
             'circle-stroke-color': 'white'
           }
         });
@@ -874,7 +1064,11 @@
               ['==', ['get', 'id'], selectedBuilding || -1], 10,
               7
             ],
-            'circle-color': '#d32f2f',
+            'circle-color': [
+              'case',
+              ['==', ['get', 'id'], selectedBuilding || -1], '#059669', // Leaf green when selected
+              '#64748b' // Slate-500 default
+            ],
             'circle-stroke-width': [
               'case',
               ['==', ['get', 'id'], selectedBuilding || -1], 3,
@@ -882,7 +1076,7 @@
             ],
             'circle-stroke-color': [
               'case',
-              ['==', ['get', 'id'], selectedBuilding || -1], '#1a1a1a',
+              ['==', ['get', 'id'], selectedBuilding || -1], '#1e3a5f', // Deep Blue
               'white'
             ]
           }
@@ -937,6 +1131,11 @@
           ['==', ['get', 'id'], selectedBuilding || -1], 10,
           7
         ]);
+        map.setPaintProperty('unclustered-point', 'circle-color', [
+          'case',
+          ['==', ['get', 'id'], selectedBuilding || -1], '#059669', // Leaf green when selected
+          '#64748b' // Slate-500 default
+        ]);
         map.setPaintProperty('unclustered-point', 'circle-stroke-width', [
           'case',
           ['==', ['get', 'id'], selectedBuilding || -1], 3,
@@ -944,40 +1143,28 @@
         ]);
         map.setPaintProperty('unclustered-point', 'circle-stroke-color', [
           'case',
-          ['==', ['get', 'id'], selectedBuilding || -1], '#1a1a1a',
+          ['==', ['get', 'id'], selectedBuilding || -1], '#1e3a5f', // Deep Blue
           'white'
         ]);
       }
       
       function selectBuilding(id) {
-        // Remove old popup first to prevent close handler from resetting selection
-        if (activePopup) {
-          activePopup.off('close', onPopupClose);
-          activePopup.remove();
-          activePopup = null;
-        }
-        
         selectedBuilding = id;
         selectedParcel = null; // Deselect parcel
-        
+
         const building = buildings.find(b => b.id === id);
         if (building) {
-          showPopup(building);
+          showBuildingPanel(building);
         }
 
         updateBuildingStyles();
         updateParcelStyles();
         updateUrlParams();
       }
-      
+
       function selectParcel(id) {
-        // Remove old popup first to prevent close handler from resetting selection
-        if (activePopup) {
-          activePopup.off('close', onPopupClose);
-          activePopup.remove();
-          activePopup = null;
-        }
-        
+        closeBuildingPanel();
+
         selectedParcel = id;
         selectedBuilding = null; // Deselect building
 
@@ -985,65 +1172,72 @@
         updateParcelStyles();
         updateUrlParams();
       }
-      
+
       function updateParcelStyles() {
         if (!map.getLayer('parcels-fill')) return;
-        
+
         if (selectedParcel) {
           map.setPaintProperty('parcels-fill', 'fill-opacity', [
             'case',
-            ['==', ['get', 'id'], selectedParcel], 0.4,
-            0.15
+            ['==', ['get', 'id'], selectedParcel], 0.25,
+            0.1
           ]);
           map.setPaintProperty('parcels-outline', 'line-width', [
             'case',
-            ['==', ['get', 'id'], selectedParcel], 4,
-            2
+            ['==', ['get', 'id'], selectedParcel], 3,
+            1.5
           ]);
         } else {
-          map.setPaintProperty('parcels-fill', 'fill-opacity', 0.15);
-          map.setPaintProperty('parcels-outline', 'line-width', 2);
+          map.setPaintProperty('parcels-fill', 'fill-opacity', 0.1);
+          map.setPaintProperty('parcels-outline', 'line-width', 1.5);
         }
       }
-      
-      // Clear selection when popup is closed
-      function onPopupClose() {
+
+      // Show building panel with details
+      function showBuildingPanel(building) {
+        panelBuildingName.textContent = building.name || 'Unknown Building';
+        panelBuildingLocation.textContent = `${building.lat.toFixed(5)}, ${building.lon.toFixed(5)}`;
+
+        // Build metrics HTML
+        const metrics = [
+          { label: 'EGID', value: building.egid || '–' },
+          { label: 'Coordinates', value: `${building.lat.toFixed(5)}, ${building.lon.toFixed(5)}` }
+        ];
+
+        panelMetrics.innerHTML = metrics.map(m => `
+          <div class="metric-row">
+            <span class="metric-label">${m.label}</span>
+            <span class="metric-value">${m.value}</span>
+          </div>
+        `).join('');
+
+        buildingPanel.classList.add('open');
+      }
+
+      // Close building panel
+      function closeBuildingPanel() {
+        buildingPanel.classList.remove('open');
         selectedBuilding = null;
         selectedParcel = null;
         updateBuildingStyles();
         updateParcelStyles();
         updateUrlParams();
       }
-      
-      function showPopup(building) {
-        if (activePopup) {
-          activePopup.off('close', onPopupClose);
-          activePopup.remove();
-        }
-        
-        activePopup = new mapboxgl.Popup({ offset: 15 })
-          .setLngLat([building.lon, building.lat])
-          .setHTML(`
-            <div class="popup-title">${building.name}</div>
-            <div class="popup-coords">EGID: ${building.egid || '–'}</div>
-            <div class="popup-coords">${building.lat.toFixed(5)}, ${building.lon.toFixed(5)}</div>
-          `)
-          .addTo(map);
-        
-        activePopup.on('close', onPopupClose);
-      }
-      
+
+      // Panel close button
+      closePanelBtn.addEventListener('click', closeBuildingPanel);
+
       function flyToBuilding(id) {
         const building = buildings.find(b => b.id === id);
         if (!building) return;
-        
+
         map.flyTo({
           center: [building.lon, building.lat],
           zoom: 14,
           duration: 1500
         });
-        
-        showPopup(building);
+
+        showBuildingPanel(building);
       }
       
       function fitBoundsToBuildings() {
@@ -1099,10 +1293,10 @@
           fitBoundsToBuildings();
         }
 
-        // Show popup for selected item
+        // Show panel for selected building
         if (selectedBuilding) {
           const building = buildings.find(b => b.id === selectedBuilding);
-          if (building) showPopup(building);
+          if (building) showBuildingPanel(building);
           updateParcelStyles();
         }
         if (selectedParcel) {
@@ -1358,7 +1552,7 @@
         const el = document.createElement('div');
         el.innerHTML = `
           <svg width="32" height="40" viewBox="0 0 32 40" fill="none">
-            <path d="M16 0C7.163 0 0 7.163 0 16c0 12 16 24 16 24s16-12 16-24c0-8.837-7.163-16-16-16z" fill="#d32f2f"/>
+            <path d="M16 0C7.163 0 0 7.163 0 16c0 12 16 24 16 24s16-12 16-24c0-8.837-7.163-16-16-16z" fill="#2563eb"/>
             <circle cx="16" cy="16" r="6" fill="white"/>
           </svg>
         `;
