@@ -134,11 +134,11 @@ Primary entity representing individual buildings.
 
 | Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
 |--------|------------|------------|------|-------------|--------|-------------|
-| `area_footprint_m2` | Footprint Area | Grundfläche | `numeric` | `CHECK (area_footprint_m2 >= 0)` | AV | Gebäudegrundfläche GGF (SIA 416) |
+| `area_footprint_m2` | Footprint Area | Gebäudegrundfläche | `numeric` | `CHECK (area_footprint_m2 >= 0)` | AV | Gebäudegrundfläche GGF (SIA 416) |
 | `area_floor_total_m2` | Total Floor Area | Geschossfläche Total | `numeric` | `CHECK (area_floor_total_m2 >= 0)` | Derived | Geschossfläche GF total (SIA 416) |
 | `area_floor_above_ground_m2` | Above Ground Floor Area | Oberirdische Geschossfläche | `numeric` | `CHECK (area_floor_above_ground_m2 >= 0)` | Derived | GF oberirdisch (SIA 416) |
 | `area_floor_below_ground_m2` | Below Ground Floor Area | Unterirdische Geschossfläche | `numeric` | `CHECK (area_floor_below_ground_m2 >= 0)` | Derived | GF unterirdisch (SIA 416) |
-| `area_floor_net_m2` | Net Floor Area | Netto-Geschossfläche | `numeric` | `CHECK (area_floor_net_m2 >= 0)` | Derived | Netto-Geschossfläche NGF (SIA 416) |
+| `area_floor_net_m2` | Net Floor Area | Nettogeschossfläche | `numeric` | `CHECK (area_floor_net_m2 >= 0)` | Derived | Nettogeschossfläche NGF (SIA 416) |
 | `area_ebf_m2` | Energy Reference Area | Energiebezugsfläche | `numeric` | `CHECK (area_ebf_m2 >= 0)` | Derived | Energiebezugsfläche EBF (SIA 380) |
 | `area_roof_m2` | Roof Area | Dachfläche | `numeric` | `CHECK (area_roof_m2 >= 0)` | Derived | Fläche Dach DAF (eBKP-H) |
 | `area_wall_m2` | Wall Area | Aussenwandfläche | `numeric` | `CHECK (area_wall_m2 >= 0)` | Derived | Fläche Aussenwand AWF (eBKP-H) |
@@ -355,26 +355,22 @@ From GWR Merkmalskatalog 4.2, Gebäudekategorie.
 | Code | Value | Alias (DE) | Alias (EN) |
 |------|-------|------------|------------|
 | 1010 | `provisional` | Provisorische Unterkunft | Provisional dwelling |
-| 1020 | `detached_single` | Einfamilienhaus freistehend | Single-family house, detached |
-| 1021 | `attached_single` | Einfamilienhaus angebaut | Single-family house, attached |
-| 1025 | `row_house` | Reihenhaus | Row house |
+| 1020 | `single_family` | Einfamilienhaus | Single-family house |
+| 1025 | `row_house` | Reiheneinfamilienhaus | Row house |
 | 1030 | `multi_family` | Mehrfamilienhaus | Multi-family house |
-| 1040 | `residential_mixed` | Gebäude mit Wohn- und Nebennutzung | Building with residential and secondary use |
+| 1040 | `residential_mixed` | Wohngebäude mit Nebennutzung | Residential building with secondary use |
 | 1060 | `residential_commercial` | Gebäude mit teilweiser Wohnnutzung | Building with partial residential use |
 | 1080 | `commercial_only` | Gebäude ohne Wohnnutzung | Building without residential use |
-| 1110 | `special` | Sonderbau | Special building |
 
 ```sql
 CREATE TYPE building_category AS ENUM (
     'provisional',          -- 1010
-    'detached_single',      -- 1020
-    'attached_single',      -- 1021
+    'single_family',        -- 1020
     'row_house',            -- 1025
     'multi_family',         -- 1030
     'residential_mixed',    -- 1040
     'residential_commercial', -- 1060
-    'commercial_only',      -- 1080
-    'special'               -- 1110
+    'commercial_only'       -- 1080
 );
 ```
 
@@ -444,7 +440,7 @@ From DM.01-AV-CH, Bodenbedeckungsarten. 25 official types.
 | 10 | `other_intensive_culture` | Landwirtschaft | Übrige Intensivkultur | Other intensive culture |
 | 11 | `garden` | Landwirtschaft | Garten | Garden |
 | 12 | `moor` | Humusierte Flächen | Moor | Moor |
-| 13 | `other_humusized` | Humusierte Flächen | Übrige humusierte | Other humusized |
+| 13 | `other_humusised` | Humusierte Flächen | Übrige humusierte | Other humusised |
 | 14 | `standing_water` | Gewässer | Stehendes Gewässer | Standing water |
 | 15 | `flowing_water` | Gewässer | Fliessendes Gewässer | Flowing water |
 | 16 | `reed_belt` | Gewässer | Schilfgürtel | Reed belt |
@@ -473,7 +469,7 @@ CREATE TYPE landcover_type AS ENUM (
     'other_intensive_culture', -- 10
     'garden',                -- 11
     'moor',                  -- 12
-    'other_humusized',       -- 13
+    'other_humusised',       -- 13
     'standing_water',        -- 14
     'flowing_water',         -- 15
     'reed_belt',             -- 16
@@ -537,8 +533,8 @@ From GWR Merkmalskatalog 4.2, Bauprojektstatus.
 
 | Code | Value | Alias (DE) | Alias (EN) | Trigger |
 |------|-------|------------|------------|---------|
-| 6701 | `submitted` | Baugesuch beantragt | Building permit submitted | PDATIN set |
-| 6702 | `approved` | Baubewilligung bewilligt | Building permit approved | PDATOK set |
+| 6701 | `submitted` | Baugesuch eingereicht | Building permit submitted | PDATIN set |
+| 6702 | `approved` | Baubewilligung erteilt | Building permit granted | PDATOK set |
 | 6703 | `under_construction` | Projekt baubegonnen | Construction started | PDATBB set |
 | 6704 | `completed` | Projekt abgeschlossen | Project completed | PDATBE set |
 | 6706 | `suspended` | Projekt sistiert | Project suspended | PDATSIST set |
@@ -612,7 +608,7 @@ Typ der Bauwerke. 48 official types in 11 groups.
 | 6273 | Mehrfamilienhäuser | Multi-family houses |
 | 6274 | Wohngebäude mit Nebennutzung | Residential with secondary use |
 | 6276 | Wohnheime ohne Pflegedienste | Residential homes (without care) |
-| 6278 | Garagen, Parkplätze (bei Wohngebäuden) | Garages, parking (with residential) |
+| 6278 | Garagen, Parkplätze, Einstellhallen (bei Wohngebäuden) | Garages, parking, covered parking (with residential) |
 | 6279 | Übrige Bauten (bei Wohngebäuden) | Other structures (with residential) |
 
 **Reference**: [GWR Merkmalskatalog 4.2](https://www.housing-stat.ch/files/881-2200.pdf) for complete PTYPBW enumeration.
