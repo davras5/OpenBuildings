@@ -505,6 +505,59 @@
             text-align: center;
         }
 
+        .hero-partners {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-md);
+            flex-wrap: wrap;
+            margin-top: var(--space-xl);
+            padding-top: var(--space-lg);
+            border-top: 1px solid var(--slate-200);
+        }
+
+        .hero-partners-label {
+            font-size: 0.8rem;
+            color: var(--slate-400);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-weight: 500;
+        }
+
+        .hero-partners-list {
+            display: flex;
+            align-items: center;
+            gap: var(--space-lg);
+            flex-wrap: wrap;
+        }
+
+        .hero-partners-list span {
+            font-size: 0.9rem;
+            color: var(--slate-600);
+            font-weight: 500;
+        }
+
+        .hero-partners-divider {
+            width: 1px;
+            height: 16px;
+            background-color: var(--slate-300);
+        }
+
+        @media (max-width: 640px) {
+            .hero-partners {
+                flex-direction: column;
+                gap: var(--space-sm);
+            }
+
+            .hero-partners-divider {
+                display: none;
+            }
+
+            .hero-partners-list {
+                justify-content: center;
+            }
+        }
+
         .hero-search-results {
             position: absolute;
             top: 100%;
@@ -1458,13 +1511,24 @@
                     </div>
                     <div class="hero-stat-divider"></div>
                     <div class="hero-stat">
-                        <span class="hero-stat-number">7</span>
-                        <span class="hero-stat-label">Official Sources</span>
+                        <span class="hero-stat-number">3</span>
+                        <span class="hero-stat-label">Federal Partners</span>
                     </div>
                     <div class="hero-stat-divider"></div>
                     <div class="hero-stat">
                         <span class="hero-stat-number">Daily</span>
                         <span class="hero-stat-label">Updates</span>
+                    </div>
+                </div>
+
+                <div class="hero-partners">
+                    <span class="hero-partners-label">Supported by</span>
+                    <div class="hero-partners-list">
+                        <span>BBL</span>
+                        <div class="hero-partners-divider"></div>
+                        <span>KBOB</span>
+                        <div class="hero-partners-divider"></div>
+                        <span>swisstopo</span>
                     </div>
                 </div>
             </div>
@@ -1809,9 +1873,9 @@
             <div class="about-content">
                 <div class="about-text">
                     <h2>About OpenBuildings</h2>
-                    <p class="about-lead">OpenBuildings is an independent initiative to create shared infrastructure for Swiss building data. We believe building data is a public good—and should be treated as such.</p>
-                    <p>The project combines authoritative Swiss data sources into a consistent, reproducible reference layer. Our goal is to eliminate redundant data work across institutions and enable better decisions for climate, energy, and urban planning.</p>
-                    <p>OpenBuildings is open source, transparent in its methods, and designed for long-term institutional use.</p>
+                    <p class="about-lead">OpenBuildings started from a practical need: our team manages a portfolio of 3,000 buildings and needed reliable, unified data for daily operations. We realized the same workflows could serve the entire Swiss building stock—so we built it.</p>
+                    <p>Today, OpenBuildings covers every building in Switzerland, with Germany in development. The project is self-sustaining, not-for-profit, and designed for long-term institutional use. We believe building data is a public good—and should be treated as such.</p>
+                    <p>Our goal is to eliminate redundant data work across institutions and enable better decisions for climate, energy, and urban planning. Open source, transparent in methods, built to last.</p>
                 </div>
 
                 <div class="about-contact">
@@ -1908,7 +1972,7 @@
             </div>
 
             <div class="footer-bottom">
-                <p>© 2024 OpenBuildings.ch · MIT License · Made in Switzerland</p>
+                <p>© 2025 OpenBuildings.ch · MIT License · Made in Switzerland</p>
 
                 <div class="footer-social">
                     <a href="https://github.com/davras5/OpenBuildings" target="_blank" aria-label="GitHub">
