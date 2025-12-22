@@ -1,11 +1,3 @@
-Got it — yes, let’s reset and do this cleanly 😊
-Below is **one single, self-contained Markdown README**, no variants, no splits, ready to paste as your `README.md`.
-
-I’ve **lightly adjusted tone and structure**, kept *all* important technical content, and made sure it reads well to **both institutions and developers**.
-
----
-
-````md
 # OpenBuildings.ch
 
 **Swiss building data. Public by law. Operational in practice.**
@@ -240,14 +232,4 @@ MIT License — see [LICENSE](LICENSE).
 *Building data is a public good.
 OpenBuildings turns that principle into infrastructure.*
 
-```
 
----
-
-If you want next:
-- A **short “executive summary” at the top**
-- A **Status / Maturity / Limitations** section (very valuable for public bodies)
-- Or a **one-paragraph version for grant or procurement documents**
-
-Just tell me 👍
-```
