@@ -16,12 +16,14 @@
 | `buildings` | `id` | `egid` | Point | Individual buildings with attributes from GWR, volumes from elevation models |
 | `parcels` | `id` | `egrid` | Polygon | Land parcels from cadastral survey |
 | `landcovers` | `id` | | Polygon | Landcover polygons including building footprints |
-| `projects` | `id` | `eproid` | Polygon | Construction projects (limited OGD availability) |
+| `projects` | `id` | `eproid` | Polygon | Construction projects linked to buildings and parcels |
 
 ```mermaid
 erDiagram
     buildings ||--o| landcovers : "has footprint"
     parcels ||--o{ landcovers : "contains"
+    buildings ||--o{ projects : "has"
+    parcels ||--o{ projects : "contains"
 
     buildings {
         bigint id PK
@@ -46,6 +48,8 @@ erDiagram
         bigint id PK
         text eproid UK
         geography geog
+        bigint building_id FK
+        bigint parcel_id FK
     }
 ```
 
@@ -213,6 +217,8 @@ Construction projects from GWR (limited OGD availability).
 | `eproid` | Project ID | Bauprojektidentifikator | `text` | `UNIQUE, CHECK (eproid ~ '^[0-9]{1,15}$')` | GWR | EPROID identifier |
 | `source_fid` | Source Feature ID | Quell-Feature-ID | `text` | | GWR | Feature ID from source system |
 | `geog` | Geometry | Geometrie | `geography(POLYGON, 4326)` | | GWR | Project perimeter |
+| `building_id` | Building | Gebäude | `bigint` | `REFERENCES buildings(id)` | GWR | Associated building (EGID) |
+| `parcel_id` | Parcel | Grundstück | `bigint` | `REFERENCES parcels(id)` | Derived | Associated parcel |
 | `status` | Status | Status | `project_status` | | GWR | Project status (PSTAT) |
 | `project_type` | Project Type | Projektart | `project_type` | | GWR | Type of construction (PARTBW) |
 | `building_type` | Building Type | Bauwerkstyp | `text` | | GWR | Specific building type (PTYPBW) |
