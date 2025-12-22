@@ -560,64 +560,67 @@
       background: linear-gradient(135deg, #2d4a3e 0%, #1a3a2a 50%, #3d5a4e 100%);
     }
     
-    /* Map control buttons */
-    .map-control-btn {
-      width: 29px;
-      height: 29px;
+    /* Custom Map Navigation */
+    .map-nav {
+      position: absolute;
+      top: 50%;
+      right: var(--space-lg);
+      transform: translateY(-50%);
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-xs);
+      background: var(--clr-surface);
+      border-radius: var(--radius-md);
+      padding: var(--space-xs);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+
+    .map-nav-btn {
+      width: 40px;
+      height: 40px;
       background: var(--clr-surface);
       border: none;
       border-radius: var(--radius-sm);
-      box-shadow: 0 1px 4px rgba(0,0,0,0.15);
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
       font-family: var(--font-main);
-      font-size: 11px;
+      font-size: 14px;
       font-weight: 600;
       color: var(--clr-slate-700);
       transition: background 0.15s ease, color 0.15s ease;
     }
 
-    .map-control-btn:hover {
+    .map-nav-btn:hover {
       background: var(--clr-slate-100);
     }
 
-    .map-control-btn:focus {
+    .map-nav-btn:focus {
       outline: none;
       box-shadow: 0 0 0 2px var(--clr-ocean);
     }
 
-    .map-control-btn svg {
-      width: 16px;
-      height: 16px;
+    .map-nav-btn svg {
+      width: 20px;
+      height: 20px;
     }
 
-    .map-control-btn.active {
+    .map-nav-btn.active {
       background: var(--clr-ocean);
       color: var(--clr-white);
     }
 
-    /* Override Mapbox navigation control - center vertically */
+    .map-nav-divider {
+      height: 1px;
+      background: var(--clr-slate-200);
+      margin: var(--space-xs) 0;
+    }
+
+    /* Hide default Mapbox navigation */
     .mapboxgl-ctrl-top-right {
-      top: 50%;
-      transform: translateY(-50%);
-    }
-
-    /* Home button - positioned below zoom controls */
-    .home-button {
-      position: absolute;
-      top: calc(50% + 50px);
-      right: 10px;
-      z-index: 10;
-    }
-
-    /* 3D Toggle button */
-    .toggle-3d-button {
-      position: absolute;
-      top: calc(50% + 87px);
-      right: 10px;
-      z-index: 10;
+      display: none;
     }
 
     /* Cluster count label */
@@ -722,15 +725,30 @@
       </div>
     </div>
 
-    <button class="map-control-btn home-button" id="homeButton" title="Reset view" aria-label="Reset view">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-        <polyline points="9 22 9 12 15 12 15 22"></polyline>
-      </svg>
-    </button>
-    <button class="map-control-btn toggle-3d-button" id="toggle3DButton" title="Toggle 3D view" aria-label="Toggle 3D view">
-      3D
-    </button>
+    <!-- Custom Map Navigation -->
+    <div class="map-nav">
+      <button class="map-nav-btn" id="zoomInBtn" title="Zoom in" aria-label="Zoom in">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="12" y1="5" x2="12" y2="19"></line>
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
+      </button>
+      <button class="map-nav-btn" id="zoomOutBtn" title="Zoom out" aria-label="Zoom out">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
+      </button>
+      <div class="map-nav-divider"></div>
+      <button class="map-nav-btn" id="homeButton" title="Reset view" aria-label="Reset view">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+          <polyline points="9 22 9 12 15 12 15 22"></polyline>
+        </svg>
+      </button>
+      <button class="map-nav-btn" id="toggle3DButton" title="Toggle 3D view" aria-label="Toggle 3D view">
+        3D
+      </button>
+    </div>
     <div class="basemap-selector" id="basemapSelector">
       <div class="basemap-toggle light" id="basemapToggle"></div>
       <div class="basemap-options">
@@ -817,7 +835,13 @@
         zoom: 7
       });
       
-      map.addControl(new mapboxgl.NavigationControl(), 'top-right');
+      // Custom zoom controls
+      document.getElementById('zoomInBtn').addEventListener('click', () => {
+        map.zoomIn({ duration: 300 });
+      });
+      document.getElementById('zoomOutBtn').addEventListener('click', () => {
+        map.zoomOut({ duration: 300 });
+      });
 
       // Add scale control to custom footer container
       const scaleControl = new mapboxgl.ScaleControl({ unit: 'metric' });
