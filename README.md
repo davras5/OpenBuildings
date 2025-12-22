@@ -251,11 +251,3 @@ MIT License — see [LICENSE](LICENSE).
 
 *Building data is a public good.
 OpenBuildings turns that principle into infrastructure.*
-
----
-
-If you want, next we can:
-
-* Make a **short “Executive README”** (1-page version)
-* Add a **“Who is this for?”** section (public sector / planners / researchers)
-* Align wording explicitly with **ISO 19650 / PIM / AIM thinking**
