@@ -620,6 +620,77 @@
       font-size: 12px;
       font-family: var(--font-main);
     }
+
+    /* Map Footer */
+    .map-footer {
+      position: absolute;
+      bottom: var(--space-sm);
+      right: var(--space-sm);
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(4px);
+      padding: var(--space-xs) var(--space-sm);
+      border-radius: var(--radius-sm);
+      font-size: 0.75rem;
+      color: var(--clr-text-muted);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .map-footer-coords {
+      font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+      font-size: 0.6875rem;
+      letter-spacing: -0.02em;
+      min-width: 140px;
+    }
+
+    .map-footer-scale {
+      display: flex;
+      align-items: center;
+    }
+
+    /* Override Mapbox scale control styles */
+    .map-footer-scale .mapboxgl-ctrl-scale {
+      background: transparent;
+      border: none;
+      border-bottom: 2px solid var(--clr-slate-500);
+      font-size: 0.6875rem;
+      color: var(--clr-text-muted);
+      padding: 0;
+      margin: 0;
+      line-height: 1;
+    }
+
+    .map-footer-links {
+      display: flex;
+      gap: var(--space-sm);
+    }
+
+    .map-footer-links a {
+      color: var(--clr-text-muted);
+      text-decoration: none;
+      transition: color 0.15s ease;
+    }
+
+    .map-footer-links a:hover {
+      color: var(--clr-ocean);
+    }
+
+    .map-footer-divider {
+      color: var(--clr-slate-300);
+    }
+
+    /* Hide default scale control position */
+    .mapboxgl-ctrl-bottom-left .mapboxgl-ctrl-scale {
+      display: none;
+    }
+
+    /* Adjust basemap selector position to avoid footer overlap */
+    .basemap-selector {
+      bottom: calc(var(--space-xl) + 24px);
+    }
   </style>
 </head>
 <body>
@@ -694,6 +765,19 @@
       </div>
     </aside>
 
+    <!-- Map Footer -->
+    <div class="map-footer" id="mapFooter">
+      <div class="map-footer-coords" id="mouseCoords">–</div>
+      <div class="map-footer-scale" id="scaleContainer"></div>
+      <div class="map-footer-links">
+        <a href="https://github.com/davras5/OpenBuildings" target="_blank" rel="noopener">Quellencode</a>
+        <span class="map-footer-divider">·</span>
+        <a href="https://awnypgafushbsvqlsjyg.supabase.co" target="_blank" rel="noopener">API</a>
+        <span class="map-footer-divider">·</span>
+        <a href="documentation/DATAMODEL.md" target="_blank" rel="noopener">Docs</a>
+      </div>
+    </div>
+
     <div class="loading-overlay" id="loadingOverlay">
       <div class="loading-spinner"></div>
     </div>
@@ -731,7 +815,30 @@
       });
       
       map.addControl(new mapboxgl.NavigationControl(), 'top-right');
-      
+
+      // Add scale control to custom footer container
+      const scaleControl = new mapboxgl.ScaleControl({ unit: 'metric' });
+      const scaleContainer = document.getElementById('scaleContainer');
+
+      // Mount scale control after map loads
+      map.on('load', () => {
+        scaleControl.onAdd(map);
+        scaleContainer.appendChild(scaleControl._container);
+      });
+
+      // Mouse coordinates display
+      const mouseCoordsDisplay = document.getElementById('mouseCoords');
+
+      map.on('mousemove', (e) => {
+        const lng = e.lngLat.lng.toFixed(5);
+        const lat = e.lngLat.lat.toFixed(5);
+        mouseCoordsDisplay.textContent = `${lng}, ${lat}`;
+      });
+
+      map.on('mouseout', () => {
+        mouseCoordsDisplay.textContent = '–';
+      });
+
       // Store initial bounds for home button
       let initialBounds = null;
       
