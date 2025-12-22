@@ -306,22 +306,60 @@ BFS municipality register.
 
 ---
 
-## Implementation Phases
+## Enumerations
 
-### Phase 1
+Standard values for enumerated text fields. Sources define authoritative values; derived enumerations may vary.
 
-1. **Buildings** with GWR data + calculated volumes from swissALTI3D
-2. **Parcels** with AV geometry and basic attributes
-3. **Landcovers** with building footprints as priority type
-4. **KGS heritage data** enrichment
-5. **ARE zoning data** enrichment
+### buildings.status (GWR)
 
-### Phase 2 Candidates
+| Value | Description DE | Description EN |
+|-------|----------------|----------------|
+| `planned` | Projektiert | Planned |
+| `under_construction` | Im Bau | Under construction |
+| `existing` | Bestehend | Existing |
+| `demolished` | Abgebrochen | Demolished |
 
-- Cantonal building permit data (varies by canton)
-- Solar potential data (Sonnendach.ch)
-- Natural hazards (Naturgefahren)
-- Public transport accessibility
+### buildings.category (GWR)
+
+Values defined by GWR (Gebäudekategorie). See [GWR documentation](https://www.housing-stat.ch) for complete list.
+
+### buildings.class (GWR)
+
+Values defined by GWR (Gebäudeklasse). See [GWR documentation](https://www.housing-stat.ch) for complete list.
+
+### buildings.roof_form
+
+| Value | Description DE | Description EN |
+|-------|----------------|----------------|
+| `flat` | Flachdach | Flat roof |
+| `gable` | Satteldach | Gable roof |
+| `hip` | Walmdach | Hip roof |
+| `mansard` | Mansarddach | Mansard roof |
+| `shed` | Pultdach | Shed roof |
+| `pyramid` | Pyramidendach | Pyramid roof |
+| `dome` | Kuppeldach | Dome roof |
+| `complex` | Komplexes Dach | Complex roof |
+| `unknown` | Unbekannt | Unknown |
+
+### buildings.heritage_category (KGS)
+
+| Value | Description |
+|-------|-------------|
+| `A` | Objects of national importance |
+| `B` | Objects of regional importance |
+
+### projects.status
+
+| Value | Description DE | Description EN |
+|-------|----------------|----------------|
+| `planned` | Geplant | Planned |
+| `approved` | Bewilligt | Approved |
+| `under_construction` | Im Bau | Under construction |
+| `completed` | Fertiggestellt | Completed |
+
+### landcovers.type (AV)
+
+Values defined by Amtliche Vermessung (Bodenbedeckung). See `landcover_types` lookup table.
 
 ---
 
