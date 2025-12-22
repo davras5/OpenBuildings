@@ -5,18 +5,25 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Explore Swiss building data. Open, accessible, and designed for everyone.">
   <title>OpenBuildings.ch</title>
-  
-  <!-- Mapbox GL JS -->
-  <script src="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.js"></script>
-  <link href="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.css" rel="stylesheet">
-  
-  <!-- Supabase JS -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  
-  <!-- Fonts -->
+
+  <!-- Preconnect to external domains (do this FIRST for faster connections) -->
+  <link rel="preconnect" href="https://api.mapbox.com">
+  <link rel="preconnect" href="https://cdn.jsdelivr.net">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <!-- Preload critical CSS (starts download immediately) -->
+  <link rel="preload" href="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.css" as="style">
+
+  <!-- Mapbox GL CSS -->
+  <link href="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.css" rel="stylesheet">
+
+  <!-- Fonts - display=swap already ensures text is visible immediately -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Scripts with defer - downloads in parallel, executes after HTML parsing -->
+  <script defer src="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   
   <style>
     * {
@@ -420,8 +427,9 @@
     .loading-overlay {
       position: absolute;
       inset: 0;
-      background: rgba(255,255,255,0.9);
+      background: var(--clr-slate-100);
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
       z-index: 100;
@@ -813,6 +821,7 @@
 
     <div class="loading-overlay" id="loadingOverlay">
       <div class="loading-spinner"></div>
+      <span style="margin-top: 12px; color: #64748b; font-size: 14px;">Loading map...</span>
     </div>
   </main>
 
