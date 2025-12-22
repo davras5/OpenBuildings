@@ -16,11 +16,11 @@ This tool:
 - Calculates volume as: `Σ(roof_height - base_height) × 1m²`
 
 <p align="center">
-  <img src="images/Preview_2.PNG" width="45%" />
-  <img src="images/Preview_3.PNG" width="45%" />
+  <img src="images/Preview_2.jpg" width="45%" />
+  <img src="images/Preview_3.jpg" width="45%" />
 </p>
 <p align="center">
-  <img src="images/Preview_4.PNG" />
+  <img src="images/Preview_4.jpg" />
 </p>
 
 ## Requirements
