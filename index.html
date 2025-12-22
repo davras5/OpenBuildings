@@ -291,52 +291,6 @@
             gap: var(--space-md);
         }
 
-        /* Language Selector */
-        .lang-selector {
-            display: flex;
-            align-items: center;
-            gap: 2px;
-            padding: 4px;
-            background-color: var(--slate-100);
-            border-radius: var(--radius-sm);
-            font-size: 0.75rem;
-            font-weight: 500;
-        }
-
-        .lang-selector button {
-            padding: 4px 8px;
-            border: none;
-            background: transparent;
-            color: var(--slate-500);
-            font-family: var(--font-family);
-            font-size: 0.75rem;
-            font-weight: 500;
-            cursor: pointer;
-            border-radius: 4px;
-            transition: all 0.15s ease;
-        }
-
-        .lang-selector button:hover {
-            color: var(--slate-700);
-        }
-
-        .lang-selector button.active {
-            background-color: var(--white);
-            color: var(--slate-900);
-            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-        }
-
-        .lang-selector button:disabled {
-            color: var(--slate-300);
-            cursor: not-allowed;
-        }
-
-        @media (max-width: 767px) {
-            .lang-selector {
-                display: none;
-            }
-        }
-
         /* ===== HERO ===== */
         .hero {
             padding-top: calc(64px + var(--space-3xl));
@@ -458,8 +412,13 @@
         }
 
         .hero-search {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%;
             max-width: 500px;
-            margin: var(--space-2xl) auto 0;
+            z-index: 10;
         }
 
         .hero-search-wrapper {
@@ -471,7 +430,7 @@
             left: 16px;
             top: 50%;
             transform: translateY(-50%);
-            color: var(--slate-400);
+            color: var(--slate-500);
             pointer-events: none;
         }
 
@@ -480,17 +439,17 @@
             padding: 16px 16px 16px 48px;
             font-size: 1rem;
             font-family: var(--font-family);
-            border: 2px solid var(--slate-300);
+            border: none;
             border-radius: var(--radius-lg);
             background-color: var(--white);
             color: var(--slate-900);
             transition: all 0.2s ease;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
         }
 
         .hero-search-input:focus {
             outline: none;
-            border-color: var(--ocean);
-            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2), 0 0 0 4px rgba(37, 99, 235, 0.2);
         }
 
         .hero-search-input::placeholder {
@@ -501,8 +460,67 @@
             display: block;
             margin-top: var(--space-sm);
             font-size: 0.875rem;
-            color: var(--slate-400);
+            color: var(--white);
             text-align: center;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+        }
+
+        .hero-partners {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-md);
+            flex-wrap: wrap;
+            padding: var(--space-md) var(--space-lg);
+            background: linear-gradient(to top, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0) 100%);
+            border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+        }
+
+        .hero-partners-label {
+            font-size: 0.75rem;
+            color: rgba(255,255,255,0.7);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-weight: 500;
+        }
+
+        .hero-partners-list {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+            flex-wrap: wrap;
+        }
+
+        .hero-partners-list span {
+            font-size: 0.85rem;
+            color: var(--white);
+            font-weight: 500;
+        }
+
+        .hero-partners-divider {
+            width: 1px;
+            height: 14px;
+            background-color: rgba(255,255,255,0.4);
+        }
+
+        @media (max-width: 640px) {
+            .hero-partners {
+                flex-direction: column;
+                gap: var(--space-xs);
+                padding: var(--space-sm) var(--space-md);
+            }
+
+            .hero-partners-divider {
+                display: none;
+            }
+
+            .hero-partners-list {
+                justify-content: center;
+            }
         }
 
         .hero-search-results {
@@ -1294,15 +1312,8 @@
 
         @media (min-width: 768px) {
             .footer-content {
-                grid-template-columns: 2fr 1fr 1fr 1fr;
+                grid-template-columns: 2fr 1fr;
             }
-        }
-
-        .footer-legal-note {
-            font-size: 0.7rem;
-            color: var(--slate-500);
-            font-style: italic;
-            margin-top: var(--space-sm);
         }
 
         .footer-brand h3 {
@@ -1412,17 +1423,11 @@
                 <a href="#features">Solution</a>
                 <a href="#principles">Values</a>
                 <a href="#contact">About</a>
+                <a href="mailto:info@openbuildings.ch">For Institutions</a>
                 <a href="https://github.com/davras5/OpenBuildings" target="_blank">GitHub</a>
             </nav>
 
             <div class="header-actions">
-                <div class="lang-selector" title="Translations coming soon">
-                    <button class="active">EN</button>
-                    <button disabled>DE</button>
-                    <button disabled>FR</button>
-                    <button disabled>IT</button>
-                </div>
-
                 <a href="app/" class="btn btn-primary header-cta">
                     <i data-lucide="map" style="width: 16px; height: 16px;"></i>
                     Explore the map
@@ -1443,7 +1448,7 @@
                 <h1>Swiss building data.<br><span>Open by default.</span></h1>
 
                 <p class="hero-subtitle">
-                    A shared, authoritative foundation for Swiss building data—open, connected, and maintained—so public institutions can plan, report, and act with confidence.
+                    Unified, open building data for Swiss planning, climate action, and institutional reporting.
                 </p>
 
                 <div class="hero-stats">
@@ -1458,8 +1463,8 @@
                     </div>
                     <div class="hero-stat-divider"></div>
                     <div class="hero-stat">
-                        <span class="hero-stat-number">7</span>
-                        <span class="hero-stat-label">Official Sources</span>
+                        <span class="hero-stat-number">3</span>
+                        <span class="hero-stat-label">Federal Partners</span>
                     </div>
                     <div class="hero-stat-divider"></div>
                     <div class="hero-stat">
@@ -1467,19 +1472,29 @@
                         <span class="hero-stat-label">Updates</span>
                     </div>
                 </div>
+
             </div>
 
             <div class="hero-image">
                 <img src="images/style/1.jpg" alt="OpenBuildings.ch - Swiss building data visualization showing transition from traditional architecture to digital data infrastructure">
-            </div>
-
-            <div class="hero-search">
-                <div class="hero-search-wrapper">
-                    <i data-lucide="search" class="hero-search-icon" style="width: 20px; height: 20px;"></i>
-                    <input type="text" id="heroSearch" class="hero-search-input" placeholder="Search any address in Switzerland..." autocomplete="off">
-                    <div class="hero-search-results" id="heroSearchResults"></div>
+                <div class="hero-search">
+                    <div class="hero-search-wrapper">
+                        <i data-lucide="search" class="hero-search-icon" style="width: 20px; height: 20px;"></i>
+                        <input type="text" id="heroSearch" class="hero-search-input" placeholder="Search any address in Switzerland..." autocomplete="off">
+                        <div class="hero-search-results" id="heroSearchResults"></div>
+                    </div>
+                    <span class="hero-search-hint">e.g. Bundesplatz 3, Bern</span>
                 </div>
-                <span class="hero-search-hint">e.g. Bundesplatz 3, Bern</span>
+                <div class="hero-partners">
+                    <span class="hero-partners-label">Supported by</span>
+                    <div class="hero-partners-list">
+                        <span>BBL</span>
+                        <div class="hero-partners-divider"></div>
+                        <span>KBOB</span>
+                        <div class="hero-partners-divider"></div>
+                        <span>swisstopo</span>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
@@ -1500,7 +1515,7 @@
                         <i data-lucide="layers" style="width: 24px; height: 24px; color: #f59e0b;"></i>
                         Fragmented data
                     </h3>
-                    <p>Building data is scattered across sources and organizations. The same work is redone by municipalities, cantons, and agencies—often with public money—without a shared baseline.</p>
+                    <p>Data scattered across sources. Same work redone by municipalities, cantons, and agencies—with public money—without a shared baseline.</p>
                 </div>
 
                 <div class="problem-card">
@@ -1508,7 +1523,7 @@
                         <i data-lucide="repeat" style="width: 24px; height: 24px; color: #f59e0b;"></i>
                         Duplicated effort
                     </h3>
-                    <p>Large institutions build their own datasets internally, repeatedly, and temporarily. Results remain siloed, undocumented, and eventually obsolete.</p>
+                    <p>Institutions build datasets internally and repeatedly. Results stay siloed and eventually become obsolete.</p>
                 </div>
 
                 <div class="problem-card">
@@ -1524,7 +1539,7 @@
                         <i data-lucide="scale" style="width: 24px; height: 24px; color: #f59e0b;"></i>
                         Inconsistent results
                     </h3>
-                    <p>Without standardized methods, comparing results across communes, cantons, and portfolios becomes impossible—hindering effective policy-making.</p>
+                    <p>Without standardized methods, comparing results across regions and portfolios is impossible—hindering effective policy.</p>
                 </div>
             </div>
         </div>
@@ -1536,6 +1551,7 @@
             <div class="solution-header">
                 <h2>One foundation. Many applications.</h2>
                 <p>OpenBuildings consolidates Switzerland's most relevant public building datasets into a consistent, reproducible reference layer.</p>
+                <p class="text-muted" style="margin-top: var(--space-sm);">GWR, swisstopo, and cantonal data are powerful—but scattered. We've done the integration, enrichment, and quality control so you don't have to.</p>
             </div>
 
             <div class="features-grid">
@@ -1719,7 +1735,7 @@
             <div class="showcase-actions">
                 <a href="app/" class="btn btn-primary btn-large">
                     <i data-lucide="map" style="width: 20px; height: 20px;"></i>
-                    Explore the map
+                    Try it now
                 </a>
             </div>
         </div>
@@ -1739,7 +1755,7 @@
                         <i data-lucide="landmark" style="width: 28px; height: 28px;"></i>
                     </div>
                     <h4>Municipalities & cantons</h4>
-                    <p>Create building energy cadastres, plan heating network transitions, report on CO₂ reduction targets</p>
+                    <p>Build energy cadastres in days, not months. Plan district heating with complete coverage. Meet cantonal reporting requirements.</p>
                 </div>
 
                 <div class="audience-card">
@@ -1747,7 +1763,7 @@
                         <i data-lucide="building" style="width: 28px; height: 28px;"></i>
                     </div>
                     <h4>Federal agencies</h4>
-                    <p>Monitor building stock nationwide, produce consistent cross-cantonal statistics, track policy impact</p>
+                    <p>Run nationwide analyses with consistent methodology. Compare cantons on the same baseline. Track building stock evolution.</p>
                 </div>
 
                 <div class="audience-card">
@@ -1755,7 +1771,7 @@
                         <i data-lucide="briefcase" style="width: 28px; height: 28px;"></i>
                     </div>
                     <h4>Portfolio owners</h4>
-                    <p>Benchmark properties, prioritize renovations, model decarbonization pathways for real estate assets</p>
+                    <p>Score every building in your portfolio instantly. Identify renovation priorities. Model Net Zero pathways with real data.</p>
                 </div>
 
                 <div class="audience-card">
@@ -1763,7 +1779,7 @@
                         <i data-lucide="microscope" style="width: 28px; height: 28px;"></i>
                     </div>
                     <h4>Researchers</h4>
-                    <p>Access reproducible datasets with documented methods. Cite sources, not data pipelines</p>
+                    <p>Download reproducible datasets with full documentation. Cite sources, not pipelines. Focus on analysis, not data wrangling.</p>
                 </div>
             </div>
         </div>
@@ -1809,9 +1825,9 @@
             <div class="about-content">
                 <div class="about-text">
                     <h2>About OpenBuildings</h2>
-                    <p class="about-lead">OpenBuildings is an independent initiative to create shared infrastructure for Swiss building data. We believe building data is a public good—and should be treated as such.</p>
-                    <p>The project combines authoritative Swiss data sources into a consistent, reproducible reference layer. Our goal is to eliminate redundant data work across institutions and enable better decisions for climate, energy, and urban planning.</p>
-                    <p>OpenBuildings is open source, transparent in its methods, and designed for long-term institutional use.</p>
+                    <p class="about-lead">OpenBuildings started from a practical need: our team manages a portfolio of 3,000 buildings and needed reliable, unified data for daily operations. We realized the same workflows could serve the entire Swiss building stock—so we built it.</p>
+                    <p>Today, OpenBuildings covers every building in Switzerland, with Germany in development. The project is self-sustaining, not-for-profit, and designed for long-term institutional use. We believe building data is a public good—and should be treated as such.</p>
+                    <p>Our goal is to eliminate redundant data work across institutions and enable better decisions for climate, energy, and urban planning. Open source, transparent in methods, built to last.</p>
                 </div>
 
                 <div class="about-contact">
@@ -1849,7 +1865,7 @@
                     <p>Interactive map, building search, individual lookups. No registration required.</p>
                     <a href="app/" class="btn btn-primary">
                         <i data-lucide="map" style="width: 16px; height: 16px;"></i>
-                        Explore the map
+                        Start exploring
                     </a>
                 </div>
 
@@ -1895,20 +1911,10 @@
                     </ul>
                 </div>
 
-                <div class="footer-links">
-                    <h4>Legal</h4>
-                    <ul>
-                        <li><a href="#privacy">Privacy Policy</a></li>
-                        <li><a href="#terms">Terms of Use</a></li>
-                        <li><a href="#imprint">Imprint</a></li>
-                        <li><a href="#accessibility">Accessibility</a></li>
-                    </ul>
-                    <p class="footer-legal-note">Legal pages coming soon</p>
-                </div>
             </div>
 
             <div class="footer-bottom">
-                <p>© 2024 OpenBuildings.ch · MIT License · Made in Switzerland</p>
+                <p>© 2025 OpenBuildings.ch · MIT License · Made in Switzerland</p>
 
                 <div class="footer-social">
                     <a href="https://github.com/davras5/OpenBuildings" target="_blank" aria-label="GitHub">
