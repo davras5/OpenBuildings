@@ -24,7 +24,12 @@
       padding: 0;
       box-sizing: border-box;
     }
-    
+
+    html, body {
+      height: 100%;
+      overflow: hidden;
+    }
+
     :root {
       /* Primary Colors */
       --clr-deep-blue: #1e3a5f;
@@ -77,7 +82,7 @@
       font-family: var(--font-main);
       background: var(--clr-bg);
       color: var(--clr-text);
-      height: 100vh;
+      height: 100%;
       display: flex;
       flex-direction: column;
     }
@@ -1163,10 +1168,13 @@
       }
 
       function selectParcel(id) {
-        closeBuildingPanel();
-
         selectedParcel = id;
         selectedBuilding = null; // Deselect building
+
+        const parcel = parcels.find(p => p.id === id);
+        if (parcel) {
+          showParcelPanel(parcel);
+        }
 
         updateBuildingStyles();
         updateParcelStyles();
@@ -1214,7 +1222,36 @@
         buildingPanel.classList.add('open');
       }
 
-      // Close building panel
+      // Show parcel panel with details
+      function showParcelPanel(parcel) {
+        panelBuildingName.textContent = parcel.name || 'Parcel';
+        panelBuildingLocation.textContent = 'Land parcel';
+
+        // Build metrics HTML
+        const metrics = [
+          { label: 'E-GRID', value: parcel.egrid || '–' },
+          { label: 'ID', value: parcel.id || '–' }
+        ];
+
+        // Add building reference if exists
+        if (parcel.building_id) {
+          const linkedBuilding = buildings.find(b => b.id === parcel.building_id);
+          if (linkedBuilding) {
+            metrics.push({ label: 'Building', value: linkedBuilding.name || `ID: ${parcel.building_id}` });
+          }
+        }
+
+        panelMetrics.innerHTML = metrics.map(m => `
+          <div class="metric-row">
+            <span class="metric-label">${m.label}</span>
+            <span class="metric-value">${m.value}</span>
+          </div>
+        `).join('');
+
+        buildingPanel.classList.add('open');
+      }
+
+      // Close panel
       function closeBuildingPanel() {
         buildingPanel.classList.remove('open');
         selectedBuilding = null;
@@ -1293,15 +1330,17 @@
           fitBoundsToBuildings();
         }
 
-        // Show panel for selected building
+        // Show panel for selected building or parcel
         if (selectedBuilding) {
           const building = buildings.find(b => b.id === selectedBuilding);
           if (building) showBuildingPanel(building);
-          updateParcelStyles();
         }
         if (selectedParcel) {
-          updateParcelStyles();
+          const parcel = parcels.find(p => p.id === selectedParcel);
+          if (parcel) showParcelPanel(parcel);
         }
+        updateBuildingStyles();
+        updateParcelStyles();
 
         // Apply 3D mode from URL params
         if (is3DMode) {
