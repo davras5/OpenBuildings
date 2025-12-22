@@ -412,8 +412,13 @@
         }
 
         .hero-search {
+            position: absolute;
+            bottom: var(--space-2xl);
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
             max-width: 500px;
-            margin: var(--space-2xl) auto 0;
+            z-index: 10;
         }
 
         .hero-search-wrapper {
@@ -425,7 +430,7 @@
             left: 16px;
             top: 50%;
             transform: translateY(-50%);
-            color: var(--slate-400);
+            color: var(--slate-500);
             pointer-events: none;
         }
 
@@ -434,17 +439,17 @@
             padding: 16px 16px 16px 48px;
             font-size: 1rem;
             font-family: var(--font-family);
-            border: 2px solid var(--slate-300);
+            border: none;
             border-radius: var(--radius-lg);
             background-color: var(--white);
             color: var(--slate-900);
             transition: all 0.2s ease;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
         }
 
         .hero-search-input:focus {
             outline: none;
-            border-color: var(--ocean);
-            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2), 0 0 0 4px rgba(37, 99, 235, 0.2);
         }
 
         .hero-search-input::placeholder {
@@ -455,8 +460,9 @@
             display: block;
             margin-top: var(--space-sm);
             font-size: 0.875rem;
-            color: var(--slate-400);
+            color: var(--white);
             text-align: center;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.5);
         }
 
         .hero-partners {
@@ -1476,15 +1482,14 @@
 
             <div class="hero-image">
                 <img src="images/style/1.jpg" alt="OpenBuildings.ch - Swiss building data visualization showing transition from traditional architecture to digital data infrastructure">
-            </div>
-
-            <div class="hero-search">
-                <div class="hero-search-wrapper">
-                    <i data-lucide="search" class="hero-search-icon" style="width: 20px; height: 20px;"></i>
-                    <input type="text" id="heroSearch" class="hero-search-input" placeholder="Search any address in Switzerland..." autocomplete="off">
-                    <div class="hero-search-results" id="heroSearchResults"></div>
+                <div class="hero-search">
+                    <div class="hero-search-wrapper">
+                        <i data-lucide="search" class="hero-search-icon" style="width: 20px; height: 20px;"></i>
+                        <input type="text" id="heroSearch" class="hero-search-input" placeholder="Search any address in Switzerland..." autocomplete="off">
+                        <div class="hero-search-results" id="heroSearchResults"></div>
+                    </div>
+                    <span class="hero-search-hint">e.g. Bundesplatz 3, Bern</span>
                 </div>
-                <span class="hero-search-hint">e.g. Bundesplatz 3, Bern</span>
             </div>
         </div>
     </section>
