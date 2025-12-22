@@ -1,98 +1,136 @@
 # OpenBuildings.ch
 
-**Swiss building data. Open in theory. Now open in practice.**
+**Swiss building data. Public by law. Operational in practice.**
+
+---
+
+## Mission
+
+To provide a **shared, authoritative foundation for Swiss building data**—open, connected, and maintained—so public institutions and large organizations can plan, report, and act with confidence.
 
 ---
 
 ## What It Is
 
-A shared foundation for Swiss building data—curated, connected, and maintained.
+OpenBuildings is a **national-scale data foundation for buildings**.
 
-We've done the work most organizations struggle to even scope: identified what matters, integrated the best open sources, and built something coherent enough to actually use.
+We curate, harmonize, and maintain Switzerland’s most important open building datasets into a single, coherent reference layer—ready for use in planning, reporting, policy design, and portfolio management.
 
-Ready to plug into your planning, reporting, and decision-making.
+This is not a one-off data project.  
+It is **infrastructure**.
 
 ---
 
 ## The Problem
 
-Everyone wants data-driven decisions. Few understand what that requires.
+Data-driven decision-making is widely expected—and rarely supported.
 
-Small organizations can't afford specialists. Large ones have them, but keep results locked away—unpublished, unmaintained, eventually forgotten.
+- Smaller organizations lack the resources to build and maintain reliable building data.
+- Larger institutions do build it—but internally, repeatedly, and temporarily.
+- Results remain siloed, undocumented, and eventually obsolete.
 
-Same outcome: no shared foundation. The same work, done a hundred times in isolation.
+The same work is redone across municipalities, cantons, agencies, utilities, and portfolios—often with public money—without a shared baseline.
 
-The workflow is identical whether you're managing 300 buildings or 3 million. But everyone stops at their own portfolio.
+The workflow is the same whether you manage **300 buildings or 3 million**.  
+Yet everyone stops at their own boundary.
 
-We didn't.
+This leads to fragmentation, inefficiency, and inconsistent results.
 
 ---
 
 ## Why It Matters
 
-Buildings account for 40% of Switzerland's CO₂ emissions. Every path to net zero runs through the building stock.
+Buildings account for **~40% of Switzerland’s CO₂ emissions**.  
+Every credible climate, energy, housing, or infrastructure strategy depends on understanding the building stock.
 
-You can't decarbonize what you can't measure. And right now, most organizations are either guessing or paying someone to figure out what should already exist.
+You cannot:
+- decarbonize what you cannot measure,
+- coordinate what you cannot compare,
+- or govern what you cannot reproduce.
 
-A shared foundation changes that. Plan with real numbers. Report with confidence. Compare across portfolios, communes, cantons.
+Today, many organizations are either estimating blindly or paying repeatedly for what should already exist.
 
-One investment. Everyone benefits.
+A shared foundation changes this:
+- Consistent metrics across communes, cantons, and portfolios
+- Comparable reporting over time
+- Lower costs through reuse
+- Better decisions with less friction
+
+One foundation. Many applications. Public value multiplied.
 
 ---
 
 ## How It Works
 
-We select the best open sources—GWR, cadastral survey, elevation models, zoning data. We connect them into a coherent whole. We maintain it over time.
+- We identify the **most relevant public data sources** (e.g. GWR, cadastral survey, elevation models, zoning data).
+- We harmonize schemas, resolve identifiers, and document assumptions.
+- We maintain the dataset as sources evolve.
 
-You get a foundation, not a data project.
+You receive a **stable reference layer**, not a bespoke study.
 
 ---
 
-## Who It's For
+## Who It’s For
 
-- Portfolio managers who need building data without building a data team
-- Municipalities planning decarbonization strategies
-- Researchers who want to analyze, not wrangle
-- Anyone who shouldn't have to start from scratch
+- Municipalities and cantons developing climate, energy, or housing strategies
+- Federal agencies and public institutions requiring consistent reporting
+- Large portfolio owners and operators
+- Researchers and analysts who want to focus on insight, not data wrangling
+
+If building data is essential—but not your core mandate—this is for you.
 
 ---
 
 ## Roadmap
 
-Start where we are: Switzerland. The foundation is there. Now we add insight.
+Switzerland first.
 
-Topics follow demand—carbon intensity, market data, location analytics. We stay focused until we know what's actually useful.
+The foundation exists. Next comes depth:
+- Carbon and energy indicators
+- Market and location analytics
+- Policy-relevant aggregations
 
-The problem isn't uniquely Swiss. We'll expand when the foundation is solid.
+We expand only where there is demonstrated demand and institutional value.
+
+The challenge is not uniquely Swiss—but credibility comes from doing one country well.
 
 ---
 
-## Business Model
+## Sustainability Model
 
-**Free:** Explore, search, download individual buildings. The foundation stays open.
+**Open access**  
+Search, explore, and download individual buildings. The foundation remains open.
 
-**Paid:** Bulk data, API access, portfolio reports. For organizations that need more and can afford to contribute.
+**Cost recovery for institutions**  
+Bulk access, APIs, portfolio analyses, and operational integrations.
 
-Revenue keeps the foundation maintained. The core remains open.
+Revenue funds maintenance and continuity—so the data remains reliable over time.
 
 ---
 
 ## Principles
 
-**Open by default.** If we figured it out, you don't have to. Methods, sources, limitations—all public.
+**Open by default**  
+Methods, sources, and limitations are documented and public.
 
-**Quality over quantity.** Good data beats more data. Focus beats sprawl.
+**Institutional quality**  
+Reproducibility, traceability, and long-term maintainability matter more than novelty.
 
-**Interoperable.** Buildings last centuries. Technology changes every few years. We follow established standards so the architecture outlives the tools.
+**Interoperability**  
+Buildings last centuries. Software does not.  
+We align with established standards so the data outlives the tools.
 
 ---
 
 ## Get Involved
 
-Use it. Tell us what's broken. Help make it better.
+Use it. Challenge it. Improve it.
 
-→ [github.com/davras5/OpenBuildings](https://github.com/davras5/OpenBuildings)
+A shared foundation only works if it is actually shared.
+
+→ https://github.com/davras5/OpenBuildings
 
 ---
 
-*Building data belongs to everyone. We're making that real.*
+*Building data is a public good.  
+OpenBuildings turns that principle into infrastructure.*
