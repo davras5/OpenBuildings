@@ -62,8 +62,9 @@ One foundation. Many applications. Public value multiplied.
 | Tool | Description |
 |------|-------------|
 | **Web Map** | Interactive 2D/3D map for exploring building data |
-| **Python CLI** | Reproducible building volume calculations |
-| **FME Workbench** | Visual workflow for FME Desktop users |
+| [**Volume Estimator**](tools/volume-estimator/) | Calculate building volumes using swissALTI3D + swissSURFACE3D (Python & FME) |
+| [**Roof Estimator**](tools/roof-estimator/) | Estimate roof characteristics from height models |
+| [**Base Worker**](tools/base-worker/) | Template for building new processing tools |
 
 ---
 
@@ -79,24 +80,24 @@ Open `index.html` in a browser to explore buildings on an interactive map:
 
 ![image](/images/Preview1.jpg)
 
-### Python Volume Calculator
+### Volume Estimator
 
-See [python/README.md](python/README.md) for details.
+See [tools/volume-estimator/README.md](tools/volume-estimator/README.md) for details.
 
 ```bash
 # Install dependencies
 pip install geopandas rasterio numpy pandas shapely fiona
 
 # Run calculator
-python python/main.py data/av_2056.gpkg data/alti3d data/surface3d
+python tools/volume-estimator/python/main.py data/av_2056.gpkg data/alti3d data/surface3d
 
 # Optional arguments
-python python/main.py data/av_2056.gpkg data/alti3d data/surface3d \
+python tools/volume-estimator/python/main.py data/av_2056.gpkg data/alti3d data/surface3d \
   --limit 100 \
   --bbox 2680000 1235000 2681000 1236000 \
   -o results.csv \
   -g buildings_with_volumes.gpkg
-````
+```
 
 ---
 
@@ -154,8 +155,10 @@ All sources are Swiss Open Government Data.
 ```
 OpenBuildings/
 ├── documentation/
-├── python/
-├── fme/
+├── tools/
+│   ├── volume-estimator/   # Building volume calculation
+│   ├── roof-estimator/     # Roof characteristic estimation
+│   └── base-worker/        # Template for new tools
 ├── images/
 ├── index.html
 └── LICENSE
