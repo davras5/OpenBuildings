@@ -577,8 +577,8 @@
     }
 
     .map-nav-btn {
-      width: 40px;
-      height: 40px;
+      width: 32px;
+      height: 32px;
       background: var(--clr-surface);
       border: none;
       border-radius: var(--radius-sm);
@@ -587,9 +587,9 @@
       align-items: center;
       justify-content: center;
       font-family: var(--font-main);
-      font-size: 13px;
-      font-weight: 500;
-      color: var(--clr-slate-500);
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--clr-slate-700);
       transition: background 0.15s ease, color 0.15s ease;
     }
 
@@ -603,8 +603,13 @@
     }
 
     .map-nav-btn svg {
-      width: 20px;
-      height: 20px;
+      width: 16px;
+      height: 16px;
+    }
+
+    /* Compass rotation */
+    .map-nav-btn#compassBtn svg {
+      transition: transform 0.1s ease;
     }
 
     .map-nav-btn.active {
@@ -728,25 +733,25 @@
     <!-- Custom Map Navigation -->
     <div class="map-nav">
       <button class="map-nav-btn" id="zoomInBtn" title="Zoom in" aria-label="Zoom in">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           <line x1="12" y1="5" x2="12" y2="19"></line>
           <line x1="5" y1="12" x2="19" y2="12"></line>
         </svg>
       </button>
       <button class="map-nav-btn" id="zoomOutBtn" title="Zoom out" aria-label="Zoom out">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           <line x1="5" y1="12" x2="19" y2="12"></line>
         </svg>
       </button>
       <div class="map-nav-divider"></div>
       <button class="map-nav-btn" id="compassBtn" title="Reset north" aria-label="Reset north">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <polygon points="12,2 15,10 12,8 9,10" fill="currentColor" stroke="none"></polygon>
           <polygon points="12,22 9,14 12,16 15,14" fill="none"></polygon>
         </svg>
       </button>
       <button class="map-nav-btn" id="homeBtn" title="Reset view" aria-label="Reset view">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
           <polyline points="9 22 9 12 15 12 15 22"></polyline>
         </svg>
@@ -1504,8 +1509,16 @@
 
       // Compass button - reset north
       const compassBtn = document.getElementById('compassBtn');
+      const compassSvg = compassBtn.querySelector('svg');
+
       compassBtn.addEventListener('click', () => {
         map.easeTo({ bearing: 0, pitch: 0, duration: 500 });
+      });
+
+      // Rotate compass with map bearing
+      map.on('rotate', () => {
+        const bearing = map.getBearing();
+        compassSvg.style.transform = `rotate(${-bearing}deg)`;
       });
       
       // ============================================
