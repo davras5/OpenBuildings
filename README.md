@@ -1,184 +1,237 @@
-# Swiss Building Volume Calculator
 
-Calculate building volumes in cubic meters using publicly available Swiss geodata. This tool combines building footprints from the Swiss official cadastral survey (Amtliche Vermessung) with height data from swissALTI3D (terrain) and swissSURFACE3D (surface) models.
+# OpenBuildings.ch
 
-**Two implementations are available:**
-- **Python script** (`src/main.py`) - Standalone command-line tool
-- **FME Workbench** (`fme/swissALTI3D Volumen.fmw`) - Visual workflow for FME users
+**Swiss building data. Open in theory. Now open in practice.**
 
-## Overview
+![image](/images/style/1.jpg)
 
-This tool:
-- Loads building footprints from Amtliche Vermessung (AV) geopackage files
-- Creates a 1x1m voxel grid for each building
-- Samples terrain height (swissALTI3D) to determine base elevation
-- Samples surface height (swissSURFACE3D) for roof elevation
-- Calculates volume as: `Σ(roof_height - base_height) × 1m²`
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-<p align="center">
-  <img src="images/Preview_2.PNG" width="45%" />
-  <img src="images/Preview_3.PNG" width="45%" />
-</p>
-<p align="center">
-  <img src="images/Preview_4.PNG" />
-</p>
+---
 
-## Requirements
+## What It Is
 
-### Python Dependencies
+A building data foundation you can see, use, and learn from.
+
+We've done the work most organizations struggle to even scope: defined what data matters, found the best open sources, connected them into a coherent whole.
+
+**Curated. Connected. Maintained. Ready to plug into your planning, reporting, and decision-making.**
+
+---
+
+## Why It Matters
+
+Buildings account for **40% of Switzerland's CO₂ emissions**. Every path to net zero runs through the building stock.
+
+But you can't decarbonize what you can't measure. And right now, most organizations are guessing — or paying someone to figure out what should already exist.
+
+A shared foundation changes that:
+- Plan with real numbers
+- Report with confidence
+- Compare across portfolios, communes, cantons
+
+One investment. Everyone benefits.
+
+---
+
+## Features
+
+### Data Platform
+
+| Feature | Description |
+|---------|-------------|
+| **Buildings** | 2M+ Swiss buildings with attributes from GWR, volumes from elevation models |
+| **Parcels** | Land parcels from cadastral survey (Amtliche Vermessung) |
+| **Landcovers** | Building footprints and land use classifications |
+| **Projects** | Construction projects and building permits |
+
+### Tools
+
+| Tool | Description |
+|------|-------------|
+| **Web Map** | Interactive map interface for exploring building data |
+| **Python CLI** | Calculate building volumes from geodata |
+| **FME Workbench** | Visual workflow for FME Desktop users |
+
+---
+
+## Quick Start
+
+### Web Interface
+
+Open `index.html` in a browser to explore buildings on an interactive map with:
+- Search by address using the Swisstopo API
+- Toggle between 2D and 3D views with terrain
+- Switch between Light, Streets, Outdoors, and Satellite basemaps
+- Click buildings and parcels for details
+
+### Python Volume Calculator
+
+Calculate building volumes using swissALTI3D (terrain) and swissSURFACE3D (surface) models:
+
 ```bash
+# Install dependencies
 pip install geopandas rasterio numpy pandas shapely fiona
-```
 
-### Data Requirements
+# Run calculator
+python python/main.py data/av_2056.gpkg data/alti3d data/surface3d
 
-1. **Building footprints**: `av_2056.gpkg` from [geodienste.ch](https://www.geodienste.ch/services/av)
-   - Uses layer `lcsf` with `Art = 'Gebaeude'`
-
-2. **swissALTI3D**: Terrain model tiles from [swisstopo](https://www.swisstopo.admin.ch/de/hoehenmodell-swissalti3d)
-   - 0.5m resolution GeoTIFF files
-   - Represents bare earth elevation
-
-3. **swissSURFACE3D Raster**: Surface model tiles from [swisstopo](https://www.swisstopo.admin.ch/de/hoehenmodell-swisssurface3d-raster)
-   - 0.5m resolution GeoTIFF files
-   - Includes buildings, vegetation, and other structures
-
-## Installation
-
-### Python Version
-
-1. Clone this repository:
-```bash
-git clone https://github.com/davras5/swissALTI3D-Volumen.git
-cd swissALTI3D-Volumen
-```
-
-2. Install dependencies:
-```bash
-pip install geopandas rasterio numpy pandas shapely fiona
-```
-
-3. Download required geodata and organize as follows:
-```
-swissALTI3D-Volumen/
-├── src/
-│   └── main.py
-├── docs/
-│   └── python-usage-examples.txt
-├── data/
-│   ├── av_2056.gpkg
-│   ├── alti3d/
-│   │   ├── swissALTI3D_2680_1235.tif
-│   │   ├── swissALTI3D_2681_1235.tif
-│   │   └── ...
-│   └── surface3d/
-│       ├── swissSURFACE3D_2680_1235.tif
-│       ├── swissSURFACE3D_2681_1235.tif
-│       └── ...
-```
-
-### FME Version
-
-1. Open `fme/swissALTI3D Volumen.fmw` in FME Desktop (2020 or newer recommended)
-2. Configure the source data readers to point to your geodata
-3. Run the workbench
-
-## Usage (Python)
-
-See `docs/python-usage-examples.txt` for quick reference examples.
-
-### Basic Usage
-```bash
-python src/main.py data/av_2056.gpkg data/alti3d data/surface3d
-```
-
-### Command Line Options
-```bash
-# Process limited number of buildings for testing
-python src/main.py data/av_2056.gpkg data/alti3d data/surface3d --limit 10
-
-# Process specific area (Swiss LV95 coordinates)
-python src/main.py data/av_2056.gpkg data/alti3d data/surface3d \
-    --bbox 2680000 1235000 2681000 1236000
-
-# Custom output files
-python src/main.py data/av_2056.gpkg data/alti3d data/surface3d \
-    -o results.csv \
-    -g buildings_with_volumes.gpkg
-
-# Combine options
-python src/main.py data/av_2056.gpkg data/alti3d data/surface3d \
+# With options
+python python/main.py data/av_2056.gpkg data/alti3d data/surface3d \
     --limit 100 \
     --bbox 2680000 1235000 2681000 1236000 \
-    -o test_results.csv
+    -o results.csv \
+    -g buildings_with_volumes.gpkg
 ```
 
-### Arguments
+See [python/README.md](python/README.md) for detailed usage.
 
-| Argument | Required | Description |
-|----------|----------|-------------|
-| `av_gpkg` | Yes | Path to AV geopackage file |
-| `alti3d_dir` | Yes | Directory containing swissALTI3D tiles |
-| `surface3d_dir` | Yes | Directory containing swissSURFACE3D tiles |
-| `-o, --output` | No | Output CSV file (default: building_volumes.csv) |
-| `-g, --gpkg` | No | Output GeoPackage with geometries |
-| `-l, --limit` | No | Limit number of buildings to process |
-| `-b, --bbox` | No | Bounding box: MINX MINY MAXX MAXY |
+---
 
-## Output
+## Data Model
 
-### CSV Output
-The tool generates a CSV file with the following columns:
-- `EGID`: Building identifier
-- `volume_m3`: Calculated volume in cubic meters
-- `footprint_area_m2`: Building footprint area
-- `mean_height_m`: Average building height
-- `max_height_m`: Maximum building height
-- `base_height_m`: Terrain elevation at building base
-- `status`: Processing status (success/no_voxels/no_height_data)
+The platform aggregates Swiss Open Government Data (OGD) into four core entities:
 
-### GeoPackage Output (optional)
-Contains original building geometries with volume calculations as attributes.
+```
+parcels ||--o{ buildings : "contains"
+buildings ||--o| landcovers : "has footprint"
+parcels ||--o{ landcovers : "contains"
+buildings ||--o{ projects : "has"
+```
+
+### Buildings
+
+Core building attributes including:
+- **Identification**: EGID, address, location
+- **Classification**: Status, category, building class
+- **Dimensions**: Volume (m³), floor area (m²), heights (m), floors
+- **Energy**: Heating type and source
+- **Heritage**: KGS protection category
+
+### Parcels
+
+Land parcels with:
+- **Identification**: E-GRID, parcel number
+- **Dimensions**: Area (m²), building footprint area, sealed area
+- **Zoning**: Main zone, zone type
+
+See [documentation/DATAMODEL.md](documentation/DATAMODEL.md) for the complete schema.
+
+---
+
+## Data Sources
+
+Primary data access is through the **Federal Spatial Data Infrastructure (FSDI)** via geo.admin.ch.
+
+| Source | Provider | Content |
+|--------|----------|---------|
+| **GWR** | BFS | Building attributes, dwellings, addresses |
+| **AV** | Cantonal Offices | Footprints, parcels, landcovers |
+| **swissALTI3D** | swisstopo | Terrain elevation model (DTM) |
+| **swissSURFACE3D** | swisstopo | Surface elevation model (DSM) |
+| **swissBUILDINGS3D** | swisstopo | 3D building models |
+| **ARE** | ARE | Zoning classifications |
+| **KGS** | BABS | Heritage protection |
+
+All sources are Swiss OGD with varying update frequencies.
+
+---
+
+## Project Structure
+
+```
+OpenBuildings/
+├── documentation/
+│   ├── VISION.md          # Project vision and principles
+│   ├── DATAMODEL.md       # Database schema documentation
+│   └── STYLEGUIDE.md      # Design system and UI guidelines
+├── python/
+│   ├── main.py            # Building volume calculator
+│   └── README.md          # Python tool documentation
+├── fme/
+│   └── swissALTI3D Volumen.fmw  # FME workbench
+├── images/                # Screenshots and visuals
+├── index.html             # Web map interface
+└── LICENSE                # MIT License
+```
+
+---
 
 ## Technical Details
 
 ### Coordinate System
-- Swiss LV95 (EPSG:2056)
+
+- **Swiss LV95** (EPSG:2056)
 - Tile naming: `XXXX_YYYY` based on SW corner in kilometers
 
 ### Methodology
-1. **Voxel Grid**: Creates 1x1m points within each building polygon
-2. **Base Height**: Minimum terrain elevation from swissALTI3D
-3. **Roof Height**: Surface elevation from swissSURFACE3D at each voxel
-4. **Volume**: Sum of (surface - base) × 1m² for all voxels
 
-### Performance
-- Processing speed: ~10-20 buildings/second (depends on building size)
-- Memory usage: Minimal, processes buildings individually
-- Tile caching: Currently loads tiles on demand
+The volume calculation:
+1. Creates 1×1m voxel grid within each building footprint
+2. Samples terrain height (swissALTI3D) for base elevation
+3. Samples surface height (swissSURFACE3D) for roof elevation
+4. Calculates: `Volume = Σ(roof - base) × 1m²`
 
-## Known Limitations
+### Standards
 
-- Buildings spanning multiple tiles are handled correctly
-- Missing height data results in `status: no_height_data`
-- Negative heights (underground portions) are set to 0
-- Accuracy depends on height model resolution (0.5m)
+- **SIA 416**: Swiss standard for building areas and volumes
+- **GWR Merkmalskatalog 4.2**: Building register specifications
+- **DM.01-AV-CH**: Cadastral data model
 
-## Data Sources
+---
 
-- **Amtliche Vermessung**: [geodienste.ch](https://www.geodienste.ch)
-- **Height Models**: [Federal Office of Topography swisstopo](https://www.swisstopo.admin.ch)
-- **Coordinate System**: [Swiss coordinate system](https://www.swisstopo.admin.ch/en/knowledge-facts/surveying-geodesy/reference-systems.html)
+## Business Model
+
+| Tier | Access |
+|------|--------|
+| **Free** | Explore, search, download individual buildings |
+| **Paid** | Bulk data, API access, portfolio reports |
+
+Revenue keeps the foundation maintained. The core stays open.
+
+---
+
+## Principles
+
+- **Open by default** — Methods, sources, flaws and limitations — all public
+- **Quality over quantity** — Good data beats more data
+- **Interoperable and stable** — Following national and international standards
+
+---
+
+## Documentation
+
+| Document | Description |
+|----------|-------------|
+| [VISION.md](documentation/VISION.md) | Project vision and goals |
+| [DATAMODEL.md](documentation/DATAMODEL.md) | Complete database schema |
+| [STYLEGUIDE.md](documentation/STYLEGUIDE.md) | Design system |
+| [python/README.md](python/README.md) | Python tool usage |
+
+---
+
+## Contributing
+
+This is an open project. Use it. Tell us what's broken. Help make it better.
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Submit a pull request
+
+---
 
 ## License
 
 This project is licensed under the [MIT License](LICENSE).
 
-## Contributing
+---
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+## Links
 
-## Acknowledgments
+- **Website**: [openbuildings.ch](https://openbuildings.ch)
+- **GitHub**: [github.com/davras5/OpenBuildings](https://github.com/davras5/OpenBuildings)
 
-- Federal Office of Topography swisstopo for providing the height models
-- Swiss cadastral surveying authorities for the building footprint data
+---
+
+*Building data belongs to everyone. We're making that real.*
