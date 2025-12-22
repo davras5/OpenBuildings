@@ -291,52 +291,6 @@
             gap: var(--space-md);
         }
 
-        /* Language Selector */
-        .lang-selector {
-            display: flex;
-            align-items: center;
-            gap: 2px;
-            padding: 4px;
-            background-color: var(--slate-100);
-            border-radius: var(--radius-sm);
-            font-size: 0.75rem;
-            font-weight: 500;
-        }
-
-        .lang-selector button {
-            padding: 4px 8px;
-            border: none;
-            background: transparent;
-            color: var(--slate-500);
-            font-family: var(--font-family);
-            font-size: 0.75rem;
-            font-weight: 500;
-            cursor: pointer;
-            border-radius: 4px;
-            transition: all 0.15s ease;
-        }
-
-        .lang-selector button:hover {
-            color: var(--slate-700);
-        }
-
-        .lang-selector button.active {
-            background-color: var(--white);
-            color: var(--slate-900);
-            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-        }
-
-        .lang-selector button:disabled {
-            color: var(--slate-300);
-            cursor: not-allowed;
-        }
-
-        @media (max-width: 767px) {
-            .lang-selector {
-                display: none;
-            }
-        }
-
         /* ===== HERO ===== */
         .hero {
             padding-top: calc(64px + var(--space-3xl));
@@ -1347,15 +1301,8 @@
 
         @media (min-width: 768px) {
             .footer-content {
-                grid-template-columns: 2fr 1fr 1fr 1fr;
+                grid-template-columns: 2fr 1fr;
             }
-        }
-
-        .footer-legal-note {
-            font-size: 0.7rem;
-            color: var(--slate-500);
-            font-style: italic;
-            margin-top: var(--space-sm);
         }
 
         .footer-brand h3 {
@@ -1465,17 +1412,11 @@
                 <a href="#features">Solution</a>
                 <a href="#principles">Values</a>
                 <a href="#contact">About</a>
+                <a href="mailto:info@openbuildings.ch">For Institutions</a>
                 <a href="https://github.com/davras5/OpenBuildings" target="_blank">GitHub</a>
             </nav>
 
             <div class="header-actions">
-                <div class="lang-selector" title="Translations coming soon">
-                    <button class="active">EN</button>
-                    <button disabled>DE</button>
-                    <button disabled>FR</button>
-                    <button disabled>IT</button>
-                </div>
-
                 <a href="app/" class="btn btn-primary header-cta">
                     <i data-lucide="map" style="width: 16px; height: 16px;"></i>
                     Explore the map
@@ -1496,7 +1437,7 @@
                 <h1>Swiss building data.<br><span>Open by default.</span></h1>
 
                 <p class="hero-subtitle">
-                    A shared, authoritative foundation for Swiss building data—open, connected, and maintained—so public institutions can plan, report, and act with confidence.
+                    Unified, open building data for Swiss planning, climate action, and institutional reporting.
                 </p>
 
                 <div class="hero-stats">
@@ -1564,7 +1505,7 @@
                         <i data-lucide="layers" style="width: 24px; height: 24px; color: #f59e0b;"></i>
                         Fragmented data
                     </h3>
-                    <p>Building data is scattered across sources and organizations. The same work is redone by municipalities, cantons, and agencies—often with public money—without a shared baseline.</p>
+                    <p>Data scattered across sources. Same work redone by municipalities, cantons, and agencies—with public money—without a shared baseline.</p>
                 </div>
 
                 <div class="problem-card">
@@ -1572,7 +1513,7 @@
                         <i data-lucide="repeat" style="width: 24px; height: 24px; color: #f59e0b;"></i>
                         Duplicated effort
                     </h3>
-                    <p>Large institutions build their own datasets internally, repeatedly, and temporarily. Results remain siloed, undocumented, and eventually obsolete.</p>
+                    <p>Institutions build datasets internally and repeatedly. Results stay siloed and eventually become obsolete.</p>
                 </div>
 
                 <div class="problem-card">
@@ -1588,7 +1529,7 @@
                         <i data-lucide="scale" style="width: 24px; height: 24px; color: #f59e0b;"></i>
                         Inconsistent results
                     </h3>
-                    <p>Without standardized methods, comparing results across communes, cantons, and portfolios becomes impossible—hindering effective policy-making.</p>
+                    <p>Without standardized methods, comparing results across regions and portfolios is impossible—hindering effective policy.</p>
                 </div>
             </div>
         </div>
@@ -1783,7 +1724,7 @@
             <div class="showcase-actions">
                 <a href="app/" class="btn btn-primary btn-large">
                     <i data-lucide="map" style="width: 20px; height: 20px;"></i>
-                    Explore the map
+                    Try it now
                 </a>
             </div>
         </div>
@@ -1913,7 +1854,7 @@
                     <p>Interactive map, building search, individual lookups. No registration required.</p>
                     <a href="app/" class="btn btn-primary">
                         <i data-lucide="map" style="width: 16px; height: 16px;"></i>
-                        Explore the map
+                        Start exploring
                     </a>
                 </div>
 
@@ -1959,16 +1900,6 @@
                     </ul>
                 </div>
 
-                <div class="footer-links">
-                    <h4>Legal</h4>
-                    <ul>
-                        <li><a href="#privacy">Privacy Policy</a></li>
-                        <li><a href="#terms">Terms of Use</a></li>
-                        <li><a href="#imprint">Imprint</a></li>
-                        <li><a href="#accessibility">Accessibility</a></li>
-                    </ul>
-                    <p class="footer-legal-note">Legal pages coming soon</p>
-                </div>
             </div>
 
             <div class="footer-bottom">
