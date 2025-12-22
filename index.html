@@ -939,6 +939,7 @@
       // Selection state
       let selectedBuilding = null;
       let selectedParcel = null;
+      let selectedLandcover = null;
       let markerClickHandled = false;
       let is3DMode = false;
       
@@ -1098,7 +1099,81 @@
           selectParcel(props.id);
         });
       }
-      
+
+      function addLandcoverLayer() {
+        // Skip if source already exists
+        if (map.getSource('landcover')) return;
+
+        // Add vector tile source for landcover
+        map.addSource('landcover', {
+          type: 'vector',
+          tiles: [`${TILE_SERVER}/landcover/{z}/{x}/{y}.pbf`],
+          minzoom: 10,
+          maxzoom: 14,
+          bounds: SWITZERLAND_BOUNDS
+        });
+
+        // Add fill layer with land usage colors
+        map.addLayer({
+          id: 'landcover-fill',
+          type: 'fill',
+          source: 'landcover',
+          'source-layer': 'landcover',
+          minzoom: 12,
+          paint: {
+            'fill-color': [
+              'case',
+              ['==', ['get', 'id'], selectedLandcover || -1], '#059669', // Green when selected
+              '#8b5cf6' // Purple default for landcover
+            ],
+            'fill-opacity': [
+              'case',
+              ['==', ['get', 'id'], selectedLandcover || -1], 0.4,
+              0.2
+            ]
+          }
+        });
+
+        // Add outline layer
+        map.addLayer({
+          id: 'landcover-outline',
+          type: 'line',
+          source: 'landcover',
+          'source-layer': 'landcover',
+          minzoom: 12,
+          paint: {
+            'line-color': [
+              'case',
+              ['==', ['get', 'id'], selectedLandcover || -1], '#059669',
+              '#7c3aed' // Darker purple for outline
+            ],
+            'line-width': [
+              'case',
+              ['==', ['get', 'id'], selectedLandcover || -1], 3,
+              1.5
+            ]
+          }
+        });
+
+        // Add hover effect
+        map.on('mouseenter', 'landcover-fill', () => {
+          map.getCanvas().style.cursor = 'pointer';
+        });
+
+        map.on('mouseleave', 'landcover-fill', () => {
+          map.getCanvas().style.cursor = '';
+        });
+
+        // Add click handler for landcover
+        map.on('click', 'landcover-fill', (e) => {
+          // Skip if a marker was just clicked
+          if (markerClickHandled) return;
+
+          const props = e.features[0].properties;
+          selectLandcover(props.id);
+        });
+      }
+
       function addBuildingsLayer() {
         // Skip if source already exists
         if (map.getSource('buildings')) return;
@@ -1215,24 +1290,42 @@
       async function selectBuilding(id, coords = null) {
         selectedBuilding = id;
         selectedParcel = null; // Deselect parcel
+        selectedLandcover = null; // Deselect landcover
 
         // Fetch building details from API
         await fetchAndShowBuilding(id, coords);
 
         updateBuildingStyles();
         updateParcelStyles();
+        updateLandcoverStyles();
         updateUrlParams();
       }
 
       async function selectParcel(id) {
         selectedParcel = id;
         selectedBuilding = null; // Deselect building
+        selectedLandcover = null; // Deselect landcover
 
         // Fetch parcel details from API
         await fetchAndShowParcel(id);
 
         updateBuildingStyles();
         updateParcelStyles();
+        updateLandcoverStyles();
+        updateUrlParams();
+      }
+
+      async function selectLandcover(id) {
+        selectedLandcover = id;
+        selectedBuilding = null; // Deselect building
+        selectedParcel = null; // Deselect parcel
+
+        // For now, just log the selection (can add panel later)
+        console.log('Selected landcover:', id);
+
+        updateBuildingStyles();
+        updateParcelStyles();
+        updateLandcoverStyles();
         updateUrlParams();
       }
 
@@ -1309,6 +1402,26 @@
         } else {
           map.setPaintProperty('parcels-fill', 'fill-opacity', 0.1);
           map.setPaintProperty('parcels-outline', 'line-width', 1.5);
+        }
+      }
+
+      function updateLandcoverStyles() {
+        if (!map.getLayer('landcover-fill')) return;
+
+        if (selectedLandcover) {
+          map.setPaintProperty('landcover-fill', 'fill-opacity', [
+            'case',
+            ['==', ['get', 'id'], selectedLandcover], 0.4,
+            0.2
+          ]);
+          map.setPaintProperty('landcover-outline', 'line-width', [
+            'case',
+            ['==', ['get', 'id'], selectedLandcover], 3,
+            1.5
+          ]);
+        } else {
+          map.setPaintProperty('landcover-fill', 'fill-opacity', 0.2);
+          map.setPaintProperty('landcover-outline', 'line-width', 1.5);
         }
       }
 
@@ -1439,7 +1552,9 @@
       
       map.on('load', async () => {
         // Add vector tile layers (no data fetching needed!)
+        // Layer order: parcels (bottom) -> landcover (middle) -> buildings (top)
         addParcelsLayer();
+        addLandcoverLayer();
         addBuildingsLayer();
 
         // If no URL params, fit to Switzerland
@@ -1531,9 +1646,13 @@
       
       // Re-add layers after style change
       map.on('style.load', () => {
-        // Re-add vector tile layers
+        // Re-add vector tile layers in correct order
+        // Layer order: parcels (bottom) -> landcover (middle) -> buildings (top)
         if (!map.getSource('parcels')) {
           addParcelsLayer();
+        }
+        if (!map.getSource('landcover')) {
+          addLandcoverLayer();
         }
         if (!map.getSource('buildings')) {
           addBuildingsLayer();
