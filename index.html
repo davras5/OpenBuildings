@@ -610,6 +610,7 @@
             position: relative;
             max-width: 1100px;
             margin: 0 auto;
+            overflow: hidden;
         }
 
         .tools-carousel {
@@ -892,20 +893,6 @@
             padding: 16px;
             text-align: center;
             color: var(--slate-500);
-        }
-
-        .showcase-cta {
-            display: flex;
-            flex-direction: column;
-            gap: var(--space-md);
-            align-items: center;
-        }
-
-        @media (min-width: 640px) {
-            .showcase-cta {
-                flex-direction: row;
-                justify-content: center;
-            }
         }
 
         /* ===== FOR WHO SECTION ===== */
@@ -1632,7 +1619,7 @@
                     <span class="showcase-search-hint">e.g. Bundesplatz 3, Bern</span>
                 </div>
 
-                <div class="showcase-cta">
+                <div style="display: flex; flex-wrap: wrap; gap: var(--space-md); justify-content: center;">
                     <a href="app/" class="btn btn-primary btn-large">
                         <i data-lucide="map" style="width: 20px; height: 20px;"></i>
                         Explore the map
@@ -1955,33 +1942,79 @@
             });
         })();
 
-        // Tools Carousel - Infinite Loop
+        // Tools Carousel - Seamless Infinite Loop
         (function() {
             const carousel = document.getElementById('toolsCarousel');
             const prevBtn = document.getElementById('toolsPrev');
             const nextBtn = document.getElementById('toolsNext');
-            const cards = carousel.querySelectorAll('.tool-card');
-            const cardCount = cards.length;
-            let currentIndex = 0;
+            const originalCards = Array.from(carousel.querySelectorAll('.tool-card'));
+            const cardCount = originalCards.length;
 
-            function updateCarousel() {
-                const cardWidth = cards[0].offsetWidth + 24; // card width + gap
+            // Clone all cards and append for infinite effect
+            originalCards.forEach(card => {
+                const clone = card.cloneNode(true);
+                carousel.appendChild(clone);
+            });
+
+            const allCards = carousel.querySelectorAll('.tool-card');
+            let currentIndex = 0;
+            let isTransitioning = false;
+
+            function getCardWidth() {
+                return allCards[0].offsetWidth + 24; // card width + gap
+            }
+
+            function updateCarousel(animate = true) {
+                const cardWidth = getCardWidth();
                 const offset = currentIndex * cardWidth;
+                carousel.style.transition = animate ? 'transform 0.3s ease' : 'none';
                 carousel.style.transform = `translateX(-${offset}px)`;
             }
 
+            function handleTransitionEnd() {
+                isTransitioning = false;
+                // If we've scrolled into the cloned section, jump back seamlessly
+                if (currentIndex >= cardCount) {
+                    currentIndex = currentIndex - cardCount;
+                    updateCarousel(false);
+                }
+                // If we've scrolled before the start, jump to the end seamlessly
+                if (currentIndex < 0) {
+                    currentIndex = currentIndex + cardCount;
+                    updateCarousel(false);
+                }
+            }
+
+            carousel.addEventListener('transitionend', handleTransitionEnd);
+
             prevBtn.addEventListener('click', () => {
-                currentIndex = (currentIndex - 1 + cardCount) % cardCount;
-                updateCarousel();
+                if (isTransitioning) return;
+                isTransitioning = true;
+                if (currentIndex === 0) {
+                    // Jump to cloned section (no animation), then animate back
+                    currentIndex = cardCount;
+                    updateCarousel(false);
+                    // Force reflow then animate
+                    carousel.offsetHeight;
+                }
+                currentIndex--;
+                updateCarousel(true);
             });
 
             nextBtn.addEventListener('click', () => {
-                currentIndex = (currentIndex + 1) % cardCount;
-                updateCarousel();
+                if (isTransitioning) return;
+                isTransitioning = true;
+                currentIndex++;
+                updateCarousel(true);
             });
 
             // Initial setup
-            carousel.style.transition = 'transform 0.3s ease';
+            updateCarousel(false);
+
+            // Re-initialize Lucide icons for cloned cards
+            if (window.lucide) {
+                lucide.createIcons();
+            }
         })();
     </script>
 </body>
