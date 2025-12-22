@@ -201,14 +201,18 @@ Land parcels from cadastral survey.
 
 #### Dimensions
 
+> **Note on area calculations:** Swiss cadastral surveys use **horizontal projection** (Horizontalprojektion) for all area measurements. This means the official `area_m2` represents the 2D planimetric area, not the actual 3D surface area. On sloped terrain, the true surface area can be significantly larger (e.g., +41% at 45° slope). The legally binding value from AV is always the projected area.
+
 | Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
 |--------|------------|------------|------|-------------|--------|-------------|
-| `area_m2` | Area | Fläche | `numeric` | `CHECK (area_m2 >= 0)` | AV | Parcel area GSF in m² (Grundstücksfläche) |
-| `area_ggf_m2` | Building Footprint Area | Gebäudegrundfläche | `numeric` | `CHECK (area_ggf_m2 >= 0)` | Derived | Sum of building footprints in m² (GGF) |
-| `area_uf_m2` | Surrounding Area | Umgebungsfläche | `numeric` | `CHECK (area_uf_m2 >= 0)` | Derived | Surrounding area in m² (UF, SIA 416) |
-| `area_buf_m2` | Processed Surrounding | Bearbeitete Umgebung | `numeric` | `CHECK (area_buf_m2 >= 0)` | Derived | Processed surrounding area in m² (BUF, SIA 416) |
-| `area_uuf_m2` | Unprocessed Surrounding | Unbearbeitete Umgebung | `numeric` | `CHECK (area_uuf_m2 >= 0)` | Derived | Unprocessed surrounding area in m² (UUF, SIA 416) |
-| `sealed_area_m2` | Sealed Area | Versiegelte Fläche | `numeric` | `CHECK (sealed_area_m2 >= 0)` | Derived | Sealed/impervious surface in m² |
+| `area_m2` | Area | Fläche | `numeric` | `CHECK (area_m2 >= 0)` | AV | Parcel area GSF in m² (Grundstücksfläche). Legally binding (rechtskräftig) horizontal projection from cadastral survey. |
+| `area_polygon_m2` | Polygon Area | Polygonfläche | `numeric` | `CHECK (area_polygon_m2 >= 0)` | Derived | 2D projected area calculated from polygon geometry (for validation against official area) |
+| `area_surface_m2` | Surface Area | Oberflächenfläche | `numeric` | `CHECK (area_surface_m2 >= 0)` | Derived | 3D surface area in m², accounting for terrain slope (calculated from polygon draped on swissALTI3D DTM) |
+| `area_ggf_m2` | Building Footprint Area | Gebäudegrundfläche | `numeric` | `CHECK (area_ggf_m2 >= 0)` | Derived | Sum of building footprints in m² (GGF). Based on 2D polygon area. |
+| `area_uf_m2` | Surrounding Area | Umgebungsfläche | `numeric` | `CHECK (area_uf_m2 >= 0)` | Derived | Surrounding area in m² (UF, SIA 416). Based on 2D polygon area. |
+| `area_buf_m2` | Processed Surrounding | Bearbeitete Umgebung | `numeric` | `CHECK (area_buf_m2 >= 0)` | Derived | Processed surrounding area in m² (BUF, SIA 416). Based on 2D polygon area. |
+| `area_uuf_m2` | Unprocessed Surrounding | Unbearbeitete Umgebung | `numeric` | `CHECK (area_uuf_m2 >= 0)` | Derived | Unprocessed surrounding area in m² (UUF, SIA 416). Based on 2D polygon area. |
+| `sealed_area_m2` | Sealed Area | Versiegelte Fläche | `numeric` | `CHECK (sealed_area_m2 >= 0)` | Derived | Sealed/impervious surface in m². Based on 2D polygon area. |
 
 #### Administrative
 
