@@ -15,7 +15,7 @@
 | `buildings` | `id` | `egid` | Point | Individual buildings with attributes from GWR, volumes from elevation models |
 | `parcels` | `id` | `egrid` | Polygon | Land parcels from cadastral survey |
 | `landcovers` | `id` | | Polygon | Landcover polygons including building footprints |
-| `projects` | `id` | | Polygon | Construction projects (limited OGD availability) |
+| `projects` | `id` | `eproid` | Polygon | Construction projects (limited OGD availability) |
 
 ```mermaid
 erDiagram
@@ -43,6 +43,7 @@ erDiagram
 
     projects {
         bigint id PK
+        text eproid UK
         geography geog
     }
 ```
@@ -83,6 +84,7 @@ Primary entity representing individual buildings.
 | `status` | `text` | | GWR | Building status (planned, under construction, existing, demolished) |
 | `category` | `text` | | GWR | Building category |
 | `class` | `text` | | GWR | Building class |
+| `roof_form` | `text` | | Derived | Roof form (flat, gable, hip, etc.) |
 
 #### Construction
 
@@ -250,6 +252,8 @@ Construction projects. Note: Limited OGD available - primarily cantonal building
 | Column | Type | Constraints | Source | Description |
 |--------|------|-------------|--------|-------------|
 | `id` | `bigint` | `PRIMARY KEY, GENERATED ALWAYS AS IDENTITY` | System | System ID |
+| `eproid` | `text` | `UNIQUE` | GWR | Eidgenössischer Bauprojektidentifikator (CH) |
+| `source_fid` | `text` | | Various | Feature ID from source system (for traceability) |
 | `geog` | `geography(POLYGON, 4326)` | | Various | Project perimeter |
 | `created_at` | `timestamptz` | `DEFAULT NOW()` | System | Record creation timestamp |
 | `updated_at` | `timestamptz` | `DEFAULT NOW()` | System | Record last update timestamp |
