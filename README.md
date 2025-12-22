@@ -10,7 +10,7 @@
 
 ## What It Is
 
-Live demo: https://davras5.github.io/OpenBuildings/
+**Live demo:** https://davras5.github.io/OpenBuildings/
 
 OpenBuildings is a **shared foundation for Swiss building data**—curated, connected, and maintained.
 
