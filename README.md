@@ -93,11 +93,42 @@ See [python/README.md](python/README.md) for detailed usage.
 
 The platform aggregates Swiss Open Government Data (OGD) into four core entities:
 
-```
-parcels ||--o{ buildings : "contains"
-buildings ||--o| landcovers : "has footprint"
-parcels ||--o{ landcovers : "contains"
-buildings ||--o{ projects : "has"
+```mermaid
+erDiagram
+    parcels ||--o{ buildings : "contains"
+    buildings ||--o| landcovers : "has footprint"
+    parcels ||--o{ landcovers : "contains"
+    buildings ||--o{ projects : "has"
+    parcels ||--o{ projects : "contains"
+
+    buildings {
+        bigint id PK
+        text egid UK
+        geography geog
+        bigint parcel_id FK
+    }
+
+    parcels {
+        bigint id PK
+        text egrid UK
+        text parcel_number
+        geography geog
+    }
+
+    landcovers {
+        bigint id PK
+        geography geog
+        bigint building_id FK
+        bigint parcel_id FK
+    }
+
+    projects {
+        bigint id PK
+        text eproid UK
+        geography geog
+        bigint building_id FK
+        bigint parcel_id FK
+    }
 ```
 
 ### Buildings
