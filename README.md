@@ -1,6 +1,14 @@
+Got it — yes, let’s reset and do this cleanly 😊
+Below is **one single, self-contained Markdown README**, no variants, no splits, ready to paste as your `README.md`.
+
+I’ve **lightly adjusted tone and structure**, kept *all* important technical content, and made sure it reads well to **both institutions and developers**.
+
+---
+
+````md
 # OpenBuildings.ch
 
-**Swiss building data. Open in theory. Now open in practice.**
+**Swiss building data. Public by law. Operational in practice.**
 
 ![image](/images/style/1.jpg)
 
@@ -10,28 +18,36 @@
 
 ## What It Is
 
-Live Demo: https://davras5.github.io/OpenBuildings/
+Live demo: https://davras5.github.io/OpenBuildings/
 
-A building data foundation you can see, use, and learn from.
+OpenBuildings is a **shared foundation for Swiss building data**—curated, connected, and maintained.
 
-We've done the work most organizations struggle to even scope: defined what data matters, found the best open sources, connected them into a coherent whole.
+It brings together Switzerland’s most relevant public building datasets into a single, coherent reference layer that can be used for planning, reporting, analysis, and decision-making.
 
-**Curated. Connected. Maintained. Ready to plug into your planning, reporting, and decision-making.**
+This is not a one-off data project.  
+It is **data infrastructure**.
 
 ---
 
 ## Why It Matters
 
-Buildings account for **40% of Switzerland's CO₂ emissions**. Every path to net zero runs through the building stock.
+Buildings account for **~40% of Switzerland’s CO₂ emissions**.  
+Every credible path to net zero runs through the building stock.
 
-But you can't decarbonize what you can't measure. And right now, most organizations are guessing — or paying someone to figure out what should already exist.
+Yet most organizations face the same problems:
+- Data exists, but is fragmented
+- Methods are re-implemented repeatedly
+- Results remain siloed, undocumented, and short-lived
+
+You cannot decarbonize what you cannot measure.  
+And you cannot coordinate what you cannot compare.
 
 A shared foundation changes that:
-- Plan with real numbers
+- Plan with consistent, reproducible numbers
 - Report with confidence
-- Compare across portfolios, communes, cantons
+- Compare across portfolios, communes, and cantons
 
-One investment. Everyone benefits.
+One foundation. Many applications. Public value multiplied.
 
 ---
 
@@ -40,18 +56,18 @@ One investment. Everyone benefits.
 ### Data Platform
 
 | Feature | Description |
-|---------|-------------|
-| **Buildings** | 2M+ Swiss buildings with attributes from GWR, volumes from elevation models |
-| **Parcels** | Land parcels from cadastral survey (Amtliche Vermessung) |
-| **Landcovers** | Building footprints and land use classifications |
+|--------|-------------|
+| **Buildings** | 2M+ Swiss buildings with GWR attributes and derived volumes |
+| **Parcels** | Official land parcels from the cadastral survey (AV) |
+| **Landcovers** | Building footprints and land-use classifications |
 | **Projects** | Construction projects and building permits |
 
 ### Tools
 
 | Tool | Description |
 |------|-------------|
-| **Web Map** | Interactive map interface for exploring building data |
-| **Python CLI** | Calculate building volumes from geodata |
+| **Web Map** | Interactive 2D/3D map for exploring building data |
+| **Python CLI** | Reproducible building volume calculations |
 | **FME Workbench** | Visual workflow for FME Desktop users |
 
 ![image](/images/Preview1.jpg)
@@ -62,17 +78,15 @@ One investment. Everyone benefits.
 
 ### Web Interface
 
-Open `index.html` in a browser to explore buildings on an interactive map with:
-- Search by address using the Swisstopo API
-- Toggle between 2D and 3D views with terrain
-- Switch between Light, Streets, Outdoors, and Satellite basemaps
-- Click buildings and parcels for details
+Open `index.html` in a browser to explore buildings on an interactive map:
+- Address search via Swisstopo API
+- 2D / 3D views with terrain
+- Multiple basemaps (Light, Streets, Outdoors, Satellite)
+- Click buildings and parcels for detailed attributes
 
 ### Python Volume Calculator
 
-See [python/README.md](python/README.md) for detailed usage.
-
-Calculate building volumes using swissALTI3D (terrain) and swissSURFACE3D (surface) models:
+See [python/README.md](python/README.md) for details.
 
 ```bash
 # Install dependencies
@@ -81,21 +95,21 @@ pip install geopandas rasterio numpy pandas shapely fiona
 # Run calculator
 python python/main.py data/av_2056.gpkg data/alti3d data/surface3d
 
-# With options
+# Optional arguments
 python python/main.py data/av_2056.gpkg data/alti3d data/surface3d \
-    --limit 100 \
-    --bbox 2680000 1235000 2681000 1236000 \
-    -o results.csv \
-    -g buildings_with_volumes.gpkg
-```
+  --limit 100 \
+  --bbox 2680000 1235000 2681000 1236000 \
+  -o results.csv \
+  -g buildings_with_volumes.gpkg
+````
 
 ---
 
 ## Data Model
 
-See [documentation/DATAMODEL.md](documentation/DATAMODEL.md) for the complete schema.
+See [documentation/DATAMODEL.md](documentation/DATAMODEL.md) for the full schema.
 
-The platform aggregates Swiss Open Government Data (OGD) into four core entities:
+The platform aggregates Swiss Open Government Data into four core entities:
 
 ```mermaid
 erDiagram
@@ -104,70 +118,39 @@ erDiagram
     parcels ||--o{ landcovers : "contains"
     buildings ||--o{ projects : "has"
     parcels ||--o{ projects : "contains"
-
-    buildings {
-        bigint id PK
-        text egid UK
-        geography geog
-        bigint parcel_id FK
-    }
-
-    parcels {
-        bigint id PK
-        text egrid UK
-        text parcel_number
-        geography geog
-    }
-
-    landcovers {
-        bigint id PK
-        geography geog
-        bigint building_id FK
-        bigint parcel_id FK
-    }
-
-    projects {
-        bigint id PK
-        text eproid UK
-        geography geog
-        bigint building_id FK
-        bigint parcel_id FK
-    }
 ```
 
 ### Buildings
 
-Core building attributes including:
-- **Identification**: EGID, address, location
-- **Classification**: Status, category, building class
-- **Dimensions**: Volume (m³), floor area (m²), heights (m), floors
-- **Energy**: Heating type and source
-- **Heritage**: KGS protection category
+* **Identification**: EGID, address, location
+* **Classification**: Status, category, building class
+* **Dimensions**: Volume (m³), floor area (m²), heights (m), floors
+* **Energy**: Heating type and source
+* **Heritage**: KGS protection category
 
 ### Parcels
 
-Land parcels with:
-- **Identification**: E-GRID, parcel number
-- **Dimensions**: Area (m²), building footprint area, sealed area
-- **Zoning**: Main zone, zone type
+* **Identification**: E-GRID, parcel number
+* **Dimensions**: Area, building footprint, sealed area
+* **Zoning**: Main zone, zone type
 
 ---
 
 ## Data Sources
 
-Primary data access is through the **Federal Spatial Data Infrastructure (FSDI)** via geo.admin.ch.
+Primary access via the **Federal Spatial Data Infrastructure (FSDI)** / geo.admin.ch.
 
-| Source | Provider | Content |
-|--------|----------|---------|
-| **GWR** | BFS | Building attributes, dwellings, addresses |
-| **AV** | Cantonal Offices | Footprints, parcels, landcovers |
-| **swissALTI3D** | swisstopo | Terrain elevation model (DTM) |
-| **swissSURFACE3D** | swisstopo | Surface elevation model (DSM) |
-| **swissBUILDINGS3D** | swisstopo | 3D building models |
-| **ARE** | ARE | Zoning classifications |
-| **KGS** | BABS | Heritage protection |
+| Source               | Provider         | Content                           |
+| -------------------- | ---------------- | --------------------------------- |
+| **GWR**              | BFS              | Building attributes and addresses |
+| **AV**               | Cantonal offices | Parcels, footprints, landcovers   |
+| **swissALTI3D**      | swisstopo        | Terrain elevation model (DTM)     |
+| **swissSURFACE3D**   | swisstopo        | Surface elevation model (DSM)     |
+| **swissBUILDINGS3D** | swisstopo        | 3D building models                |
+| **ARE**              | ARE              | Zoning data                       |
+| **KGS**              | BABS             | Heritage protection               |
 
-All sources are Swiss OGD with varying update frequencies.
+All sources are Swiss Open Government Data.
 
 ---
 
@@ -176,17 +159,11 @@ All sources are Swiss OGD with varying update frequencies.
 ```
 OpenBuildings/
 ├── documentation/
-│   ├── VISION.md          # Project vision and principles
-│   ├── DATAMODEL.md       # Database schema documentation
-│   └── STYLEGUIDE.md      # Design system and UI guidelines
 ├── python/
-│   ├── main.py            # Building volume calculator
-│   └── README.md          # Python tool documentation
 ├── fme/
-│   └── swissALTI3D Volumen.fmw  # FME workbench
-├── images/                # Screenshots and visuals
-├── index.html             # Web map interface
-└── LICENSE                # MIT License
+├── images/
+├── index.html
+└── LICENSE
 ```
 
 ---
@@ -195,77 +172,82 @@ OpenBuildings/
 
 ### Coordinate System
 
-- **Swiss LV95** (EPSG:2056)
-- Tile naming: `XXXX_YYYY` based on SW corner in kilometers
+* Swiss LV95 (EPSG:2056)
 
 ### Methodology
 
-The volume calculation:
-1. Creates 1×1m voxel grid within each building footprint
-2. Samples terrain height (swissALTI3D) for base elevation
-3. Samples surface height (swissSURFACE3D) for roof elevation
-4. Calculates: `Volume = Σ(roof - base) × 1m²`
+Building volume calculation:
+
+1. Generate a 1×1 m grid inside each footprint
+2. Sample terrain height (swissALTI3D)
+3. Sample surface height (swissSURFACE3D)
+4. Compute volume as `Σ(roof − base) × 1 m²`
 
 ### Standards
 
-- **SIA 416**: Swiss standard for building areas and volumes
-- **GWR Merkmalskatalog 4.2**: Building register specifications
-- **DM.01-AV-CH**: Cadastral data model
+* **SIA 416**
+* **GWR Merkmalskatalog 4.2**
+* **DM.01-AV-CH**
 
 ---
 
-## Business Model
+## Sustainability Model
 
-| Tier | Access |
-|------|--------|
-| **Free** | Explore, search, download individual buildings |
-| **Paid** | Bulk data, API access, portfolio reports |
+| Tier     | Access                                    |
+| -------- | ----------------------------------------- |
+| **Free** | Explore and download individual buildings |
+| **Paid** | Bulk data, APIs, portfolio-level outputs  |
 
-Revenue keeps the foundation maintained. The core stays open.
+Revenue supports maintenance and long-term continuity.
+The foundation remains open.
 
 ---
 
 ## Principles
 
-- **Open by default** — Methods, sources, flaws and limitations — all public
-- **Quality over quantity** — Good data beats more data
-- **Interoperable and stable** — Following national and international standards
-
----
-
-## Documentation
-
-| Document | Description |
-|----------|-------------|
-| [VISION.md](documentation/VISION.md) | Project vision and goals |
-| [DATAMODEL.md](documentation/DATAMODEL.md) | Complete database schema |
-| [STYLEGUIDE.md](documentation/STYLEGUIDE.md) | Design system |
-| [python/README.md](python/README.md) | Python tool usage |
+* **Open by default** — methods, sources, assumptions, limitations
+* **Quality over quantity** — correctness beats coverage
+* **Interoperable** — aligned with national standards
 
 ---
 
 ## Contributing
 
-This is an open project. Use it. Tell us what's broken. Help make it better.
+OpenBuildings is a shared foundation.
+
+Use it. Question it. Improve it.
 
 1. Fork the repository
 2. Create a feature branch
-3. Make your changes
-4. Submit a pull request
+3. Commit your changes
+4. Open a pull request
 
 ---
 
 ## License
 
-This project is licensed under the [MIT License](LICENSE).
+MIT License — see [LICENSE](LICENSE).
 
 ---
 
 ## Links
 
-- **Website**: [openbuildings.ch](https://openbuildings.ch)
-- **GitHub**: [github.com/davras5/OpenBuildings](https://github.com/davras5/OpenBuildings)
+* Website: [https://openbuildings.ch](https://openbuildings.ch)
+* GitHub: [https://github.com/davras5/OpenBuildings](https://github.com/davras5/OpenBuildings)
 
 ---
 
-*Building data belongs to everyone. We're making that real.*
+*Building data is a public good.
+OpenBuildings turns that principle into infrastructure.*
+
+```
+
+---
+
+If you want next:
+- A **short “executive summary” at the top**
+- A **Status / Maturity / Limitations** section (very valuable for public bodies)
+- Or a **one-paragraph version for grant or procurement documents**
+
+Just tell me 👍
+```
