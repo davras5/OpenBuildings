@@ -62,8 +62,6 @@ One foundation. Many applications. Public value multiplied.
 | **Python CLI** | Reproducible building volume calculations |
 | **FME Workbench** | Visual workflow for FME Desktop users |
 
-![image](/images/Preview1.jpg)
-
 ---
 
 ## Quick Start
@@ -75,6 +73,8 @@ Open `index.html` in a browser to explore buildings on an interactive map:
 - 2D / 3D views with terrain
 - Multiple basemaps (Light, Streets, Outdoors, Satellite)
 - Click buildings and parcels for detailed attributes
+
+![image](/images/Preview1.jpg)
 
 ### Python Volume Calculator
 
