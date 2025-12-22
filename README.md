@@ -68,6 +68,8 @@ Open `index.html` in a browser to explore buildings on an interactive map with:
 
 ### Python Volume Calculator
 
+See [python/README.md](python/README.md) for detailed usage.
+
 Calculate building volumes using swissALTI3D (terrain) and swissSURFACE3D (surface) models:
 
 ```bash
@@ -85,11 +87,11 @@ python python/main.py data/av_2056.gpkg data/alti3d data/surface3d \
     -g buildings_with_volumes.gpkg
 ```
 
-See [python/README.md](python/README.md) for detailed usage.
-
 ---
 
 ## Data Model
+
+See [documentation/DATAMODEL.md](documentation/DATAMODEL.md) for the complete schema.
 
 The platform aggregates Swiss Open Government Data (OGD) into four core entities:
 
@@ -146,8 +148,6 @@ Land parcels with:
 - **Identification**: E-GRID, parcel number
 - **Dimensions**: Area (m²), building footprint area, sealed area
 - **Zoning**: Main zone, zone type
-
-See [documentation/DATAMODEL.md](documentation/DATAMODEL.md) for the complete schema.
 
 ---
 
