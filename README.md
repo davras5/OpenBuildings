@@ -5,6 +5,13 @@
 ![image](/images/style/1.jpg)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![GitHub Pages](https://img.shields.io/badge/demo-GitHub%20Pages-blue?logo=github)](https://davras5.github.io/OpenBuildings/)
+[![Python 3](https://img.shields.io/badge/python-3.x-blue?logo=python&logoColor=white)](https://www.python.org/)
+[![Made with Supabase](https://img.shields.io/badge/Supabase-backend-3FCF8E?logo=supabase&logoColor=white)](https://supabase.com/)
+[![Made with Mapbox](https://img.shields.io/badge/Mapbox-maps-000000?logo=mapbox&logoColor=white)](https://www.mapbox.com/)
+[![Swiss Open Data](https://img.shields.io/badge/data-Swiss%20OGD-red)](https://opendata.swiss/)
+[![Made in Switzerland](https://img.shields.io/badge/made%20in-Switzerland-red)](https://openbuildings.ch)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/davras5/OpenBuildings/pulls)
 
 ---
 
