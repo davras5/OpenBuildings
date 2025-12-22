@@ -15,7 +15,7 @@
 | `buildings` | `id` | `egid` | Point | Individual buildings with attributes from GWR, volumes from elevation models |
 | `parcels` | `id` | `egrid` | Polygon | Land parcels from cadastral survey |
 | `landcovers` | `id` | | Polygon | Landcover polygons including building footprints |
-| `projects` | `id` | | Polygon | Construction projects (limited OGD availability) |
+| `projects` | `id` | `eproid` | Polygon | Construction projects (limited OGD availability) |
 
 ```mermaid
 erDiagram
@@ -43,6 +43,7 @@ erDiagram
 
     projects {
         bigint id PK
+        text eproid UK
         geography geog
     }
 ```
@@ -70,11 +71,12 @@ Primary entity representing individual buildings.
 
 | Column | Type | Constraints | Source | Description |
 |--------|------|-------------|--------|-------------|
-| `street` | `text` | | GWR | Street name |
-| `house_nr` | `text` | | GWR | House number |
-| `postal_code` | `text` | | GWR | Postal code |
-| `city` | `text` | | GWR | City/locality |
+| `country` | `text` | | GWR | Country code (ISO 3166-1 alpha-2) |
 | `region` | `text` | | GWR | Region code (canton in CH) |
+| `city` | `text` | | GWR | City/locality |
+| `postal_code` | `text` | | GWR | Postal code |
+| `street` | `text` | | GWR | Street name |
+| `street_nr` | `text` | | GWR | Street number |
 
 #### Classification
 
@@ -83,6 +85,7 @@ Primary entity representing individual buildings.
 | `status` | `text` | | GWR | Building status (planned, under construction, existing, demolished) |
 | `category` | `text` | | GWR | Building category |
 | `class` | `text` | | GWR | Building class |
+| `roof_form` | `text` | | Derived | Roof form (flat, gable, hip, etc.) |
 
 #### Construction
 
@@ -250,6 +253,8 @@ Construction projects. Note: Limited OGD available - primarily cantonal building
 | Column | Type | Constraints | Source | Description |
 |--------|------|-------------|--------|-------------|
 | `id` | `bigint` | `PRIMARY KEY, GENERATED ALWAYS AS IDENTITY` | System | System ID |
+| `eproid` | `text` | `UNIQUE` | GWR | Eidgenössischer Bauprojektidentifikator (CH) |
+| `source_fid` | `text` | | Various | Feature ID from source system (for traceability) |
 | `geog` | `geography(POLYGON, 4326)` | | Various | Project perimeter |
 | `created_at` | `timestamptz` | `DEFAULT NOW()` | System | Record creation timestamp |
 | `updated_at` | `timestamptz` | `DEFAULT NOW()` | System | Record last update timestamp |
@@ -301,22 +306,60 @@ BFS municipality register.
 
 ---
 
-## Implementation Phases
+## Enumerations
 
-### Phase 1
+Standard values for enumerated text fields. Sources define authoritative values; derived enumerations may vary.
 
-1. **Buildings** with GWR data + calculated volumes from swissALTI3D
-2. **Parcels** with AV geometry and basic attributes
-3. **Landcovers** with building footprints as priority type
-4. **KGS heritage data** enrichment
-5. **ARE zoning data** enrichment
+### buildings.status (GWR)
 
-### Phase 2 Candidates
+| Value | Description DE | Description EN |
+|-------|----------------|----------------|
+| `planned` | Projektiert | Planned |
+| `under_construction` | Im Bau | Under construction |
+| `existing` | Bestehend | Existing |
+| `demolished` | Abgebrochen | Demolished |
 
-- Cantonal building permit data (varies by canton)
-- Solar potential data (Sonnendach.ch)
-- Natural hazards (Naturgefahren)
-- Public transport accessibility
+### buildings.category (GWR)
+
+Values defined by GWR (Gebäudekategorie). See [GWR documentation](https://www.housing-stat.ch) for complete list.
+
+### buildings.class (GWR)
+
+Values defined by GWR (Gebäudeklasse). See [GWR documentation](https://www.housing-stat.ch) for complete list.
+
+### buildings.roof_form
+
+| Value | Description DE | Description EN |
+|-------|----------------|----------------|
+| `flat` | Flachdach | Flat roof |
+| `gable` | Satteldach | Gable roof |
+| `hip` | Walmdach | Hip roof |
+| `mansard` | Mansarddach | Mansard roof |
+| `shed` | Pultdach | Shed roof |
+| `pyramid` | Pyramidendach | Pyramid roof |
+| `dome` | Kuppeldach | Dome roof |
+| `complex` | Komplexes Dach | Complex roof |
+| `unknown` | Unbekannt | Unknown |
+
+### buildings.heritage_category (KGS)
+
+| Value | Description |
+|-------|-------------|
+| `A` | Objects of national importance |
+| `B` | Objects of regional importance |
+
+### projects.status
+
+| Value | Description DE | Description EN |
+|-------|----------------|----------------|
+| `planned` | Geplant | Planned |
+| `approved` | Bewilligt | Approved |
+| `under_construction` | Im Bau | Under construction |
+| `completed` | Fertiggestellt | Completed |
+
+### landcovers.type (AV)
+
+Values defined by Amtliche Vermessung (Bodenbedeckung). See `landcover_types` lookup table.
 
 ---
 
