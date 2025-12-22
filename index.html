@@ -1320,8 +1320,8 @@
         selectedBuilding = null; // Deselect building
         selectedParcel = null; // Deselect parcel
 
-        // For now, just log the selection (can add panel later)
-        console.log('Selected landcover:', id);
+        // Fetch landcover details from API
+        await fetchAndShowLandcover(id);
 
         updateBuildingStyles();
         updateParcelStyles();
@@ -1382,6 +1382,25 @@
           }
         } catch (err) {
           console.error('Error fetching parcel:', err);
+        }
+      }
+
+      // Fetch landcover from Supabase and show panel
+      async function fetchAndShowLandcover(id) {
+        try {
+          const { data, error } = await db
+            .from('landcover')
+            .select('id, egid')
+            .eq('id', id)
+            .single();
+
+          if (error) throw error;
+
+          if (data) {
+            showLandcoverPanel(data);
+          }
+        } catch (err) {
+          console.error('Error fetching landcover:', err);
         }
       }
 
@@ -1479,13 +1498,36 @@
         buildingPanel.classList.add('open');
       }
 
+      // Show landcover panel with details
+      function showLandcoverPanel(landcover) {
+        panelBuildingName.textContent = 'Landcover';
+        panelBuildingLocation.textContent = 'Land usage zone';
+
+        // Build metrics HTML
+        const metrics = [
+          { label: 'ID', value: landcover.id || '–' },
+          { label: 'EGID', value: landcover.egid || '–' }
+        ];
+
+        panelMetrics.innerHTML = metrics.map(m => `
+          <div class="metric-row">
+            <span class="metric-label">${m.label}</span>
+            <span class="metric-value">${m.value}</span>
+          </div>
+        `).join('');
+
+        buildingPanel.classList.add('open');
+      }
+
       // Close panel
       function closeBuildingPanel() {
         buildingPanel.classList.remove('open');
         selectedBuilding = null;
         selectedParcel = null;
+        selectedLandcover = null;
         updateBuildingStyles();
         updateParcelStyles();
+        updateLandcoverStyles();
         updateUrlParams();
       }
 
