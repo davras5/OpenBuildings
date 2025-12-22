@@ -395,6 +395,108 @@
             margin-right: auto;
         }
 
+        .hero-search {
+            max-width: 500px;
+            margin: 0 auto var(--space-lg);
+            text-align: center;
+        }
+
+        .hero-search-wrapper {
+            position: relative;
+        }
+
+        .hero-search-icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--slate-400);
+            pointer-events: none;
+        }
+
+        .hero-search-input {
+            width: 100%;
+            padding: 16px 16px 16px 48px;
+            font-size: 1rem;
+            font-family: var(--font-family);
+            border: 2px solid var(--slate-300);
+            border-radius: var(--radius-lg);
+            background-color: var(--white);
+            color: var(--slate-900);
+            transition: all 0.2s ease;
+        }
+
+        .hero-search-input:focus {
+            outline: none;
+            border-color: var(--ocean);
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+        }
+
+        .hero-search-input::placeholder {
+            color: var(--slate-400);
+        }
+
+        .hero-search-hint {
+            display: block;
+            margin-top: var(--space-sm);
+            font-size: 0.875rem;
+            color: var(--slate-400);
+        }
+
+        .hero-search-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            margin-top: 4px;
+            background-color: var(--white);
+            border: 1px solid var(--slate-200);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-lg);
+            max-height: 300px;
+            overflow-y: auto;
+            display: none;
+            z-index: 50;
+            text-align: left;
+        }
+
+        .hero-search-results.active {
+            display: block;
+        }
+
+        .hero-search-result {
+            padding: 12px 16px;
+            cursor: pointer;
+            border-bottom: 1px solid var(--slate-100);
+            transition: background-color 0.15s ease;
+        }
+
+        .hero-search-result:last-child {
+            border-bottom: none;
+        }
+
+        .hero-search-result:hover {
+            background-color: var(--slate-100);
+        }
+
+        .hero-search-result-title {
+            font-weight: 500;
+            color: var(--slate-900);
+            font-size: 0.9rem;
+        }
+
+        .hero-search-result-subtitle {
+            font-size: 0.75rem;
+            color: var(--slate-500);
+            margin-top: 2px;
+        }
+
+        .hero-search-loading {
+            padding: 16px;
+            text-align: center;
+            color: var(--slate-500);
+        }
+
         .hero-cta {
             display: flex;
             flex-direction: column;
@@ -693,53 +795,46 @@
             margin-bottom: 0;
         }
 
-        /* ===== DATA MODEL SECTION ===== */
-        .datamodel {
+        /* ===== DATA & TOOLS SECTION ===== */
+        .data-tools {
             background-color: var(--slate-100);
         }
 
-        .datamodel-header {
+        .data-tools-header {
             text-align: center;
             max-width: 700px;
             margin: 0 auto var(--space-3xl);
         }
 
-        .datamodel-header h2 {
+        .data-tools-header h2 {
             margin-bottom: var(--space-md);
         }
 
-        .datamodel-header p {
+        .data-tools-header p {
             font-size: 1.125rem;
             color: var(--slate-500);
         }
 
-        .datamodel-grid {
+        .data-tools-content {
             display: grid;
             gap: var(--space-lg);
-            grid-template-columns: repeat(2, 1fr);
         }
 
         @media (min-width: 768px) {
-            .datamodel-grid {
+            .data-tools-content {
                 grid-template-columns: repeat(3, 1fr);
             }
         }
 
-        @media (min-width: 1024px) {
-            .datamodel-grid {
-                grid-template-columns: repeat(6, 1fr);
-            }
-        }
-
-        .datamodel-card {
-            padding: var(--space-lg);
+        .data-tools-card {
+            padding: var(--space-xl);
             background-color: var(--white);
             border-radius: var(--radius-md);
         }
 
-        .datamodel-icon {
-            width: 40px;
-            height: 40px;
+        .data-tools-icon {
+            width: 56px;
+            height: 56px;
             background-color: var(--slate-100);
             border-radius: var(--radius-sm);
             display: flex;
@@ -749,31 +844,47 @@
             margin-bottom: var(--space-md);
         }
 
-        .datamodel-card h4 {
+        .data-tools-card h3 {
             margin-bottom: var(--space-sm);
-            font-size: 0.95rem;
         }
 
-        .datamodel-card ul {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        .datamodel-card li {
+        .data-tools-card p {
             color: var(--slate-500);
-            font-size: 0.8rem;
-            padding: var(--space-xs) 0;
-            border-bottom: 1px solid var(--slate-100);
+            margin-bottom: var(--space-md);
+            font-size: 0.9rem;
         }
 
-        .datamodel-card li:last-child {
-            border-bottom: none;
+        .data-tools-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--space-xs);
         }
 
-        .datamodel-cta {
+        .data-tools-tags span {
+            padding: 4px 10px;
+            background-color: var(--slate-100);
+            border-radius: var(--radius-sm);
+            font-size: 0.75rem;
+            color: var(--slate-600);
+        }
+
+        .data-tools-tags span.available {
+            background-color: var(--leaf);
+            color: var(--white);
+        }
+
+        .data-tools-tags span.coming-soon {
+            background-color: var(--amber);
+            color: var(--white);
+        }
+
+        .data-tools-cta {
             text-align: center;
             margin-top: var(--space-2xl);
+            display: flex;
+            justify-content: center;
+            gap: var(--space-md);
+            flex-wrap: wrap;
         }
 
         /* ===== SHOWCASE SECTION ===== */
@@ -841,135 +952,6 @@
             margin-bottom: 0;
         }
 
-        /* ===== TOOLS SECTION ===== */
-        .tools {
-            background-color: var(--white);
-        }
-
-        .tools-header {
-            text-align: center;
-            max-width: 700px;
-            margin: 0 auto var(--space-3xl);
-        }
-
-        .tools-header h2 {
-            margin-bottom: var(--space-md);
-        }
-
-        .tools-header p {
-            font-size: 1.125rem;
-            color: var(--slate-500);
-        }
-
-        .tools-grid {
-            display: grid;
-            gap: var(--space-xl);
-        }
-
-        @media (min-width: 768px) {
-            .tools-grid {
-                grid-template-columns: repeat(3, 1fr);
-            }
-        }
-
-        .tool-card {
-            padding: var(--space-xl);
-            background-color: var(--slate-100);
-            border-radius: var(--radius-md);
-            display: flex;
-            flex-direction: column;
-        }
-
-        .tool-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: var(--space-md);
-        }
-
-        .tool-icon {
-            width: 48px;
-            height: 48px;
-            background-color: var(--white);
-            border-radius: var(--radius-sm);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--ocean);
-        }
-
-        .tool-badge {
-            padding: 4px 10px;
-            border-radius: 999px;
-            font-size: 0.7rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        .tool-badge.available {
-            background-color: var(--leaf);
-            color: var(--white);
-        }
-
-        .tool-badge.coming-soon {
-            background-color: var(--amber);
-            color: var(--white);
-        }
-
-        .tool-badge.template {
-            background-color: var(--slate-500);
-            color: var(--white);
-        }
-
-        .tool-card h3 {
-            margin-bottom: var(--space-sm);
-        }
-
-        .tool-card > p {
-            color: var(--slate-500);
-            margin-bottom: var(--space-md);
-            flex-grow: 1;
-        }
-
-        .tool-tech {
-            display: flex;
-            gap: var(--space-sm);
-            flex-wrap: wrap;
-            margin-bottom: var(--space-md);
-        }
-
-        .tool-tech span {
-            padding: 4px 10px;
-            background-color: var(--white);
-            border-radius: var(--radius-sm);
-            font-size: 0.75rem;
-            color: var(--slate-700);
-        }
-
-        .tool-example {
-            display: block;
-            padding: var(--space-sm) var(--space-md);
-            background-color: var(--slate-900);
-            color: var(--leaf-light);
-            border-radius: var(--radius-sm);
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.75rem;
-            overflow-x: auto;
-            margin-bottom: var(--space-md);
-        }
-
-        .tool-btn {
-            width: 100%;
-        }
-
-        .tool-status {
-            color: var(--slate-400);
-            font-size: 0.85rem;
-            font-style: italic;
-            margin-bottom: 0;
-        }
-
         /* ===== FOR WHO SECTION ===== */
         .audience {
             background-color: var(--white);
@@ -1031,109 +1013,94 @@
             margin-bottom: 0;
         }
 
-        /* ===== PRINCIPLES SECTION ===== */
-        .principles {
+        /* ===== PRINCIPLES & STANDARDS SECTION ===== */
+        .principles-standards {
             background-color: var(--slate-100);
         }
 
-        .principles-header {
+        .principles-standards-header {
             text-align: center;
             max-width: 700px;
             margin: 0 auto var(--space-3xl);
         }
 
-        .principles-header h2 {
+        .principles-standards-header h2 {
             margin-bottom: var(--space-md);
         }
 
-        .principles-grid {
-            display: grid;
-            gap: var(--space-lg);
-        }
-
-        @media (min-width: 768px) {
-            .principles-grid {
-                grid-template-columns: repeat(3, 1fr);
-            }
-        }
-
-        .principle-card {
-            padding: var(--space-xl);
-            background-color: var(--white);
-            border-radius: var(--radius-md);
-            border-left: 4px solid var(--ocean);
-        }
-
-        .principle-card h4 {
-            color: var(--ocean);
-            margin-bottom: var(--space-sm);
-        }
-
-        .principle-card p {
-            color: var(--slate-500);
-            margin-bottom: 0;
-        }
-
-        /* ===== STANDARDS SECTION ===== */
-        .standards {
-            background-color: var(--white);
-        }
-
-        .standards-header {
-            text-align: center;
-            max-width: 700px;
-            margin: 0 auto var(--space-3xl);
-        }
-
-        .standards-header h2 {
-            margin-bottom: var(--space-md);
-        }
-
-        .standards-header p {
+        .principles-standards-header p {
             font-size: 1.125rem;
             color: var(--slate-500);
         }
 
-        .standards-grid {
+        .principles-standards-content {
             display: grid;
-            gap: var(--space-md);
-            grid-template-columns: repeat(2, 1fr);
-            max-width: 900px;
-            margin: 0 auto;
+            gap: var(--space-xl);
         }
 
         @media (min-width: 768px) {
-            .standards-grid {
-                grid-template-columns: repeat(3, 1fr);
+            .principles-standards-content {
+                grid-template-columns: 1fr 1fr;
             }
         }
 
-        .standard-item {
+        .principles-column {
             display: flex;
             flex-direction: column;
-            gap: var(--space-xs);
-            padding: var(--space-md);
-            background-color: var(--slate-100);
-            border-radius: var(--radius-sm);
-            text-align: center;
+            gap: var(--space-md);
         }
 
-        .standard-code {
-            font-weight: 700;
+        .principle-item {
+            display: flex;
+            gap: var(--space-md);
+            padding: var(--space-lg);
+            background-color: var(--white);
+            border-radius: var(--radius-md);
+        }
+
+        .principle-item i {
             color: var(--ocean);
-            font-size: 1rem;
+            flex-shrink: 0;
+            margin-top: 2px;
         }
 
-        .standard-name {
-            color: var(--slate-500);
-            font-size: 0.8rem;
+        .principle-item strong {
+            display: block;
+            color: var(--slate-900);
+            margin-bottom: var(--space-xs);
         }
 
-        .standards-note {
-            text-align: center;
+        .principle-item span {
             color: var(--slate-500);
-            margin-top: var(--space-2xl);
             font-size: 0.9rem;
+        }
+
+        .standards-column {
+            padding: var(--space-xl);
+            background-color: var(--white);
+            border-radius: var(--radius-md);
+        }
+
+        .standards-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--space-sm);
+            margin-bottom: var(--space-lg);
+        }
+
+        .standard-tag {
+            padding: 6px 12px;
+            background-color: var(--ocean);
+            color: var(--white);
+            border-radius: var(--radius-sm);
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .standards-desc {
+            color: var(--slate-500);
+            font-size: 0.9rem;
+            margin-bottom: 0;
         }
 
         /* ===== ACCESS SECTION ===== */
@@ -1461,8 +1428,8 @@
 
             <nav class="nav">
                 <a href="#features">Features</a>
-                <a href="#about">About</a>
-                <a href="#contact">Contact</a>
+                <a href="#data">Data & Tools</a>
+                <a href="#contact">About</a>
                 <a href="https://github.com/davras5/OpenBuildings" target="_blank">GitHub</a>
             </nav>
 
@@ -1497,10 +1464,19 @@
                     A shared, authoritative foundation for Swiss building data—open, connected, and maintained—so public institutions can plan, report, and act with confidence.
                 </p>
 
+                <div class="hero-search">
+                    <div class="hero-search-wrapper">
+                        <i data-lucide="search" class="hero-search-icon" style="width: 20px; height: 20px;"></i>
+                        <input type="text" id="heroSearch" class="hero-search-input" placeholder="Search any address in Switzerland..." autocomplete="off">
+                        <div class="hero-search-results" id="heroSearchResults"></div>
+                    </div>
+                    <span class="hero-search-hint">e.g. Bundesplatz 3, Bern</span>
+                </div>
+
                 <div class="hero-cta">
-                    <a href="app/" class="btn btn-primary btn-large">
-                        Explore the map
+                    <a href="app/" class="btn btn-secondary btn-large">
                         <i data-lucide="map" style="width: 20px; height: 20px;"></i>
+                        Explore the map
                     </a>
                     <a href="https://github.com/davras5/OpenBuildings" class="btn btn-secondary btn-large" target="_blank">
                         <i data-lucide="github" style="width: 20px; height: 20px;"></i>
@@ -1687,98 +1663,65 @@
         </div>
     </section>
 
-    <!-- Data Model Section -->
-    <section class="datamodel">
+    <!-- Data & Tools Section -->
+    <section class="data-tools" id="data">
         <div class="container">
-            <div class="datamodel-header">
-                <h2>What you get for every building</h2>
-                <p>Comprehensive attributes from official Swiss sources, standardized and linked.</p>
+            <div class="data-tools-header">
+                <h2>Data & Tools</h2>
+                <p>60+ attributes per building, plus open-source processing tools you can run locally.</p>
             </div>
 
-            <div class="datamodel-grid">
-                <div class="datamodel-card">
-                    <div class="datamodel-icon">
-                        <i data-lucide="fingerprint" style="width: 24px; height: 24px;"></i>
+            <div class="data-tools-content">
+                <div class="data-tools-card">
+                    <div class="data-tools-icon">
+                        <i data-lucide="database" style="width: 32px; height: 32px;"></i>
                     </div>
-                    <h4>Identification</h4>
-                    <ul>
-                        <li>EGID (unique building ID)</li>
-                        <li>Full address</li>
-                        <li>Coordinates (WGS84 / LV95)</li>
-                        <li>Municipality & canton</li>
-                    </ul>
+                    <h3>Building Attributes</h3>
+                    <p>Every building includes: EGID, address, coordinates, construction year, dimensions (area, volume, height), energy systems, zoning, heritage status, and more.</p>
+                    <div class="data-tools-tags">
+                        <span>Identification</span>
+                        <span>Dimensions</span>
+                        <span>Energy</span>
+                        <span>Heritage</span>
+                        <span>Zoning</span>
+                        <span>+50 more</span>
+                    </div>
                 </div>
 
-                <div class="datamodel-card">
-                    <div class="datamodel-icon">
-                        <i data-lucide="hard-hat" style="width: 24px; height: 24px;"></i>
+                <div class="data-tools-card">
+                    <div class="data-tools-icon">
+                        <i data-lucide="box" style="width: 32px; height: 32px;"></i>
                     </div>
-                    <h4>Construction</h4>
-                    <ul>
-                        <li>Year built</li>
-                        <li>Renovation year</li>
-                        <li>Building status</li>
-                        <li>Category & class</li>
-                    </ul>
+                    <h3>Volume Estimator</h3>
+                    <p>Calculate building volumes from swissALTI3D and swissSURFACE3D at 1m² resolution. Available as Python CLI and FME Workbench.</p>
+                    <div class="data-tools-tags">
+                        <span class="available">Available</span>
+                        <span>Python</span>
+                        <span>FME</span>
+                    </div>
                 </div>
 
-                <div class="datamodel-card">
-                    <div class="datamodel-icon">
-                        <i data-lucide="ruler" style="width: 24px; height: 24px;"></i>
+                <div class="data-tools-card">
+                    <div class="data-tools-icon">
+                        <i data-lucide="home" style="width: 32px; height: 32px;"></i>
                     </div>
-                    <h4>Dimensions</h4>
-                    <ul>
-                        <li>Footprint area (m²)</li>
-                        <li>Floor area (m²)</li>
-                        <li>Volume (m³)</li>
-                        <li>Height & floor count</li>
-                    </ul>
-                </div>
-
-                <div class="datamodel-card">
-                    <div class="datamodel-icon">
-                        <i data-lucide="flame" style="width: 24px; height: 24px;"></i>
+                    <h3>Roof Estimator</h3>
+                    <p>Derive roof form, orientation, slope, and area from elevation data. Essential for solar potential and renovation planning.</p>
+                    <div class="data-tools-tags">
+                        <span class="coming-soon">Coming Soon</span>
+                        <span>Python</span>
                     </div>
-                    <h4>Energy</h4>
-                    <ul>
-                        <li>Heating type & source</li>
-                        <li>Water heating</li>
-                        <li>Energy reference area</li>
-                        <li>Dwelling count</li>
-                    </ul>
-                </div>
-
-                <div class="datamodel-card">
-                    <div class="datamodel-icon">
-                        <i data-lucide="file-text" style="width: 24px; height: 24px;"></i>
-                    </div>
-                    <h4>Administrative</h4>
-                    <ul>
-                        <li>Parcel ID</li>
-                        <li>Zoning classification</li>
-                        <li>Land use type</li>
-                        <li>Ownership category</li>
-                    </ul>
-                </div>
-
-                <div class="datamodel-card">
-                    <div class="datamodel-icon">
-                        <i data-lucide="shield" style="width: 24px; height: 24px;"></i>
-                    </div>
-                    <h4>Heritage</h4>
-                    <ul>
-                        <li>KGS protection category</li>
-                        <li>Inventory number</li>
-                        <li>Protection status</li>
-                        <li>Cultural significance</li>
-                    </ul>
                 </div>
             </div>
 
-            <div class="datamodel-cta">
+            <div class="data-tools-cta">
                 <a href="https://github.com/davras5/OpenBuildings/blob/main/documentation/DATAMODEL.md" target="_blank" class="btn btn-secondary">
                     <i data-lucide="book-open" style="width: 18px; height: 18px;"></i>
-                    View full data model documentation
+                    Data Model
+                </a>
+                <a href="https://github.com/davras5/OpenBuildings/tree/main/tools" target="_blank" class="btn btn-secondary">
+                    <i data-lucide="wrench" style="width: 18px; height: 18px;"></i>
+                    Tools
                 </a>
             </div>
         </div>
@@ -1841,76 +1784,8 @@
         </div>
     </section>
 
-    <!-- Tools Section -->
-    <section class="tools">
-        <div class="container">
-            <div class="tools-header">
-                <h2>Processing tools included</h2>
-                <p>Run locally or integrate into your workflows. Open source and documented.</p>
-            </div>
-
-            <div class="tools-grid">
-                <div class="tool-card">
-                    <div class="tool-header">
-                        <div class="tool-icon">
-                            <i data-lucide="box" style="width: 24px; height: 24px;"></i>
-                        </div>
-                        <div class="tool-meta">
-                            <span class="tool-badge available">Available</span>
-                        </div>
-                    </div>
-                    <h3>Volume Estimator</h3>
-                    <p>Calculate building volumes from terrain and surface models. Uses swissALTI3D + swissSURFACE3D at 1m² voxel resolution.</p>
-                    <div class="tool-tech">
-                        <span>Python CLI</span>
-                        <span>FME Workbench</span>
-                    </div>
-                    <code class="tool-example">python main.py --bbox 2600000,1200000,2601000,1201000</code>
-                    <a href="https://github.com/davras5/OpenBuildings/tree/main/tools/volume-estimator" target="_blank" class="btn btn-secondary tool-btn">
-                        <i data-lucide="github" style="width: 16px; height: 16px;"></i>
-                        View on GitHub
-                    </a>
-                </div>
-
-                <div class="tool-card">
-                    <div class="tool-header">
-                        <div class="tool-icon">
-                            <i data-lucide="home" style="width: 24px; height: 24px;"></i>
-                        </div>
-                        <div class="tool-meta">
-                            <span class="tool-badge coming-soon">Coming Soon</span>
-                        </div>
-                    </div>
-                    <h3>Roof Estimator</h3>
-                    <p>Derive roof form, orientation, slope, and area from elevation data. Essential for solar potential and renovation planning.</p>
-                    <div class="tool-tech">
-                        <span>Python CLI</span>
-                    </div>
-                    <p class="tool-status">In development — contributions welcome</p>
-                </div>
-
-                <div class="tool-card">
-                    <div class="tool-header">
-                        <div class="tool-icon">
-                            <i data-lucide="cpu" style="width: 24px; height: 24px;"></i>
-                        </div>
-                        <div class="tool-meta">
-                            <span class="tool-badge template">Template</span>
-                        </div>
-                    </div>
-                    <h3>Base Worker</h3>
-                    <p>Template for creating new processing pipelines. Follows project conventions for reproducibility and documentation.</p>
-                    <div class="tool-tech">
-                        <span>Python</span>
-                    </div>
-                    <p class="tool-status">Fork and extend for custom indicators</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
     <!-- Audience Section -->
-    <section class="audience" id="about">
+    <section class="audience">
         <div class="container">
             <div class="audience-header">
                 <h2>Built for those who shape our cities</h2>
@@ -1953,68 +1828,51 @@
         </div>
     </section>
 
-    <!-- Principles Section -->
-    <section class="principles">
+    <!-- Principles & Standards Section -->
+    <section class="principles-standards">
         <div class="container">
-            <div class="principles-header">
-                <h2>Our principles</h2>
+            <div class="principles-standards-header">
+                <h2>Principles & Standards</h2>
+                <p>Built for long-term institutional use. Aligned with established Swiss standards.</p>
             </div>
 
-            <div class="principles-grid">
-                <div class="principle-card">
-                    <h4>Open by default</h4>
-                    <p>Methods, sources, and limitations are documented and public. Transparency builds trust.</p>
+            <div class="principles-standards-content">
+                <div class="principles-column">
+                    <div class="principle-item">
+                        <i data-lucide="unlock" style="width: 20px; height: 20px;"></i>
+                        <div>
+                            <strong>Open by default</strong>
+                            <span>Methods, sources, and limitations are documented and public.</span>
+                        </div>
+                    </div>
+                    <div class="principle-item">
+                        <i data-lucide="check-circle" style="width: 20px; height: 20px;"></i>
+                        <div>
+                            <strong>Institutional quality</strong>
+                            <span>Reproducibility and traceability over novelty.</span>
+                        </div>
+                    </div>
+                    <div class="principle-item">
+                        <i data-lucide="link" style="width: 20px; height: 20px;"></i>
+                        <div>
+                            <strong>Interoperability</strong>
+                            <span>Data outlives tools. We align with established standards.</span>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="principle-card">
-                    <h4>Institutional quality</h4>
-                    <p>Reproducibility, traceability, and long-term maintainability matter more than novelty.</p>
-                </div>
-
-                <div class="principle-card">
-                    <h4>Interoperability</h4>
-                    <p>Buildings last centuries. Software does not. We align with established standards so data outlives tools.</p>
+                <div class="standards-column">
+                    <div class="standards-list">
+                        <span class="standard-tag">SIA 416</span>
+                        <span class="standard-tag">SIA 380</span>
+                        <span class="standard-tag">DM.01-AV-CH</span>
+                        <span class="standard-tag">GWR 4.2</span>
+                        <span class="standard-tag">eCH-0206</span>
+                        <span class="standard-tag">OGC/MVT</span>
+                    </div>
+                    <p class="standards-desc">Swiss cadastral, building register, and energy standards. All transformations are documented and reproducible.</p>
                 </div>
             </div>
-        </div>
-    </section>
-
-    <!-- Standards Section -->
-    <section class="standards">
-        <div class="container">
-            <div class="standards-header">
-                <h2>Aligned with Swiss standards</h2>
-                <p>OpenBuildings follows established Swiss and international standards for data quality, interoperability, and reproducibility.</p>
-            </div>
-
-            <div class="standards-grid">
-                <div class="standard-item">
-                    <span class="standard-code">SIA 416</span>
-                    <span class="standard-name">Building areas and volumes</span>
-                </div>
-                <div class="standard-item">
-                    <span class="standard-code">SIA 380</span>
-                    <span class="standard-name">Energy reference area calculation</span>
-                </div>
-                <div class="standard-item">
-                    <span class="standard-code">DM.01-AV-CH</span>
-                    <span class="standard-name">Swiss cadastral data model</span>
-                </div>
-                <div class="standard-item">
-                    <span class="standard-code">GWR 4.2</span>
-                    <span class="standard-name">Building register schema</span>
-                </div>
-                <div class="standard-item">
-                    <span class="standard-code">eCH-0206</span>
-                    <span class="standard-name">Building data exchange</span>
-                </div>
-                <div class="standard-item">
-                    <span class="standard-code">OGC</span>
-                    <span class="standard-name">WMS, WMTS, MVT standards</span>
-                </div>
-            </div>
-
-            <p class="standards-note">All methods are documented. All transformations are reproducible.</p>
         </div>
     </section>
 
@@ -2171,9 +2029,108 @@
         </div>
     </footer>
 
-    <!-- Initialize Lucide Icons -->
+    <!-- Initialize Lucide Icons and Hero Search -->
     <script>
         lucide.createIcons();
+
+        // Hero Search Functionality
+        (function() {
+            const searchInput = document.getElementById('heroSearch');
+            const searchResults = document.getElementById('heroSearchResults');
+            let searchTimeout = null;
+
+            async function searchLocations(query) {
+                if (query.length < 2) {
+                    searchResults.classList.remove('active');
+                    return;
+                }
+
+                searchResults.innerHTML = '<div class="hero-search-loading">Searching...</div>';
+                searchResults.classList.add('active');
+
+                try {
+                    const url = `https://api3.geo.admin.ch/rest/services/ech/SearchServer?searchText=${encodeURIComponent(query)}&type=locations&lang=de&sr=4326`;
+                    const response = await fetch(url);
+                    const data = await response.json();
+
+                    const locations = data.results.filter(r =>
+                        r.attrs.origin === 'address' ||
+                        r.attrs.origin === 'zipcode' ||
+                        r.attrs.origin === 'sn25' ||
+                        r.attrs.origin === 'gg25' ||
+                        r.attrs.origin === 'gazetteer'
+                    ).slice(0, 8);
+
+                    if (locations.length === 0) {
+                        searchResults.innerHTML = '<div class="hero-search-loading">No results found</div>';
+                        return;
+                    }
+
+                    searchResults.innerHTML = locations.map(loc => {
+                        const label = loc.attrs.label.replace(/<[^>]*>/g, '');
+                        const detail = loc.attrs.detail || '';
+                        return `
+                            <div class="hero-search-result"
+                                 data-lon="${loc.attrs.lon}"
+                                 data-lat="${loc.attrs.lat}"
+                                 data-label="${label}">
+                                <div class="hero-search-result-title">${label}</div>
+                                ${detail ? `<div class="hero-search-result-subtitle">${detail}</div>` : ''}
+                            </div>
+                        `;
+                    }).join('');
+
+                } catch (err) {
+                    searchResults.innerHTML = '<div class="hero-search-loading">Search error. Please try again.</div>';
+                }
+            }
+
+            searchInput.addEventListener('input', (e) => {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    searchLocations(e.target.value.trim());
+                }, 300);
+            });
+
+            searchInput.addEventListener('focus', () => {
+                if (searchInput.value.trim().length >= 2) {
+                    searchResults.classList.add('active');
+                }
+            });
+
+            searchResults.addEventListener('click', (e) => {
+                const result = e.target.closest('.hero-search-result');
+                if (result) {
+                    const lon = result.dataset.lon;
+                    const lat = result.dataset.lat;
+                    const label = result.dataset.label;
+
+                    // Navigate to app with coordinates
+                    window.location.href = `app/?zoom=17&lon=${lon}&lat=${lat}`;
+                }
+            });
+
+            // Close results when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('.hero-search-wrapper')) {
+                    searchResults.classList.remove('active');
+                }
+            });
+
+            // Handle keyboard navigation
+            searchInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    const firstResult = searchResults.querySelector('.hero-search-result');
+                    if (firstResult) {
+                        firstResult.click();
+                    }
+                }
+                if (e.key === 'Escape') {
+                    searchResults.classList.remove('active');
+                    searchInput.blur();
+                }
+            });
+        })();
     </script>
 </body>
 </html>
