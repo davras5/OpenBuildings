@@ -1017,6 +1017,9 @@
       // NOTE: fetchBuildings() and fetchParcels() removed - data now served via vector tiles
 
       function addParcelsLayer() {
+        // Skip if source already exists
+        if (map.getSource('parcels')) return;
+
         // Add vector tile source for parcels
         map.addSource('parcels', {
           type: 'vector',
@@ -1088,6 +1091,9 @@
       }
       
       function addBuildingsLayer() {
+        // Skip if source already exists
+        if (map.getSource('buildings')) return;
+
         // Add vector tile source (streams data on-demand)
         map.addSource('buildings', {
           type: 'vector',
