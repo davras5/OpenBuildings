@@ -273,6 +273,7 @@
       display: flex;
       flex-direction: column;
       overflow: hidden;
+      padding-top: 100px;
     }
 
     .building-panel.open {
@@ -632,7 +633,7 @@
     .map-header {
       position: absolute;
       top: var(--space-sm);
-      left: var(--space-sm);
+      right: var(--space-sm);
       z-index: 10;
       display: flex;
       align-items: center;
@@ -644,7 +645,6 @@
       font-size: 0.75rem;
       color: var(--clr-text-muted);
       box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-      transition: left 0.3s ease;
     }
 
     .map-header-coords {
@@ -695,13 +695,6 @@
     /* Hide default scale control position */
     .mapboxgl-ctrl-bottom-left .mapboxgl-ctrl-scale {
       display: none;
-    }
-
-    /* Shift header when panel is open on desktop */
-    @media (min-width: 641px) {
-      .building-panel.open ~ .map-header {
-        left: calc(360px + var(--space-sm));
-      }
     }
   </style>
 </head>
