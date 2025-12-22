@@ -128,6 +128,8 @@ Primary entity representing individual buildings.
 | `area_floor_below_ground_m2` | `numeric` | | Derived | GF unterirdisch (SIA 416) |
 | `area_floor_net_m2` | `numeric` | | Derived | Netto-Geschossfläche NGF (SIA 416) |
 | `area_ebf_m2` | `numeric` | | Derived | Energiebezugsfläche EBF (SIA 380) |
+| `area_roof_m2` | `numeric` | | Derived | Fläche Dach DAF (eBKP-H) |
+| `area_wall_m2` | `numeric` | | Derived | Fläche Aussenwand AWF (eBKP-H) |
 | `area_accuracy` | `text` | | Derived | Accuracy and source of area data |
 
 #### Energy
