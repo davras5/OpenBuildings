@@ -231,7 +231,6 @@ This project is licensed under the [MIT License](LICENSE).
 
 - **Website**: [openbuildings.ch](https://openbuildings.ch)
 - **GitHub**: [github.com/davras5/OpenBuildings](https://github.com/davras5/OpenBuildings)
-- **geo.admin.ch**: [docs.geo.admin.ch](https://docs.geo.admin.ch)
 
 ---
 
