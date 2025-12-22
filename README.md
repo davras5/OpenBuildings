@@ -48,20 +48,18 @@ One foundation. Many applications. Public value multiplied.
 
 ## Features
 
-### Data Platform
+### Architecture
 
-| Feature | Description |
-|--------|-------------|
-| **Buildings** | 2M+ Swiss buildings with GWR attributes and derived volumes |
-| **Parcels** | Official land parcels from the cadastral survey (AV) |
-| **Landcovers** | Building footprints and land-use classifications |
-| **Projects** | Construction projects and building permits |
+| Component | Description |
+|-----------|-------------|
+| **Web App** | Interactive 2D/3D map for exploring and querying building data |
+| **Backend** | PostgreSQL + PostGIS database with REST API (Supabase) |
+| **Tools** | Standalone processing scripts for data enrichment and analysis |
 
 ### Tools
 
 | Tool | Description |
 |------|-------------|
-| **Web Map** | Interactive 2D/3D map for exploring building data |
 | [**Volume Estimator**](tools/volume-estimator/) | Calculate building volumes using swissALTI3D + swissSURFACE3D (Python & FME) |
 | [**Roof Estimator**](tools/roof-estimator/) | Estimate roof characteristics from height models |
 | [**Base Worker**](tools/base-worker/) | Template for building new processing tools |
