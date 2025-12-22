@@ -29,6 +29,8 @@ A shared foundation changes that:
 
 One investment. Everyone benefits.
 
+![image](/images/style/1.jpg)
+
 ---
 
 ## Features
