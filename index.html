@@ -656,6 +656,7 @@
     .map-header-scale {
       display: flex;
       align-items: center;
+      width: 70px;
     }
 
     /* Override Mapbox scale control styles */
@@ -767,8 +768,9 @@
       </div>
     </aside>
 
-    <!-- Map Header - coords, links, scale -->
+    <!-- Map Header - scale, coords, links -->
     <div class="map-header" id="mapHeader">
+      <div class="map-header-scale" id="scaleContainer"></div>
       <div class="map-header-coords" id="mouseCoords">–</div>
       <div class="map-header-links">
         <a href="https://github.com/davras5/OpenBuildings" target="_blank" rel="noopener">Quellencode</a>
@@ -777,7 +779,6 @@
         <span class="map-header-divider">·</span>
         <a href="documentation/DATAMODEL.md" target="_blank" rel="noopener">Docs</a>
       </div>
-      <div class="map-header-scale" id="scaleContainer"></div>
     </div>
 
     <div class="loading-overlay" id="loadingOverlay">
