@@ -25,8 +25,7 @@ It consolidates Switzerland’s most relevant public building datasets into a **
 * portfolio and territorial comparisons
 * research and public-sector decision-making
 
-This is not a one-off dataset.
-It is **data infrastructure**.
+Maintained and used by the Department for Digital Real Estate @Federal Office for Buildings and Logistics
 
 ---
 
