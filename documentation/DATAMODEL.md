@@ -730,3 +730,199 @@ curl "https://api3.geo.admin.ch/rest/services/api/SearchServer?searchText=bundes
 | Weisung AV-GWR Gebäudeerfassung | https://www.housing-stat.ch/files/1754-2300.pdf |
 | Cadastre Manual | https://www.cadastre-manual.admin.ch |
 | swisstopo Products | https://www.swisstopo.admin.ch/de/geodata |
+
+## SQL
+
+```sql
+
+-- Swiss Geodata Platform - Database Schema
+-- PostGIS on Supabase
+-- Version: 0.1.0 (Prototype)
+
+-- =============================================================================
+-- PARCELS
+-- Land parcels from cadastral survey (Amtliche Vermessung)
+-- =============================================================================
+
+CREATE TABLE public.parcels (
+  -- System
+  id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  label text,
+  egrid text,
+  parcel_number text,
+  source_fid text,
+  geog geography(POLYGON, 4326),
+  created_at timestamptz DEFAULT now(),
+  updated_at timestamptz DEFAULT now(),
+
+  -- Classification
+  status text,
+  type text,
+
+  -- Dimensions
+  area_m2 numeric,
+  area_polygon_m2 numeric,
+  area_surface_m2 numeric,
+  area_ggf_m2 numeric,
+  area_uf_m2 numeric,
+  area_buf_m2 numeric,
+  area_uuf_m2 numeric,
+  sealed_area_m2 numeric,
+
+  -- Admin
+  municipality_nr integer,
+  municipality_name text,
+
+  -- Zoning
+  zone_main text,
+  zone_type text
+);
+
+-- =============================================================================
+-- BUILDINGS
+-- Individual buildings linked to parcels
+-- =============================================================================
+
+CREATE TABLE public.buildings (
+  -- System
+  id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  label text,
+  egid text,
+  source_fid text,
+  parcel_id bigint REFERENCES public.parcels(id),
+  geog geography(POINT, 4326),
+  created_at timestamptz DEFAULT now(),
+  updated_at timestamptz DEFAULT now(),
+
+  -- Address
+  country text,
+  region text,
+  city text,
+  postal_code text,
+  street text,
+  street_nr text,
+
+  -- Classification
+  status text,
+  category text,
+  class text,
+  roof_form text,
+
+  -- Construction
+  construction_year integer,
+  renovation_year integer,
+  dwellings_count integer,
+
+  -- Area
+  area_footprint_m2 numeric,
+  area_floor_total_m2 numeric,
+  area_floor_above_ground_m2 numeric,
+  area_floor_below_ground_m2 numeric,
+  area_floor_net_m2 numeric,
+  area_ebf_m2 numeric,
+  area_roof_m2 numeric,
+  area_wall_m2 numeric,
+  area_accuracy text,
+
+  -- Floors
+  floors_total integer,
+  floors_above integer,
+  floors_below integer,
+  floors_accuracy text,
+
+  -- Volume
+  volume_total_m3 numeric,
+  volume_above_ground_m3 numeric,
+  volume_below_ground_m3 numeric,
+  volume_accuracy text,
+
+  -- Height
+  elevation_base_m numeric,
+  height_mean_m numeric,
+  height_max_m numeric,
+
+  -- Energy
+  heating_type text,
+  heating_source text,
+  water_heating_type text,
+  water_heating_source text,
+
+  -- Admin
+  municipality_nr integer,
+  municipality_name text,
+
+  -- Heritage
+  heritage_category text,
+  heritage_inventory_nr integer,
+
+  -- Zoning
+  zone_main text,
+  zone_type text
+);
+
+-- =============================================================================
+-- LANDCOVERS
+-- Landcover polygons from cadastral survey (Bodenbedeckung)
+-- =============================================================================
+
+CREATE TABLE public.landcovers (
+  -- System
+  id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  label text,
+  egid text,
+  source_fid text,
+  geog geography(POLYGON, 4326),
+  created_at timestamptz DEFAULT now(),
+  updated_at timestamptz DEFAULT now(),
+
+  -- Classification
+  status text,
+  type text,
+
+  -- Dimensions
+  area_m2 numeric,
+  volume_total_m3 numeric,
+  height_mean_m numeric,
+  height_max_m numeric,
+
+  -- Relations
+  building_id bigint REFERENCES public.buildings(id),
+  parcel_id bigint REFERENCES public.parcels(id)
+);
+
+-- =============================================================================
+-- PROJECTS
+-- Construction projects from GWR (Bauprojekte)
+-- =============================================================================
+
+CREATE TABLE public.projects (
+  -- System
+  id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  label text,
+  eproid text,
+  source_fid text,
+  geog geography(POLYGON, 4326),
+  created_at timestamptz DEFAULT now(),
+  updated_at timestamptz DEFAULT now(),
+
+  -- Relations
+  building_id bigint REFERENCES public.buildings(id),
+  parcel_id bigint REFERENCES public.parcels(id),
+
+  -- Classification
+  status text,
+  project_type text,
+  building_type text,
+
+  -- Timeline
+  date_submitted date,
+  date_approved date,
+  date_started date,
+  date_completed date,
+
+  -- Admin
+  municipality_nr integer
+);
+
+```
+
