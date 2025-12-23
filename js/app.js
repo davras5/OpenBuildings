@@ -1065,7 +1065,7 @@ async function init() {
         </div>
       `;
     }).join('') + `
-      <a href="documentation/DATAMODEL.md" target="_blank" class="metric-docs-link">Datenmodell →</a>
+      <a href="https://github.com/davras5/OpenBuildings/blob/main/documentation/DATAMODEL.md" target="_blank" class="metric-docs-link">Dokumentation Merkmalkatalog</a>
     `;
 
     buildingPanel.classList.add('open');
