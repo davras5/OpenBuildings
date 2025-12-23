@@ -31,8 +31,9 @@ erDiagram
     buildings {
         bigint id PK
         text source_fid UK
-        text egid
         text label
+        text egid
+        text adress
         geography geog
         bigint parcel_id FK
     }
@@ -40,8 +41,8 @@ erDiagram
     parcels {
         bigint id PK
         text source_fid UK
-        text egrid
         text label
+        text egrid
         text parcel_number
         geography geog
     }
@@ -49,8 +50,8 @@ erDiagram
     landcovers {
         bigint id PK
         text source_fid UK
-        text egid
         text label
+        text egid
         geography geog
         bigint building_id FK
         bigint parcel_id FK
@@ -59,8 +60,8 @@ erDiagram
     projects {
         bigint id PK
         text source_fid UK
-        text eproid
         text label
+        text eproid
         geography geog
         bigint building_id FK
         bigint parcel_id FK
