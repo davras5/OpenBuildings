@@ -1840,6 +1840,11 @@
         try {
           map.setTerrain({ source: 'terrain-dem', exaggeration: 1.5 });
           console.log('Terrain enabled');
+
+          // Force terrain tiles to reload at correct LOD by triggering a tiny zoom adjustment
+          const currentZoom = map.getZoom();
+          map.setZoom(currentZoom - 0.01);
+          requestAnimationFrame(() => map.setZoom(currentZoom));
         } catch (err) {
           console.error('Failed to enable terrain:', err);
         }
