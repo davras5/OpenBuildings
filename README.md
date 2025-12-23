@@ -25,7 +25,7 @@ It consolidates Switzerland’s most relevant public building datasets into a **
 * portfolio and territorial comparisons
 * research and public-sector decision-making
 
-Maintained and used by the Department for Digital Real Estate @[Federal Office for Buildings and Logistics](https://www.bbl.admin.ch/de), Switzerland
+> Maintained and used by the Department for Digital Real Estate @[Federal Office for Buildings and Logistics](https://www.bbl.admin.ch/de), Switzerland
 
 ---
 
