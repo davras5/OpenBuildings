@@ -1840,10 +1840,13 @@
           console.error('Failed to enable terrain:', err);
         }
 
-        // Convert landcover to fill-extrusion for 3D view
+        // Convert landcover (building footprints) to fill-extrusion for 3D view
         if (map.getLayer('landcover-fill')) {
           console.log('Converting landcover to fill-extrusion');
           try {
+            // Get the outline layer position if it exists
+            const beforeLayer = map.getLayer('landcover-outline') ? 'landcover-outline' : undefined;
+
             map.removeLayer('landcover-fill');
             map.addLayer({
               id: 'landcover-fill',
@@ -1859,20 +1862,16 @@
                 ],
                 'fill-extrusion-height': 10,
                 'fill-extrusion-base': 0,
-                'fill-extrusion-opacity': 0.6
+                'fill-extrusion-opacity': 0.8
               }
-            }, 'landcover-outline');
-            console.log('Landcover fill-extrusion layer added');
+            }, beforeLayer);
+            console.log('Landcover fill-extrusion layer added successfully');
           } catch (err) {
             console.error('Failed to add landcover fill-extrusion:', err);
           }
         } else {
           console.warn('landcover-fill layer not found');
         }
-
-        // NOTE: 3D buildings require polygon geometry (footprints), not points.
-        // Current buildings source contains points only.
-        // TODO: Add building footprint polygons from Swisstopo for 3D building extrusion
       }
 
       function remove3DTerrain() {
@@ -1885,6 +1884,8 @@
         if (map.getLayer('landcover-fill')) {
           console.log('Converting landcover back to flat fill');
           try {
+            const beforeLayer = map.getLayer('landcover-outline') ? 'landcover-outline' : undefined;
+
             map.removeLayer('landcover-fill');
             map.addLayer({
               id: 'landcover-fill',
@@ -1904,7 +1905,7 @@
                   0.2
                 ]
               }
-            }, 'landcover-outline');
+            }, beforeLayer);
           } catch (err) {
             console.error('Failed to restore landcover fill:', err);
           }
