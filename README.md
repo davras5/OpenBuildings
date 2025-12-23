@@ -91,11 +91,14 @@ Public data. Public methods. Public value — multiplied.
 
 ## Tools
 
-| Tool                                            | Purpose                                                  |
-| ----------------------------------------------- | -------------------------------------------------------- |
-| [**Volume Estimator**](tools/volume-estimator/) | Calculate building volumes from terrain & surface models |
-| [**Roof Estimator**](tools/roof-estimator/)     | Derive roof characteristics                              |
-| [**Base Worker**](tools/base-worker/)           | Template for new processing pipelines                    |
+| Tool                                            | Status         | Purpose                                                           |
+| ----------------------------------------------- | -------------- | ----------------------------------------------------------------- |
+| [**Base Worker**](tools/base-worker/)           | Available      | Aggregate foundational, structural & master data                  |
+| [**Volume Estimator**](tools/volume-estimator/) | Available      | Calculate building volumes from terrain & surface models          |
+| [**Roof Estimator**](tools/roof-estimator/)     | In development | Derive roof characteristics                                       |
+| **Biodiversity**                                | Idea           | Green roof detection and biodiversity index per parcel            |
+| **Carbon Risks**                                | Idea           | Ready to use location data for carbon risks                       |
+| **Environmental Risks**                         | Idea           | Ready to use location data for environmental risks                |
 
 ### Example: Volume Estimator
 
