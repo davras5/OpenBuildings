@@ -37,7 +37,6 @@ erDiagram
     parcels {
         bigint id PK
         text egrid UK
-        text egid
         text label
         text parcel_number
         geography geog
@@ -45,6 +44,7 @@ erDiagram
 
     landcovers {
         bigint id PK
+        text egid UK
         text label
         geography geog
         bigint building_id FK
