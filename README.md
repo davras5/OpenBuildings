@@ -16,7 +16,7 @@
 
 OpenBuildings is developed and maintained by the **Department for Digital Real Estate** at the Federal Office of Buildings and Logistics (FOBL / BBL). While primarily supporting internal federal needs, the project is openly published to enable **reuse, transparency, and collaboration** beyond organizational boundaries.
 
-**Important:** The Federal Office **does not own the underlying data** and cannot guarantee its correctness. We aggregate, harmonize, and link data from official sources. For authoritative datasets, see [opendata.swiss](https://opendata.swiss/de) or our documentation.
+> **Important:** The Federal Office **does not own the underlying data** and cannot guarantee its correctness. We aggregate, harmonize, and link data from official sources. For authoritative datasets, see [opendata.swiss](https://opendata.swiss/de) or our documentation.
 
 OpenBuildings brings together publicly available building data from multiple sources and aligns it into a single, **consistent reference layer**. The goal is not to replace existing registers but to make building data **usable in practice** across organizational and system boundaries.
 
@@ -47,17 +47,14 @@ Instead, it **complements existing registers** by improving interoperability and
 
 ---
 
-## Data Sources & Openness
+## Principles
+
+* **Open by default** — data, methods, assumptions
+* **Reproducible** — same inputs, same outputs
+* **Interoperable** — standards-based, tool-agnostic
+* **Infrastructure-first** — long-lived, not project-bound
 
 OpenBuildings is built entirely on **publicly available data** from authoritative sources. All original licensing conditions are respected and documented.
-
-**Key principles:**
-
-* No proprietary source data
-* Transparent provenance
-* Reproducible processing
-
-The project follows an **open-by-default** approach to **data, code, and documentation**.
 
 ---
 
@@ -158,18 +155,6 @@ OpenBuildings/
 ├── index.html
 └── LICENSE
 ```
-
----
-
-## Principles
-
-* **Open by default** — data, methods, assumptions
-* **Reproducible** — same inputs, same outputs
-* **Interoperable** — standards-based, tool-agnostic
-* **Infrastructure-first** — long-lived, not project-bound
-
----
-
 ## License
 
 MIT License — see [LICENSE](LICENSE)
