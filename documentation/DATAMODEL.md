@@ -91,6 +91,7 @@ Primary entity representing individual buildings.
 | Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
 |--------|------------|------------|------|-------------|--------|-------------|
 | `label` | Label | Bezeichnung | `text` | | Derived | Display label for frontend |
+| `egid` | Building ID | Gebäudeidentifikator | `text` | `CHECK (egid ~ '^[0-9]{1,9}$')` | GWR | Eidgenössischer Gebäudeidentifikator (EGID). Often missing in source data. |
 | `status` | Status | Status | `building_status` | | GWR | Building status (GSTAT) |
 | `category` | Category | Kategorie | `building_category` | | GWR | Building category (GKAT) |
 | `class` | Class | Klasse | `text` | `CHECK (class ~ '^[0-9]{4}$')` | GWR | Building class code (GKLAS) |
@@ -156,7 +157,6 @@ Primary entity representing individual buildings.
 | Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
 |--------|------------|------------|------|-------------|--------|-------------|
 | `id` | ID | ID | `bigint` | `PRIMARY KEY, GENERATED ALWAYS AS IDENTITY` | System | System ID |
-| `egid` | Building ID | Gebäudeidentifikator | `text` | `CHECK (egid ~ '^[0-9]{1,9}$')` | GWR | Eidgenössischer Gebäudeidentifikator (EGID). Often missing in source data. |
 | `source_fid` | Source Feature ID | Quell-Feature-ID | `text` | `UNIQUE, NOT NULL` | Various | Feature ID from source system. Used for upserts and data synchronization. |
 | `created_at` | Created | Erstellt | `timestamptz` | `NOT NULL DEFAULT NOW()` | System | Record creation timestamp |
 | `updated_at` | Updated | Aktualisiert | `timestamptz` | `NOT NULL DEFAULT NOW()` | System | Record last update timestamp |
@@ -173,6 +173,7 @@ Land parcels from cadastral survey.
 | Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
 |--------|------------|------------|------|-------------|--------|-------------|
 | `label` | Label | Bezeichnung | `text` | | Derived | Display label for frontend |
+| `egrid` | Parcel ID | Grundstückidentifikator | `text` | `CHECK (egrid ~ '^CH[0-9]{12}$')` | AV | E-GRID identifier. Often missing in source data. |
 | `status` | Status | Status | `parcel_status` | | AV | Parcel status |
 | `type` | Type | Typ | `parcel_type` | | AV | Parcel type (LTYP) |
 | `parcel_number` | Parcel Number | Parzellennummer | `text` | | AV | Local parcel number (Grundstücksnummer) |
@@ -211,7 +212,6 @@ Land parcels from cadastral survey.
 | Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
 |--------|------------|------------|------|-------------|--------|-------------|
 | `id` | ID | ID | `bigint` | `PRIMARY KEY, GENERATED ALWAYS AS IDENTITY` | System | System ID |
-| `egrid` | Parcel ID | Grundstückidentifikator | `text` | `CHECK (egrid ~ '^CH[0-9]{12}$')` | AV | E-GRID identifier. Often missing in source data. |
 | `source_fid` | Source Feature ID | Quell-Feature-ID | `text` | `UNIQUE, NOT NULL` | AV | Feature ID from source system. Used for upserts and data synchronization. |
 | `created_at` | Created | Erstellt | `timestamptz` | `NOT NULL DEFAULT NOW()` | System | Record creation timestamp |
 | `updated_at` | Updated | Aktualisiert | `timestamptz` | `NOT NULL DEFAULT NOW()` | System | Record last update timestamp |
@@ -228,6 +228,7 @@ Landcover polygons from cadastral survey. Landcovers can represent building foot
 | Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
 |--------|------------|------------|------|-------------|--------|-------------|
 | `label` | Label | Bezeichnung | `text` | | Derived | Display label for frontend |
+| `egid` | Building ID | Gebäudeidentifikator | `text` | `CHECK (egid ~ '^[0-9]{1,9}$')` | GWR | Eidgenössischer Gebäudeidentifikator (EGID). Often missing in source data. |
 | `status` | Status | Status | `text` | | AV | Landcover status |
 | `type` | Type | Typ | `landcover_type` | `NOT NULL` | AV | Landcover classification |
 
@@ -256,7 +257,6 @@ Landcover polygons from cadastral survey. Landcovers can represent building foot
 | Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
 |--------|------------|------------|------|-------------|--------|-------------|
 | `id` | ID | ID | `bigint` | `PRIMARY KEY, GENERATED ALWAYS AS IDENTITY` | System | System ID |
-| `egid` | Building ID | Gebäudeidentifikator | `text` | `CHECK (egid ~ '^[0-9]{1,9}$')` | GWR | Eidgenössischer Gebäudeidentifikator (EGID). Often missing in source data. |
 | `source_fid` | Source Feature ID | Quell-Feature-ID | `text` | `UNIQUE, NOT NULL` | AV | Feature ID from source system. Used for upserts and data synchronization. |
 | `created_at` | Created | Erstellt | `timestamptz` | `NOT NULL DEFAULT NOW()` | System | Record creation timestamp |
 | `updated_at` | Updated | Aktualisiert | `timestamptz` | `NOT NULL DEFAULT NOW()` | System | Record last update timestamp |
@@ -273,6 +273,7 @@ Construction projects from GWR.
 | Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
 |--------|------------|------------|------|-------------|--------|-------------|
 | `label` | Label | Bezeichnung | `text` | | Derived | Display label for frontend |
+| `eproid` | Project ID | Bauprojektidentifikator | `text` | `CHECK (eproid ~ '^[0-9]{1,15}$')` | GWR | EPROID identifier. Often missing in source data. |
 | `status` | Status | Status | `project_status` | | GWR | Project status (PSTAT) |
 | `project_type` | Project Type | Projektart | `project_type` | | GWR | Type of construction (PARTBW) |
 | `building_type` | Building Type | Bauwerkstyp | `text` | | GWR | Specific building type (PTYPBW) |
@@ -302,7 +303,6 @@ Construction projects from GWR.
 | Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
 |--------|------------|------------|------|-------------|--------|-------------|
 | `id` | ID | ID | `bigint` | `PRIMARY KEY, GENERATED ALWAYS AS IDENTITY` | System | System ID |
-| `eproid` | Project ID | Bauprojektidentifikator | `text` | `CHECK (eproid ~ '^[0-9]{1,15}$')` | GWR | EPROID identifier. Often missing in source data. |
 | `source_fid` | Source Feature ID | Quell-Feature-ID | `text` | `UNIQUE, NOT NULL` | GWR | Feature ID from source system. Used for upserts and data synchronization. |
 | `created_at` | Created | Erstellt | `timestamptz` | `NOT NULL DEFAULT NOW()` | System | Record creation timestamp |
 | `updated_at` | Updated | Aktualisiert | `timestamptz` | `NOT NULL DEFAULT NOW()` | System | Record last update timestamp |
@@ -742,6 +742,7 @@ DROP TABLE IF EXISTS public.parcels;
 CREATE TABLE public.parcels (
   -- 1. General / Allgemein
   label text,
+  egrid text,
   status text,
   type text,
   parcel_number text,
@@ -766,7 +767,6 @@ CREATE TABLE public.parcels (
 
   -- 5. System
   id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-  egrid text,
   source_fid text UNIQUE NOT NULL,
   created_at timestamptz DEFAULT now(),
   updated_at timestamptz DEFAULT now(),
@@ -781,6 +781,7 @@ CREATE TABLE public.parcels (
 CREATE TABLE public.buildings (
   -- 1. General / Allgemein
   label text,
+  egid text,
   status text,
   category text,
   class text,
@@ -834,7 +835,6 @@ CREATE TABLE public.buildings (
 
   -- 5. System
   id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-  egid text,
   source_fid text UNIQUE NOT NULL,
   created_at timestamptz DEFAULT now(),
   updated_at timestamptz DEFAULT now(),
@@ -849,6 +849,7 @@ CREATE TABLE public.buildings (
 CREATE TABLE public.landcovers (
   -- 1. General / Allgemein
   label text,
+  egid text,
   status text,
   type text,
 
@@ -867,7 +868,6 @@ CREATE TABLE public.landcovers (
 
   -- 5. System
   id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-  egid text,
   source_fid text UNIQUE NOT NULL,
   created_at timestamptz DEFAULT now(),
   updated_at timestamptz DEFAULT now(),
@@ -882,6 +882,7 @@ CREATE TABLE public.landcovers (
 CREATE TABLE public.projects (
   -- 1. General / Allgemein
   label text,
+  eproid text,
   status text,
   project_type text,
   building_type text,
@@ -903,7 +904,6 @@ CREATE TABLE public.projects (
 
   -- 5. System
   id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-  eproid text,
   source_fid text UNIQUE NOT NULL,
   created_at timestamptz DEFAULT now(),
   updated_at timestamptz DEFAULT now(),
