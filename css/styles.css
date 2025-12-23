@@ -351,6 +351,7 @@ main {
   flex: 1;
   overflow-y: auto;
   padding: var(--space-lg);
+  background: var(--clr-slate-100);
 }
 
 .building-panel-metrics {
@@ -360,15 +361,10 @@ main {
 }
 
 .metric-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  padding: var(--space-sm) 0;
-  border-bottom: 1px solid var(--clr-slate-100);
-}
-
-.metric-row:last-child {
-  border-bottom: none;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--space-sm);
+  padding: var(--space-xs) 0;
 }
 
 .metric-label {
@@ -376,11 +372,13 @@ main {
   color: var(--clr-text-muted);
 }
 
+.metric-label::after {
+  content: " :";
+}
+
 .metric-value {
-  font-size: 0.9375rem;
-  font-weight: 500;
+  font-size: 0.875rem;
   color: var(--clr-text);
-  text-align: right;
 }
 
 .metric-category {
@@ -389,8 +387,10 @@ main {
   color: var(--clr-text-muted);
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  padding-top: var(--space-md);
-  margin-bottom: calc(-1 * var(--space-sm));
+  padding-top: var(--space-lg);
+  padding-bottom: var(--space-sm);
+  border-bottom: 1px solid var(--clr-slate-300);
+  margin-bottom: var(--space-sm);
 }
 
 .metric-category:first-child {

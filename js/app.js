@@ -76,10 +76,10 @@ function debugWarn(...args) {
  * @param {number|null} value - The value to format
  * @param {string} unit - The unit (e.g., 'm²', 'm³', 'm')
  * @param {number} [decimals=0] - Number of decimal places
- * @returns {string} Formatted value with unit or '–'
+ * @returns {string} Formatted value with unit or 'Keine Angaben'
  */
 function formatWithUnit(value, unit, decimals = 0) {
-  if (value == null || isNaN(value)) return '–';
+  if (value == null || isNaN(value)) return 'Keine Angaben';
   const formatted = decimals > 0
     ? value.toLocaleString('de-CH', { minimumFractionDigits: decimals, maximumFractionDigits: decimals })
     : Math.round(value).toLocaleString('de-CH');
@@ -89,10 +89,10 @@ function formatWithUnit(value, unit, decimals = 0) {
 /**
  * Format a year value
  * @param {number|null} value - The year value
- * @returns {string} Formatted year or '–'
+ * @returns {string} Formatted year or 'Keine Angaben'
  */
 function formatYear(value) {
-  if (value == null || isNaN(value)) return '–';
+  if (value == null || isNaN(value)) return 'Keine Angaben';
   return value.toString();
 }
 
@@ -169,7 +169,7 @@ const LANDCOVER_TYPE_LABELS = {
  * @returns {string} Human-readable label or formatted value
  */
 function getEnumLabel(labelMap, value) {
-  if (!value) return '–';
+  if (!value) return 'Keine Angaben';
   return labelMap[value] || value.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
 }
 
@@ -1077,14 +1077,14 @@ async function init() {
     const metrics = [
       // 1. General / Allgemein - The "What" and "When"
       { label: 'Allgemein', isCategory: true },
-      { label: 'EGID', value: building.egid || '–' },
+      { label: 'EGID', value: building.egid || 'Keine Angaben' },
       { label: 'Status', value: getEnumLabel(BUILDING_STATUS_LABELS, building.status) },
       { label: 'Kategorie', value: getEnumLabel(BUILDING_CATEGORY_LABELS, building.category) },
       { label: 'Baujahr', value: formatYear(building.construction_year) },
 
       // 2. Location / Standort - The "Where"
       { label: 'Standort', isCategory: true },
-      { label: 'Adresse', value: address || '–' },
+      { label: 'Adresse', value: address || 'Keine Angaben' },
 
       // 3. Dimensions / Dimensionen - The "How Big"
       { label: 'Dimensionen', isCategory: true },
@@ -1109,7 +1109,7 @@ async function init() {
 
   /** Format floors display */
   function formatFloors(above, below) {
-    if (above == null && below == null) return '–';
+    if (above == null && below == null) return 'Keine Angaben';
     const floorsAbove = above || 0;
     const floorsBelow = below || 0;
     let text = `${floorsAbove} oberirdisch`;
@@ -1119,26 +1119,26 @@ async function init() {
 
   /** Format heritage category */
   function formatHeritage(category) {
-    if (!category) return '–';
+    if (!category) return 'Keine Angaben';
     return category === 'a' ? 'Kategorie A (national)' : 'Kategorie B (regional)';
   }
 
   /** Show parcel panel with details */
   function showParcelPanel(parcel) {
-    const zoneText = [parcel.zone_main, parcel.zone_type].filter(Boolean).join(' – ') || '–';
+    const zoneText = [parcel.zone_main, parcel.zone_type].filter(Boolean).join(' – ') || 'Keine Angaben';
 
     // Fixed set of attributes organized by 5 groups (matching DATAMODEL.md)
     const metrics = [
       // 1. General / Allgemein - The "What" and "When"
       { label: 'Allgemein', isCategory: true },
-      { label: 'E-GRID', value: parcel.egrid || '–' },
+      { label: 'E-GRID', value: parcel.egrid || 'Keine Angaben' },
       { label: 'Status', value: getEnumLabel(PARCEL_STATUS_LABELS, parcel.status) },
       { label: 'Typ', value: getEnumLabel(PARCEL_TYPE_LABELS, parcel.type) },
-      { label: 'Parzellennummer', value: parcel.parcel_number || '–' },
+      { label: 'Parzellennummer', value: parcel.parcel_number || 'Keine Angaben' },
 
       // 2. Location / Standort - The "Where"
       { label: 'Standort', isCategory: true },
-      { label: 'Gemeinde', value: parcel.municipality_name || '–' },
+      { label: 'Gemeinde', value: parcel.municipality_name || 'Keine Angaben' },
 
       // 3. Dimensions / Dimensionen - The "How Big"
       { label: 'Dimensionen', isCategory: true },
@@ -1166,7 +1166,7 @@ async function init() {
     const metrics = [
       // 1. General / Allgemein - The "What" and "When"
       { label: 'Allgemein', isCategory: true },
-      { label: 'EGID', value: landcover.egid || '–' },
+      { label: 'EGID', value: landcover.egid || 'Keine Angaben' },
       { label: 'Typ', value: typeLabel },
       { label: 'Status', value: getEnumLabel({}, landcover.status) },
 
@@ -1176,9 +1176,9 @@ async function init() {
       // 3. Dimensions / Dimensionen - The "How Big"
       { label: 'Dimensionen', isCategory: true },
       { label: 'Fläche', value: formatWithUnit(landcover.area_m2, 'm²') },
-      { label: 'Volumen', value: isBuilding ? formatWithUnit(landcover.volume_total_m3, 'm³') : '–' },
-      { label: 'Max. Höhe', value: isBuilding ? formatWithUnit(landcover.height_max_m, 'm', 1) : '–' },
-      { label: 'Mittl. Höhe', value: isBuilding ? formatWithUnit(landcover.height_mean_m, 'm', 1) : '–' }
+      { label: 'Volumen', value: isBuilding ? formatWithUnit(landcover.volume_total_m3, 'm³') : 'Keine Angaben' },
+      { label: 'Max. Höhe', value: isBuilding ? formatWithUnit(landcover.height_max_m, 'm', 1) : 'Keine Angaben' },
+      { label: 'Mittl. Höhe', value: isBuilding ? formatWithUnit(landcover.height_mean_m, 'm', 1) : 'Keine Angaben' }
 
       // 4. Features / Eigenschaften - The "Details"
       // (Reserved for future material/usage properties)
