@@ -873,3 +873,104 @@ main {
     transform: translateY(0);
   }
 }
+
+/* ============================================
+   Map Context Menu (right-click)
+   ============================================ */
+.map-context-menu {
+  position: absolute;
+  z-index: 100;
+  background: var(--clr-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15), 0 0 1px rgba(0, 0, 0, 0.1);
+  padding: var(--space-xs);
+  min-width: 200px;
+  display: none;
+  opacity: 0;
+  transform: scale(0.95);
+  transform-origin: top left;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.map-context-menu.open {
+  display: block;
+  opacity: 1;
+  transform: scale(1);
+}
+
+.context-menu-coords {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: var(--space-sm) var(--space-md);
+  background: none;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+  font-size: 0.8125rem;
+  color: var(--clr-text);
+  cursor: pointer;
+  transition: background 0.1s ease;
+  text-align: left;
+}
+
+.context-menu-coords:hover {
+  background: var(--clr-slate-100);
+}
+
+.context-menu-coords .coords-text {
+  font-weight: 500;
+}
+
+.context-menu-coords .copy-icon {
+  color: var(--clr-text-muted);
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.context-menu-coords:hover .copy-icon {
+  opacity: 1;
+}
+
+.context-menu-divider {
+  height: 1px;
+  background: var(--clr-slate-200);
+  margin: var(--space-xs) 0;
+}
+
+.context-menu-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  width: 100%;
+  padding: var(--space-sm) var(--space-md);
+  background: none;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: inherit;
+  font-size: 0.875rem;
+  color: var(--clr-text-secondary);
+  cursor: pointer;
+  transition: background 0.1s ease, color 0.1s ease;
+  text-align: left;
+}
+
+.context-menu-item:hover:not(:disabled) {
+  background: var(--clr-slate-100);
+  color: var(--clr-text);
+}
+
+.context-menu-item:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.context-menu-item svg {
+  color: var(--clr-text-muted);
+  flex-shrink: 0;
+}
+
+.context-menu-item:hover:not(:disabled) svg {
+  color: var(--clr-text-secondary);
+}

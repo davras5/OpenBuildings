@@ -1718,8 +1718,159 @@ async function init() {
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
       closeSearchDropdown();
+      closeContextMenu();
       searchInput.blur();
     }
+  });
+
+  // ============================================
+  // Map Context Menu (right-click)
+  // ============================================
+  const contextMenu = document.getElementById('mapContextMenu');
+  const contextMenuCoords = document.getElementById('contextMenuCoords');
+  const contextMenuCoordsText = contextMenuCoords.querySelector('.coords-text');
+  const contextMenuShare = document.getElementById('contextMenuShare');
+  const contextMenuPrint = document.getElementById('contextMenuPrint');
+  const contextMenuMeasure = document.getElementById('contextMenuMeasure');
+  const contextMenuReport = document.getElementById('contextMenuReport');
+
+  // Store current context menu coordinates
+  let contextMenuLngLat = null;
+
+  function openContextMenu(x, y, lngLat) {
+    contextMenuLngLat = lngLat;
+
+    // Update coordinates display (lat, lng format like Google Maps)
+    const lat = lngLat.lat.toFixed(5);
+    const lng = lngLat.lng.toFixed(5);
+    contextMenuCoordsText.textContent = `${lat}, ${lng}`;
+
+    // Position menu, ensuring it stays within viewport
+    const menuWidth = 220;
+    const menuHeight = 200;
+    const mapContainer = document.getElementById('map');
+    const mapRect = mapContainer.getBoundingClientRect();
+
+    // Adjust position if menu would overflow
+    let menuX = x;
+    let menuY = y;
+
+    if (x + menuWidth > mapRect.right) {
+      menuX = x - menuWidth;
+    }
+    if (y + menuHeight > mapRect.bottom) {
+      menuY = y - menuHeight;
+    }
+
+    contextMenu.style.left = `${menuX}px`;
+    contextMenu.style.top = `${menuY}px`;
+    contextMenu.classList.add('open');
+  }
+
+  function closeContextMenu() {
+    contextMenu.classList.remove('open');
+    contextMenuLngLat = null;
+  }
+
+  // Right-click on map opens context menu
+  map.on('contextmenu', (e) => {
+    e.preventDefault();
+    openContextMenu(e.point.x, e.point.y, e.lngLat);
+  });
+
+  // Also handle contextmenu on the map container for consistency
+  document.getElementById('map').addEventListener('contextmenu', (e) => {
+    // Let MapLibre handle it - this prevents the browser default
+    e.preventDefault();
+  });
+
+  // Close context menu when clicking elsewhere
+  document.addEventListener('click', (e) => {
+    if (!contextMenu.contains(e.target)) {
+      closeContextMenu();
+    }
+  });
+
+  // Close context menu when map moves
+  map.on('movestart', closeContextMenu);
+
+  // Copy coordinates to clipboard
+  contextMenuCoords.addEventListener('click', async () => {
+    if (!contextMenuLngLat) return;
+
+    const lat = contextMenuLngLat.lat.toFixed(5);
+    const lng = contextMenuLngLat.lng.toFixed(5);
+    const coordsText = `${lat}, ${lng}`;
+
+    try {
+      await navigator.clipboard.writeText(coordsText);
+      showToast('Coordinates copied to clipboard', 'success');
+    } catch (err) {
+      console.error('Failed to copy coordinates:', err);
+      showToast('Failed to copy coordinates', 'error');
+    }
+
+    closeContextMenu();
+  });
+
+  // Share location
+  contextMenuShare.addEventListener('click', async () => {
+    if (!contextMenuLngLat) return;
+
+    const lat = contextMenuLngLat.lat.toFixed(5);
+    const lng = contextMenuLngLat.lng.toFixed(5);
+    const zoom = map.getZoom().toFixed(2);
+
+    // Build share URL with current location
+    const shareUrl = `${window.location.origin}${window.location.pathname}?lat=${lat}&lon=${lng}&zoom=${zoom}&marker=true`;
+
+    // Try native share API first (mobile), fallback to clipboard
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: 'OpenBuildings.ch Location',
+          text: `Location: ${lat}, ${lng}`,
+          url: shareUrl
+        });
+      } catch (err) {
+        // User cancelled or share failed, try clipboard
+        if (err.name !== 'AbortError') {
+          await copyShareUrl(shareUrl);
+        }
+      }
+    } else {
+      await copyShareUrl(shareUrl);
+    }
+
+    closeContextMenu();
+  });
+
+  async function copyShareUrl(url) {
+    try {
+      await navigator.clipboard.writeText(url);
+      showToast('Link copied to clipboard', 'success');
+    } catch (err) {
+      console.error('Failed to copy link:', err);
+      showToast('Failed to copy link', 'error');
+    }
+  }
+
+  // Print
+  contextMenuPrint.addEventListener('click', () => {
+    closeContextMenu();
+    window.print();
+  });
+
+  // Measure distance (placeholder - disabled)
+  contextMenuMeasure.addEventListener('click', () => {
+    showToast('Measure distance coming soon', 'info');
+    closeContextMenu();
+  });
+
+  // Report a data problem (placeholder - disabled)
+  contextMenuReport.addEventListener('click', () => {
+    showToast('Report feature coming soon', 'info');
+    closeContextMenu();
   });
 
   } catch (err) {
