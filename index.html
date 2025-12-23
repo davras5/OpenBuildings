@@ -12,6 +12,7 @@
   <link rel="preconnect" href="https://cdn.jsdelivr.net">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://vectortiles.geo.admin.ch">
 
   <!-- Preload critical CSS (starts download immediately) -->
   <link rel="preload" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" as="style">
@@ -833,6 +834,14 @@
     const PROTOMAPS_KEY = '4d819871947c1005';
     const TILE_SERVER = `${SUPABASE_URL}/functions/v1/tiles`;
 
+    // Swisstopo basemap styles (free for Switzerland, no API key needed)
+    const SWISSTOPO_STYLES = {
+      light: 'https://vectortiles.geo.admin.ch/styles/ch.swisstopo.lightbasemap.vt/style.json',
+      standard: 'https://vectortiles.geo.admin.ch/styles/ch.swisstopo.basemap.vt/style.json',
+      satellite: 'https://vectortiles.geo.admin.ch/styles/ch.swisstopo.imagerybasemap.vt/style.json',
+      winter: 'https://vectortiles.geo.admin.ch/styles/ch.swisstopo.basemap-winter.vt/style.json'
+    };
+
     // Switzerland bounds for initial view
     const SWITZERLAND_BOUNDS = [5.9559, 45.818, 10.4921, 47.8084];
     
@@ -848,13 +857,14 @@
       const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
       
       // ============================================
-      // Initialize Map
+      // Initialize Map (MapLibre GL JS with Swisstopo basemaps)
       // ============================================
       const map = new maplibregl.Map({
         container: 'map',
         style: `https://api.protomaps.com/styles/v2/white.json?key=${PROTOMAPS_KEY}`,
         center: [8.2275, 46.8182], // Switzerland center
-        zoom: 7
+        zoom: 7,
+        maxBounds: [[5.5, 45.5], [11.0, 48.0]] // Restrict to Switzerland region
       });
       
       // Custom zoom controls
@@ -1761,7 +1771,7 @@
       
       basemapOptions.forEach(option => {
         option.addEventListener('click', () => {
-          const style = option.dataset.style;
+          const styleKey = option.dataset.style;
           const styleClass = option.classList[1]; // light, streets, outdoors, satellite
 
           // Update active state
@@ -1884,7 +1894,7 @@
               'fill-extrusion-base': 0,
               'fill-extrusion-opacity': 0.7
             }
-          }, labelLayerId);
+          });
         }
       }
 
