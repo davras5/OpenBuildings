@@ -25,7 +25,17 @@ It consolidates Switzerland’s most relevant public building datasets into a **
 * portfolio and territorial comparisons
 * research and public-sector decision-making
 
-Maintained and used by the Department for Digital Real Estate @Federal Office for Buildings and Logistics, Switzerland
+Maintained and used by the Department for Digital Real Estate @[Federal Office for Buildings and Logistics](https://www.bbl.admin.ch/de), Switzerland
+
+---
+
+## What We Do With It
+
+We use OpenBuildings as a base to update missing data and harmonize our internal database about the Swiss federal real estate portfolio with national registers.
+
+We decided to cover the whole of Switzerland because the workflow is the same and the amount of data doesn't make that much of a difference.
+
+**Important:** The data is based on open source data sources. We do our best to validate and improve it, but it is what it is. We are not the data owner and cannot guarantee correctness.
 
 ---
 
