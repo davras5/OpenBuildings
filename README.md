@@ -92,7 +92,7 @@ OpenBuildings provides modular tools for data processing.
 | [**Base Worker**](tools/base-worker/)           | Available      | Aggregates core data like IDs, geometry, and measurements |
 | [**Volume Estimator**](tools/volume-estimator/) | Available      | Calculates building volumes from terrain & surface models |
 | [**Roof Estimator**](tools/roof-estimator/)     | In development | Derives roof characteristics                              |
-| **Biodiversity**                                | Idea           | Green roof detection and biodiversity index per parcel    |
+| **Biodiversity**                                | Idea           | Biodiversity index per parcel and Green roof detection   |
 | **Carbon Risks**                                | Idea           | Location data for carbon risk assessment                  |
 | **Environmental Risks**                         | Idea           | Location data for environmental risk assessment           |
 
