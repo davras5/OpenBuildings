@@ -1104,10 +1104,6 @@
           // Skip if a marker was just clicked
           if (markerClickHandled) return;
 
-          // Check if there's a landcover feature at this point - if so, let landcover handler handle it
-          const landcoverFeatures = map.queryRenderedFeatures(e.point, { layers: ['landcover-fill'] });
-          if (landcoverFeatures.length > 0) return;
-
           const props = e.features[0].properties;
           selectParcel(props.id);
         });
@@ -1181,6 +1177,10 @@
         map.on('click', 'landcover-fill', (e) => {
           // Skip if a marker was just clicked
           if (markerClickHandled) return;
+
+          // Skip if there's a parcel at this point - let parcel handler take priority
+          const parcelFeatures = map.queryRenderedFeatures(e.point, { layers: ['parcels-fill'] });
+          if (parcelFeatures.length > 0) return;
 
           const props = e.features[0].properties;
           selectLandcover(props.id);
@@ -1789,31 +1789,24 @@
 
           // Change map style (Protomaps)
           map.setStyle(`https://api.protomaps.com/styles/v2/${styleKey}.json?key=${PROTOMAPS_KEY}`);
-        });
-      });
-      
-      // Re-add layers after style change
-      map.on('style.load', async () => {
-        // Re-add Switzerland border first
-        if (!map.getSource('switzerland-border')) {
-          await addSwitzerlandBorder();
-        }
 
-        // Re-add vector tile layers in correct order
-        // Layer order: parcels (bottom) -> landcover (middle) -> buildings (top)
-        if (!map.getSource('parcels')) {
-          addParcelsLayer();
-        }
-        if (!map.getSource('landcover')) {
-          addLandcoverLayer();
-        }
-        if (!map.getSource('buildings')) {
-          addBuildingsLayer();
-        }
-        // Re-apply 3D mode if active
-        if (is3DMode) {
-          setup3DTerrain();
-        }
+          // Re-add layers after new style loads
+          map.once('style.load', async () => {
+            // Re-add Switzerland border first
+            await addSwitzerlandBorder();
+
+            // Re-add vector tile layers in correct order
+            // Layer order: parcels (bottom) -> landcover (middle) -> buildings (top)
+            addParcelsLayer();
+            addLandcoverLayer();
+            addBuildingsLayer();
+
+            // Re-apply 3D mode if active
+            if (is3DMode) {
+              setup3DTerrain();
+            }
+          });
+        });
       });
 
       // ============================================
