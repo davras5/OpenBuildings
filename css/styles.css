@@ -357,7 +357,7 @@ main {
 .building-panel-metrics {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: var(--space-xs) var(--space-sm);
+  gap: var(--space-sm) var(--space-sm);
 }
 
 .metric-row {
@@ -366,7 +366,6 @@ main {
 
 .metric-label {
   font-size: 0.875rem;
-  line-height: 1.75;
   color: var(--clr-text-muted);
 }
 
@@ -376,7 +375,6 @@ main {
 
 .metric-value {
   font-size: 0.875rem;
-  line-height: 1.75;
   color: var(--clr-text);
 }
 
