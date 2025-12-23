@@ -1112,25 +1112,23 @@
           bounds: SWITZERLAND_BOUNDS
         });
 
-        // Add fill-extrusion layer with 10m height
+        // Add flat fill layer (extrusion only in 3D mode)
         map.addLayer({
           id: 'landcover-fill',
-          type: 'fill-extrusion',
+          type: 'fill',
           source: 'landcover',
           'source-layer': 'landcover',
           minzoom: 12,
           paint: {
-            'fill-extrusion-color': [
+            'fill-color': [
               'case',
               ['==', ['get', 'id'], selectedLandcover || -1], '#059669', // Green when selected
               '#8b5cf6' // Purple default for landcover
             ],
-            'fill-extrusion-height': 10,
-            'fill-extrusion-base': 0,
-            'fill-extrusion-opacity': [
+            'fill-opacity': [
               'case',
-              ['==', ['get', 'id'], selectedLandcover || -1], 0.6,
-              0.4
+              ['==', ['get', 'id'], selectedLandcover || -1], 0.4,
+              0.2
             ]
           }
         });
@@ -1173,6 +1171,34 @@
           const props = e.features[0].properties;
           selectLandcover(props.id);
         });
+      }
+
+      async function addSwitzerlandBorder() {
+        if (map.getSource('switzerland-border')) return;
+
+        try {
+          const response = await fetch('assets/ch.geojson');
+          const geojson = await response.json();
+
+          map.addSource('switzerland-border', {
+            type: 'geojson',
+            data: geojson
+          });
+
+          // Add border line
+          map.addLayer({
+            id: 'switzerland-border-line',
+            type: 'line',
+            source: 'switzerland-border',
+            paint: {
+              'line-color': '#64748b',
+              'line-width': 2,
+              'line-dasharray': [4, 2]
+            }
+          });
+        } catch (err) {
+          console.error('Failed to load Switzerland border:', err);
+        }
       }
 
       function addBuildingsLayer() {
@@ -1428,11 +1454,14 @@
       function updateLandcoverStyles() {
         if (!map.getLayer('landcover-fill')) return;
 
+        // Use appropriate property based on layer type
+        const opacityProp = is3DMode ? 'fill-extrusion-opacity' : 'fill-opacity';
+
         if (selectedLandcover) {
-          map.setPaintProperty('landcover-fill', 'fill-extrusion-opacity', [
+          map.setPaintProperty('landcover-fill', opacityProp, [
             'case',
-            ['==', ['get', 'id'], selectedLandcover], 0.6,
-            0.4
+            ['==', ['get', 'id'], selectedLandcover], is3DMode ? 0.6 : 0.4,
+            is3DMode ? 0.4 : 0.2
           ]);
           map.setPaintProperty('landcover-outline', 'line-width', [
             'case',
@@ -1440,7 +1469,7 @@
             1.5
           ]);
         } else {
-          map.setPaintProperty('landcover-fill', 'fill-extrusion-opacity', 0.4);
+          map.setPaintProperty('landcover-fill', opacityProp, is3DMode ? 0.4 : 0.2);
           map.setPaintProperty('landcover-outline', 'line-width', 1.5);
         }
       }
@@ -1654,6 +1683,9 @@
       }
       
       map.on('load', async () => {
+        // Add Switzerland border first (below other layers)
+        await addSwitzerlandBorder();
+
         // Add vector tile layers (no data fetching needed!)
         // Layer order: parcels (bottom) -> landcover (middle) -> buildings (top)
         addParcelsLayer();
@@ -1748,7 +1780,12 @@
       });
       
       // Re-add layers after style change
-      map.on('style.load', () => {
+      map.on('style.load', async () => {
+        // Re-add Switzerland border first
+        if (!map.getSource('switzerland-border')) {
+          await addSwitzerlandBorder();
+        }
+
         // Re-add vector tile layers in correct order
         // Layer order: parcels (bottom) -> landcover (middle) -> buildings (top)
         if (!map.getSource('parcels')) {
@@ -1785,6 +1822,32 @@
 
         // Enable terrain
         map.setTerrain({ source: 'terrain-dem', exaggeration: 1.5 });
+
+        // Convert landcover to fill-extrusion for 3D view
+        if (map.getLayer('landcover-fill')) {
+          map.removeLayer('landcover-fill');
+          map.addLayer({
+            id: 'landcover-fill',
+            type: 'fill-extrusion',
+            source: 'landcover',
+            'source-layer': 'landcover',
+            minzoom: 12,
+            paint: {
+              'fill-extrusion-color': [
+                'case',
+                ['==', ['get', 'id'], selectedLandcover || -1], '#059669',
+                '#8b5cf6'
+              ],
+              'fill-extrusion-height': 10,
+              'fill-extrusion-base': 0,
+              'fill-extrusion-opacity': [
+                'case',
+                ['==', ['get', 'id'], selectedLandcover || -1], 0.6,
+                0.4
+              ]
+            }
+          }, 'landcover-outline');
+        }
 
         // Add 3D buildings layer using Supabase buildings source
         if (!map.getLayer('3d-buildings')) {
@@ -1832,6 +1895,30 @@
         // Remove 3D buildings layer
         if (map.getLayer('3d-buildings')) {
           map.removeLayer('3d-buildings');
+        }
+
+        // Convert landcover back to flat fill
+        if (map.getLayer('landcover-fill')) {
+          map.removeLayer('landcover-fill');
+          map.addLayer({
+            id: 'landcover-fill',
+            type: 'fill',
+            source: 'landcover',
+            'source-layer': 'landcover',
+            minzoom: 12,
+            paint: {
+              'fill-color': [
+                'case',
+                ['==', ['get', 'id'], selectedLandcover || -1], '#059669',
+                '#8b5cf6'
+              ],
+              'fill-opacity': [
+                'case',
+                ['==', ['get', 'id'], selectedLandcover || -1], 0.4,
+                0.2
+              ]
+            }
+          }, 'landcover-outline');
         }
       }
 
