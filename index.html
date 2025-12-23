@@ -949,6 +949,7 @@
       let selectedParcel = null;
       let selectedLandcover = null;
       let markerClickHandled = false;
+      let landcoverClickHandled = false;
       let is3DMode = false;
       let searchMarker = null;
       
@@ -1101,8 +1102,8 @@
 
         // Add click handler for parcels
         map.on('click', 'parcels-fill', (e) => {
-          // Skip if a marker was just clicked
-          if (markerClickHandled) return;
+          // Skip if a marker or landcover was just clicked (respect layer hierarchy)
+          if (markerClickHandled || landcoverClickHandled) return;
 
           const props = e.features[0].properties;
           selectParcel(props.id);
@@ -1178,12 +1179,10 @@
           // Skip if a marker was just clicked
           if (markerClickHandled) return;
 
-          // Skip if there's a parcel at this point - let parcel handler take priority
-          const parcelFeatures = map.queryRenderedFeatures(e.point, { layers: ['parcels-fill'] });
-          if (parcelFeatures.length > 0) return;
-
+          landcoverClickHandled = true;
           const props = e.features[0].properties;
           selectLandcover(props.id);
+          setTimeout(() => { landcoverClickHandled = false; }, 100);
         });
       }
 
