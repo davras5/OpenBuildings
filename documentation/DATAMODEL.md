@@ -70,15 +70,22 @@ erDiagram
 
 ---
 
+## Column Category Concept
+
+Icon	Group Name (EN)	Group Name (DE)	Purpose
+ℹ️	1. General	Allgemein	Identity, type, status, timeline
+📍	2. Location	Standort	Address, municipality, hierarchy
+📐	3. Dimensions	Dimensionen	Area, volume, height, floors
+⚡	4. Features	Eigenschaften	Equipment, zoning, heritage
+⚙️	5. System	System	Metadata, IDs, source references
+
 ## Core Tables
 
 ### 1. buildings
 
 Primary entity representing individual buildings.
 
-#### ℹ️ 1. General / Allgemein
-
-The "What" and "When". Identity, type, status, and timeline.
+#### 1. General / Allgemein
 
 | Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
 |--------|------------|------------|------|-------------|--------|-------------|
@@ -90,9 +97,7 @@ The "What" and "When". Identity, type, status, and timeline.
 | `construction_year` | Construction Year | Baujahr | `integer` | `CHECK (construction_year BETWEEN 1000 AND 2100)` | GWR | Year of construction (GBAUJ) |
 | `renovation_year` | Renovation Year | Renovationsjahr | `integer` | `CHECK (renovation_year BETWEEN 1000 AND 2100)` | GWR | Year of last renovation |
 
-#### 📍 2. Location / Standort
-
-The "Where". Address, municipality, and administrative hierarchy.
+#### 2. Location / Standort
 
 | Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
 |--------|------------|------------|------|-------------|--------|-------------|
@@ -106,9 +111,7 @@ The "Where". Address, municipality, and administrative hierarchy.
 | `region` | Region | Region | `text` | `CHECK (region ~ '^[A-Z]{2}$')` | GWR | Region code (canton in CH) |
 | `parcel_id` | Parcel | Grundstück | `bigint` | `REFERENCES parcels(id)` | Derived | Containing parcel |
 
-#### 📐 3. Dimensions / Dimensionen
-
-The "How Big". All physical metrics (Area, Volume, Height, Floors).
+#### 3. Dimensions / Dimensionen
 
 | Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
 |--------|------------|------------|------|-------------|--------|-------------|
@@ -133,9 +136,7 @@ The "How Big". All physical metrics (Area, Volume, Height, Floors).
 | `height_mean_m` | Mean Height | Mittlere Höhe | `numeric` | `CHECK (height_mean_m >= 0)` | Derived | Mean building height |
 | `height_max_m` | Max Height | Maximale Höhe | `numeric` | `CHECK (height_max_m >= 0)` | Derived | Maximum building height |
 
-#### ⚡ 4. Features / Eigenschaften
-
-The "Details". Technical equipment, legal constraints, zoning, heritage.
+#### 4. Features / Eigenschaften
 
 | Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
 |--------|------------|------------|------|-------------|--------|-------------|
@@ -149,9 +150,7 @@ The "Details". Technical equipment, legal constraints, zoning, heritage.
 | `zone_main` | Main Zone | Hauptnutzungszone | `text` | | ARE | Main zoning classification |
 | `zone_type` | Zone Type | Zonentyp | `text` | | ARE | Specific zone type |
 
-#### ⚙️ 5. System / System
-
-Metadata, internal IDs, and raw source references.
+#### 5. System / System
 
 | Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
 |--------|------------|------------|------|-------------|--------|-------------|
@@ -168,9 +167,7 @@ Metadata, internal IDs, and raw source references.
 
 Land parcels from cadastral survey.
 
-#### ℹ️ 1. General / Allgemein
-
-The "What" and "When". Identity, type, status, and timeline.
+#### 1. General / Allgemein
 
 | Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
 |--------|------------|------------|------|-------------|--------|-------------|
@@ -179,18 +176,14 @@ The "What" and "When". Identity, type, status, and timeline.
 | `type` | Type | Typ | `parcel_type` | | AV | Parcel type (LTYP) |
 | `parcel_number` | Parcel Number | Parzellennummer | `text` | | AV | Local parcel number (Grundstücksnummer) |
 
-#### 📍 2. Location / Standort
-
-The "Where". Address, municipality, and administrative hierarchy.
+#### 2. Location / Standort
 
 | Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
 |--------|------------|------------|------|-------------|--------|-------------|
 | `municipality_name` | Municipality Name | Gemeindename | `text` | | AV | Municipality name |
 | `municipality_nr` | Municipality Number | Gemeindenummer | `integer` | `CHECK (municipality_nr BETWEEN 1 AND 6999)` | AV | BFS municipality number |
 
-#### 📐 3. Dimensions / Dimensionen
-
-The "How Big". All physical metrics (Area, Volume, Height, Floors).
+#### 3. Dimensions / Dimensionen
 
 > **Note on area calculations:** Swiss cadastral surveys use **horizontal projection** (Horizontalprojektion) for all area measurements. This means the official `area_m2` represents the 2D planimetric area, not the actual 3D surface area. On sloped terrain, the true surface area can be significantly larger (e.g., +41% at 45° slope). The legally binding value from AV is always the projected area.
 
@@ -205,18 +198,14 @@ The "How Big". All physical metrics (Area, Volume, Height, Floors).
 | `area_uuf_m2` | Unprocessed Surrounding | Unbearbeitete Umgebung | `numeric` | `CHECK (area_uuf_m2 >= 0)` | Derived | Unprocessed surrounding area in m² (UUF, SIA 416). Based on 2D polygon area. |
 | `sealed_area_m2` | Sealed Area | Versiegelte Fläche | `numeric` | `CHECK (sealed_area_m2 >= 0)` | Derived | Sealed/impervious surface in m². Based on 2D polygon area. |
 
-#### ⚡ 4. Features / Eigenschaften
-
-The "Details". Technical equipment, legal constraints, zoning, heritage.
+#### 4. Features / Eigenschaften
 
 | Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
 |--------|------------|------------|------|-------------|--------|-------------|
 | `zone_main` | Main Zone | Hauptnutzungszone | `text` | | ARE | Main zoning classification |
 | `zone_type` | Zone Type | Zonentyp | `text` | | ARE | Specific zone type |
 
-#### ⚙️ 5. System / System
-
-Metadata, internal IDs, and raw source references.
+#### 5. System / System
 
 | Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
 |--------|------------|------------|------|-------------|--------|-------------|
@@ -233,9 +222,7 @@ Metadata, internal IDs, and raw source references.
 
 Landcover polygons from cadastral survey. Landcovers can represent building footprints (Type = Building / Gebäude).
 
-#### ℹ️ 1. General / Allgemein
-
-The "What" and "When". Identity, type, status, and timeline.
+#### 1. General / Allgemein
 
 | Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
 |--------|------------|------------|------|-------------|--------|-------------|
@@ -243,18 +230,14 @@ The "What" and "When". Identity, type, status, and timeline.
 | `status` | Status | Status | `text` | | AV | Landcover status |
 | `type` | Type | Typ | `landcover_type` | `NOT NULL` | AV | Landcover classification |
 
-#### 📍 2. Location / Standort
-
-The "Where". Address, municipality, and administrative hierarchy.
+#### 2. Location / Standort
 
 | Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
 |--------|------------|------------|------|-------------|--------|-------------|
 | `parcel_id` | Parcel | Grundstück | `bigint` | `REFERENCES parcels(id)` | Derived | Containing parcel |
 | `building_id` | Building | Gebäude | `bigint` | `REFERENCES buildings(id)` | Derived | Link to building (for footprints) |
 
-#### 📐 3. Dimensions / Dimensionen
-
-The "How Big". All physical metrics (Area, Volume, Height, Floors).
+#### 3. Dimensions / Dimensionen
 
 | Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
 |--------|------------|------------|------|-------------|--------|-------------|
@@ -263,15 +246,11 @@ The "How Big". All physical metrics (Area, Volume, Height, Floors).
 | `height_mean_m` | Mean Height | Mittlere Höhe | `numeric` | `CHECK (height_mean_m >= 0)` | Derived | Mean height in m (for type=building) |
 | `height_max_m` | Max Height | Maximale Höhe | `numeric` | `CHECK (height_max_m >= 0)` | Derived | Maximum height in m (for type=building) |
 
-#### ⚡ 4. Features / Eigenschaften
-
-The "Details". Technical equipment, legal constraints, zoning, heritage.
+#### 4. Features / Eigenschaften
 
 *(Reserved for future material/usage properties)*
 
-#### ⚙️ 5. System / System
-
-Metadata, internal IDs, and raw source references.
+#### 5. System / System
 
 | Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
 |--------|------------|------------|------|-------------|--------|-------------|
@@ -288,9 +267,7 @@ Metadata, internal IDs, and raw source references.
 
 Construction projects from GWR.
 
-#### ℹ️ 1. General / Allgemein
-
-The "What" and "When". Identity, type, status, and timeline.
+#### 1. General / Allgemein
 
 | Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
 |--------|------------|------------|------|-------------|--------|-------------|
@@ -303,9 +280,7 @@ The "What" and "When". Identity, type, status, and timeline.
 | `date_started` | Started | Baubeginn | `date` | | GWR | Construction start date (PDATBB) |
 | `date_completed` | Completed | Abgeschlossen | `date` | | GWR | Completion date (PDATBE) |
 
-#### 📍 2. Location / Standort
-
-The "Where". Address, municipality, and administrative hierarchy.
+#### 2. Location / Standort
 
 | Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
 |--------|------------|------------|------|-------------|--------|-------------|
@@ -313,21 +288,15 @@ The "Where". Address, municipality, and administrative hierarchy.
 | `parcel_id` | Parcel | Grundstück | `bigint` | `REFERENCES parcels(id)` | Derived | Associated parcel |
 | `building_id` | Building | Gebäude | `bigint` | `REFERENCES buildings(id)` | GWR | Associated building (EGID) |
 
-#### 📐 3. Dimensions / Dimensionen
-
-The "How Big". All physical metrics (Area, Volume, Height, Floors).
+#### 3. Dimensions / Dimensionen
 
 *(Use computed geometry area)*
 
-#### ⚡ 4. Features / Eigenschaften
-
-The "Details". Technical equipment, legal constraints, zoning, heritage.
+#### 4. Features / Eigenschaften
 
 *(Reserved for future permit constraints)*
 
-#### ⚙️ 5. System / System
-
-Metadata, internal IDs, and raw source references.
+#### 5. System / System
 
 | Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
 |--------|------------|------------|------|-------------|--------|-------------|
