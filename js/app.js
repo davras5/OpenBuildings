@@ -1073,22 +1073,19 @@ async function init() {
   function showBuildingPanel(building) {
     const address = formatAddress(building);
 
-    // Fixed set of attributes organized by category (matching DATAMODEL.md)
+    // Fixed set of attributes organized by 5 groups (matching DATAMODEL.md)
     const metrics = [
-      // Adresse
-      { label: 'Adresse', isCategory: true },
-      { label: 'Adresse', value: address || '–' },
-
-      // Klassifikation
-      { label: 'Klassifikation', isCategory: true },
+      // 1. General / Allgemein - The "What" and "When"
+      { label: 'Allgemein', isCategory: true },
       { label: 'Status', value: getEnumLabel(BUILDING_STATUS_LABELS, building.status) },
       { label: 'Kategorie', value: getEnumLabel(BUILDING_CATEGORY_LABELS, building.category) },
-
-      // Baujahr
-      { label: 'Bau', isCategory: true },
       { label: 'Baujahr', value: formatYear(building.construction_year) },
 
-      // Dimensionen
+      // 2. Location / Standort - The "Where"
+      { label: 'Standort', isCategory: true },
+      { label: 'Adresse', value: address || '–' },
+
+      // 3. Dimensions / Dimensionen - The "How Big"
       { label: 'Dimensionen', isCategory: true },
       { label: 'Geschosse', value: formatFloors(building.floors_above, building.floors_below) },
       { label: 'Grundfläche', value: formatWithUnit(building.area_footprint_m2, 'm²') },
@@ -1096,15 +1093,12 @@ async function init() {
       { label: 'Volumen', value: formatWithUnit(building.volume_total_m3, 'm³') },
       { label: 'Höhe', value: formatWithUnit(building.height_max_m, 'm', 1) },
 
-      // Energie
-      { label: 'Energie', isCategory: true },
+      // 4. Features / Eigenschaften - The "Details"
+      { label: 'Eigenschaften', isCategory: true },
       { label: 'Wärmequelle', value: getEnumLabel({}, building.heating_source) },
-
-      // Denkmalschutz
-      { label: 'Denkmalschutz', isCategory: true },
       { label: 'Schutzkategorie', value: formatHeritage(building.heritage_category) },
 
-      // System
+      // 5. System / System - Metadata and IDs
       { label: 'System', isCategory: true },
       { label: 'EGID', value: building.egid || '–' }
     ];
@@ -1136,30 +1130,30 @@ async function init() {
   function showParcelPanel(parcel) {
     const zoneText = [parcel.zone_main, parcel.zone_type].filter(Boolean).join(' – ') || '–';
 
-    // Fixed set of attributes organized by category (matching DATAMODEL.md)
+    // Fixed set of attributes organized by 5 groups (matching DATAMODEL.md)
     const metrics = [
-      // System
-      { label: 'System', isCategory: true },
-      { label: 'Parzellennummer', value: parcel.parcel_number || '–' },
-      { label: 'E-GRID', value: parcel.egrid || '–' },
-
-      // Klassifikation
-      { label: 'Klassifikation', isCategory: true },
+      // 1. General / Allgemein - The "What" and "When"
+      { label: 'Allgemein', isCategory: true },
       { label: 'Status', value: getEnumLabel(PARCEL_STATUS_LABELS, parcel.status) },
       { label: 'Typ', value: getEnumLabel(PARCEL_TYPE_LABELS, parcel.type) },
+      { label: 'Parzellennummer', value: parcel.parcel_number || '–' },
 
-      // Dimensionen
+      // 2. Location / Standort - The "Where"
+      { label: 'Standort', isCategory: true },
+      { label: 'Gemeinde', value: parcel.municipality_name || '–' },
+
+      // 3. Dimensions / Dimensionen - The "How Big"
       { label: 'Dimensionen', isCategory: true },
       { label: 'Fläche', value: formatWithUnit(parcel.area_m2, 'm²') },
       { label: 'Gebäudegrundfläche', value: formatWithUnit(parcel.area_ggf_m2, 'm²') },
 
-      // Nutzungsplanung
-      { label: 'Nutzungsplanung', isCategory: true },
+      // 4. Features / Eigenschaften - The "Details"
+      { label: 'Eigenschaften', isCategory: true },
       { label: 'Zone', value: zoneText },
 
-      // Administrativ
-      { label: 'Administrativ', isCategory: true },
-      { label: 'Gemeinde', value: parcel.municipality_name || '–' }
+      // 5. System / System - Metadata and IDs
+      { label: 'System', isCategory: true },
+      { label: 'E-GRID', value: parcel.egrid || '–' }
     ];
 
     showPanel({
@@ -1174,21 +1168,27 @@ async function init() {
     const isBuilding = landcover.type === 'building';
     const typeLabel = getEnumLabel(LANDCOVER_TYPE_LABELS, landcover.type);
 
-    // Fixed set of attributes organized by category (matching DATAMODEL.md)
+    // Fixed set of attributes organized by 5 groups (matching DATAMODEL.md)
     const metrics = [
-      // Klassifikation
-      { label: 'Klassifikation', isCategory: true },
+      // 1. General / Allgemein - The "What" and "When"
+      { label: 'Allgemein', isCategory: true },
       { label: 'Typ', value: typeLabel },
       { label: 'Status', value: getEnumLabel({}, landcover.status) },
 
-      // Dimensionen
+      // 2. Location / Standort - The "Where"
+      // (parcel_id and building_id would be shown here if fetched)
+
+      // 3. Dimensions / Dimensionen - The "How Big"
       { label: 'Dimensionen', isCategory: true },
       { label: 'Fläche', value: formatWithUnit(landcover.area_m2, 'm²') },
       { label: 'Volumen', value: isBuilding ? formatWithUnit(landcover.volume_total_m3, 'm³') : '–' },
       { label: 'Max. Höhe', value: isBuilding ? formatWithUnit(landcover.height_max_m, 'm', 1) : '–' },
       { label: 'Mittl. Höhe', value: isBuilding ? formatWithUnit(landcover.height_mean_m, 'm', 1) : '–' },
 
-      // System
+      // 4. Features / Eigenschaften - The "Details"
+      // (Reserved for future material/usage properties)
+
+      // 5. System / System - Metadata and IDs
       { label: 'System', isCategory: true },
       { label: 'EGID', value: landcover.egid || '–' }
     ];

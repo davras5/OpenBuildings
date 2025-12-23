@@ -75,51 +75,46 @@ erDiagram
 
 Primary entity representing individual buildings.
 
-#### System / System
+#### ℹ️ 1. General / Allgemein
+
+The "What" and "When". Identity, type, status, and timeline.
 
 | Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
 |--------|------------|------------|------|-------------|--------|-------------|
-| `id` | ID | ID | `bigint` | `PRIMARY KEY, GENERATED ALWAYS AS IDENTITY` | System | System ID |
-| `egid` | Building ID | Gebäudeidentifikator | `text` | `CHECK (egid ~ '^[0-9]{1,9}$')` | GWR | Eidgenössischer Gebäudeidentifikator (EGID). Often missing in source data. |
 | `label` | Label | Bezeichnung | `text` | | Derived | Display label for frontend |
-| `source_fid` | Source Feature ID | Quell-Feature-ID | `text` | `UNIQUE, NOT NULL` | Various | Feature ID from source system. Used for upserts and data synchronization. |
-| `parcel_id` | Parcel | Grundstück | `bigint` | `REFERENCES parcels(id)` | Derived | Containing parcel |
-| `geog` | Location | Standort | `geography(POINT, 4326)` | `NOT NULL` | GWR | Building centroid |
-| `created_at` | Created | Erstellt | `timestamptz` | `NOT NULL DEFAULT NOW()` | System | Record creation timestamp |
-| `updated_at` | Updated | Aktualisiert | `timestamptz` | `NOT NULL DEFAULT NOW()` | System | Record last update timestamp |
-
-#### Address / Adresse
-
-| Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
-|--------|------------|------------|------|-------------|--------|-------------|
-| `country` | Country | Land | `text` | `CHECK (country ~ '^[A-Z]{2}$')` | GWR | Country code (ISO 3166-1 alpha-2) |
-| `region` | Region | Region | `text` | `CHECK (region ~ '^[A-Z]{2}$')` | GWR | Region code (canton in CH) |
-| `city` | City | Ort | `text` | | GWR | City/locality |
-| `postal_code` | Postal Code | Postleitzahl | `text` | `CHECK (postal_code ~ '^[0-9]{4}$')` | GWR | Postal code (4 digits in CH) |
-| `street` | Street | Strasse | `text` | | GWR | Street name |
-| `street_nr` | Street Number | Hausnummer | `text` | | GWR | Street number |
-
-#### Classification / Klassifikation
-
-| Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
-|--------|------------|------------|------|-------------|--------|-------------|
 | `status` | Status | Status | `building_status` | | GWR | Building status (GSTAT) |
 | `category` | Category | Kategorie | `building_category` | | GWR | Building category (GKAT) |
 | `class` | Class | Klasse | `text` | `CHECK (class ~ '^[0-9]{4}$')` | GWR | Building class code (GKLAS) |
 | `roof_form` | Roof Form | Dachform | `roof_form` | | Derived | Roof form |
-
-#### Construction / Bau
-
-| Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
-|--------|------------|------------|------|-------------|--------|-------------|
 | `construction_year` | Construction Year | Baujahr | `integer` | `CHECK (construction_year BETWEEN 1000 AND 2100)` | GWR | Year of construction (GBAUJ) |
 | `renovation_year` | Renovation Year | Renovationsjahr | `integer` | `CHECK (renovation_year BETWEEN 1000 AND 2100)` | GWR | Year of last renovation |
-| `dwellings_count` | Dwellings | Wohnungen | `integer` | `CHECK (dwellings_count >= 0)` | GWR | Number of dwellings |
 
-#### Dimensions - Area / Dimensionen - Fläche
+#### 📍 2. Location / Standort
+
+The "Where". Address, municipality, and administrative hierarchy.
 
 | Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
 |--------|------------|------------|------|-------------|--------|-------------|
+| `street` | Street | Strasse | `text` | | GWR | Street name |
+| `street_nr` | Street Number | Hausnummer | `text` | | GWR | Street number |
+| `postal_code` | Postal Code | Postleitzahl | `text` | `CHECK (postal_code ~ '^[0-9]{4}$')` | GWR | Postal code (4 digits in CH) |
+| `city` | City | Ort | `text` | | GWR | City/locality |
+| `municipality_name` | Municipality Name | Gemeindename | `text` | | GWR | Municipality name |
+| `municipality_nr` | Municipality Number | Gemeindenummer | `integer` | `CHECK (municipality_nr BETWEEN 1 AND 6999)` | GWR | BFS municipality number (GGDENR) |
+| `country` | Country | Land | `text` | `CHECK (country ~ '^[A-Z]{2}$')` | GWR | Country code (ISO 3166-1 alpha-2) |
+| `region` | Region | Region | `text` | `CHECK (region ~ '^[A-Z]{2}$')` | GWR | Region code (canton in CH) |
+| `parcel_id` | Parcel | Grundstück | `bigint` | `REFERENCES parcels(id)` | Derived | Containing parcel |
+
+#### 📐 3. Dimensions / Dimensionen
+
+The "How Big". All physical metrics (Area, Volume, Height, Floors).
+
+| Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
+|--------|------------|------------|------|-------------|--------|-------------|
+| `floors_total` | Total Floors | Geschosse Total | `integer` | `CHECK (floors_total BETWEEN 1 AND 200)` | GWR | Anzahl Geschosse total (GASTW, SIA 416) |
+| `floors_above` | Floors Above Ground | Oberirdische Geschosse | `integer` | `CHECK (floors_above >= 0)` | GWR | Geschosse oberirdisch (SIA 416) |
+| `floors_below` | Floors Below Ground | Unterirdische Geschosse | `integer` | `CHECK (floors_below >= 0)` | GWR | Geschosse unterirdisch (SIA 416) |
+| `floors_accuracy` | Floors Accuracy | Geschoss-Genauigkeit | `text` | | Derived | Accuracy and source of floor data |
 | `area_footprint_m2` | Footprint Area | Gebäudegrundfläche | `numeric` | `CHECK (area_footprint_m2 >= 0)` | AV | Gebäudegrundfläche GGF (SIA 416) |
 | `area_floor_total_m2` | Total Floor Area | Geschossfläche Total | `numeric` | `CHECK (area_floor_total_m2 >= 0)` | Derived | Geschossfläche GF total (SIA 416) |
 | `area_floor_above_ground_m2` | Above Ground Floor Area | Oberirdische Geschossfläche | `numeric` | `CHECK (area_floor_above_ground_m2 >= 0)` | Derived | GF oberirdisch (SIA 416) |
@@ -129,62 +124,42 @@ Primary entity representing individual buildings.
 | `area_roof_m2` | Roof Area | Dachfläche | `numeric` | `CHECK (area_roof_m2 >= 0)` | Derived | Fläche Dach DAF (eBKP-H) |
 | `area_wall_m2` | Wall Area | Aussenwandfläche | `numeric` | `CHECK (area_wall_m2 >= 0)` | Derived | Fläche Aussenwand AWF (eBKP-H) |
 | `area_accuracy` | Area Accuracy | Flächen-Genauigkeit | `text` | | Derived | Accuracy and source of area data |
-
-#### Dimensions - Floors / Dimensionen - Geschosse
-
-| Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
-|--------|------------|------------|------|-------------|--------|-------------|
-| `floors_total` | Total Floors | Geschosse Total | `integer` | `CHECK (floors_total BETWEEN 1 AND 200)` | GWR | Anzahl Geschosse total (GASTW, SIA 416) |
-| `floors_above` | Floors Above Ground | Oberirdische Geschosse | `integer` | `CHECK (floors_above >= 0)` | GWR | Geschosse oberirdisch (SIA 416) |
-| `floors_below` | Floors Below Ground | Unterirdische Geschosse | `integer` | `CHECK (floors_below >= 0)` | GWR | Geschosse unterirdisch (SIA 416) |
-| `floors_accuracy` | Floors Accuracy | Geschoss-Genauigkeit | `text` | | Derived | Accuracy and source of floor data |
-
-#### Dimensions - Volume / Dimensionen - Volumen
-
-| Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
-|--------|------------|------------|------|-------------|--------|-------------|
 | `volume_total_m3` | Total Volume | Gesamtvolumen | `numeric` | `CHECK (volume_total_m3 >= 0)` | Derived | Gebäudevolumen GV total (SIA 416) |
 | `volume_above_ground_m3` | Above Ground Volume | Oberirdisches Volumen | `numeric` | `CHECK (volume_above_ground_m3 >= 0)` | Derived | GV oberirdisch (SIA 416) |
 | `volume_below_ground_m3` | Below Ground Volume | Unterirdisches Volumen | `numeric` | `CHECK (volume_below_ground_m3 >= 0)` | Derived | GV unterirdisch (SIA 416) |
 | `volume_accuracy` | Volume Accuracy | Volumen-Genauigkeit | `text` | | Derived | Accuracy and source of volume data |
-
-#### Dimensions - Height / Dimensionen - Höhe
-
-| Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
-|--------|------------|------------|------|-------------|--------|-------------|
 | `elevation_base_m` | Base Elevation | Terrainhöhe | `numeric` | | swissALTI3D | Terrain elevation at base (m.a.s.l.) |
 | `height_mean_m` | Mean Height | Mittlere Höhe | `numeric` | `CHECK (height_mean_m >= 0)` | Derived | Mean building height |
 | `height_max_m` | Max Height | Maximale Höhe | `numeric` | `CHECK (height_max_m >= 0)` | Derived | Maximum building height |
 
-#### Energy / Energie
+#### ⚡ 4. Features / Eigenschaften
+
+The "Details". Technical equipment, legal constraints, zoning, heritage.
 
 | Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
 |--------|------------|------------|------|-------------|--------|-------------|
+| `dwellings_count` | Dwellings | Wohnungen | `integer` | `CHECK (dwellings_count >= 0)` | GWR | Number of dwellings |
 | `heating_type` | Heating Type | Wärmeerzeuger Heizung | `text` | | GWR | Heating system type (GWAERZH) |
 | `heating_source` | Heating Source | Energiequelle Heizung | `text` | | GWR | Heating energy source (GENH) |
 | `water_heating_type` | Water Heating Type | Wärmeerzeuger Warmwasser | `text` | | GWR | Hot water system type (GWAERZW) |
 | `water_heating_source` | Water Heating Source | Energiequelle Warmwasser | `text` | | GWR | Hot water energy source (GENW) |
-
-#### Administrative / Administrativ
-
-| Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
-|--------|------------|------------|------|-------------|--------|-------------|
-| `municipality_nr` | Municipality Number | Gemeindenummer | `integer` | `CHECK (municipality_nr BETWEEN 1 AND 6999)` | GWR | BFS municipality number (GGDENR) |
-| `municipality_name` | Municipality Name | Gemeindename | `text` | | GWR | Municipality name |
-
-#### Heritage / Denkmalschutz
-
-| Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
-|--------|------------|------------|------|-------------|--------|-------------|
 | `heritage_category` | Heritage Category | Schutzkategorie | `heritage_category` | | KGS | Protection category (A/B) |
 | `heritage_inventory_nr` | Heritage Inventory Nr | KGS-Inventarnummer | `integer` | | KGS | Inventory number |
+| `zone_main` | Main Zone | Hauptnutzungszone | `text` | | ARE | Main zoning classification |
+| `zone_type` | Zone Type | Zonentyp | `text` | | ARE | Specific zone type |
 
-#### Zoning / Nutzungsplanung
+#### ⚙️ 5. System / System
+
+Metadata, internal IDs, and raw source references.
 
 | Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
 |--------|------------|------------|------|-------------|--------|-------------|
-| `zone_main` | Main Zone | Hauptnutzungszone | `text` | | ARE | Main zoning classification |
-| `zone_type` | Zone Type | Zonentyp | `text` | | ARE | Specific zone type |
+| `id` | ID | ID | `bigint` | `PRIMARY KEY, GENERATED ALWAYS AS IDENTITY` | System | System ID |
+| `egid` | Building ID | Gebäudeidentifikator | `text` | `CHECK (egid ~ '^[0-9]{1,9}$')` | GWR | Eidgenössischer Gebäudeidentifikator (EGID). Often missing in source data. |
+| `source_fid` | Source Feature ID | Quell-Feature-ID | `text` | `UNIQUE, NOT NULL` | Various | Feature ID from source system. Used for upserts and data synchronization. |
+| `created_at` | Created | Erstellt | `timestamptz` | `NOT NULL DEFAULT NOW()` | System | Record creation timestamp |
+| `updated_at` | Updated | Aktualisiert | `timestamptz` | `NOT NULL DEFAULT NOW()` | System | Record last update timestamp |
+| `geog` | Location | Standort | `geography(POINT, 4326)` | `NOT NULL` | GWR | Building centroid
 
 ---
 
@@ -192,33 +167,35 @@ Primary entity representing individual buildings.
 
 Land parcels from cadastral survey.
 
-#### System / System
+#### ℹ️ 1. General / Allgemein
+
+The "What" and "When". Identity, type, status, and timeline.
 
 | Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
 |--------|------------|------------|------|-------------|--------|-------------|
-| `id` | ID | ID | `bigint` | `PRIMARY KEY, GENERATED ALWAYS AS IDENTITY` | System | System ID |
-| `egrid` | Parcel ID | Grundstückidentifikator | `text` | `CHECK (egrid ~ '^CH[0-9]{12}$')` | AV | E-GRID identifier. Often missing in source data. |
 | `label` | Label | Bezeichnung | `text` | | Derived | Display label for frontend |
-| `parcel_number` | Parcel Number | Parzellennummer | `text` | | AV | Local parcel number (Grundstücksnummer) |
-| `source_fid` | Source Feature ID | Quell-Feature-ID | `text` | `UNIQUE, NOT NULL` | AV | Feature ID from source system. Used for upserts and data synchronization. |
-| `geog` | Geometry | Geometrie | `geography(POLYGON, 4326)` | `NOT NULL` | AV | Parcel boundary |
-| `created_at` | Created | Erstellt | `timestamptz` | `NOT NULL DEFAULT NOW()` | System | Record creation timestamp |
-| `updated_at` | Updated | Aktualisiert | `timestamptz` | `NOT NULL DEFAULT NOW()` | System | Record last update timestamp |
-
-#### Classification / Klassifikation
-
-| Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
-|--------|------------|------------|------|-------------|--------|-------------|
 | `status` | Status | Status | `parcel_status` | | AV | Parcel status |
 | `type` | Type | Typ | `parcel_type` | | AV | Parcel type (LTYP) |
+| `parcel_number` | Parcel Number | Parzellennummer | `text` | | AV | Local parcel number (Grundstücksnummer) |
 
-#### Dimensions / Dimensionen
+#### 📍 2. Location / Standort
+
+The "Where". Address, municipality, and administrative hierarchy.
+
+| Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
+|--------|------------|------------|------|-------------|--------|-------------|
+| `municipality_name` | Municipality Name | Gemeindename | `text` | | AV | Municipality name |
+| `municipality_nr` | Municipality Number | Gemeindenummer | `integer` | `CHECK (municipality_nr BETWEEN 1 AND 6999)` | AV | BFS municipality number |
+
+#### 📐 3. Dimensions / Dimensionen
+
+The "How Big". All physical metrics (Area, Volume, Height, Floors).
 
 > **Note on area calculations:** Swiss cadastral surveys use **horizontal projection** (Horizontalprojektion) for all area measurements. This means the official `area_m2` represents the 2D planimetric area, not the actual 3D surface area. On sloped terrain, the true surface area can be significantly larger (e.g., +41% at 45° slope). The legally binding value from AV is always the projected area.
 
 | Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
 |--------|------------|------------|------|-------------|--------|-------------|
-| `area_m2` | Area | Fläche | `numeric` | `CHECK (area_m2 >= 0)` | AV | Parcel area GSF in m² (Grundstücksfläche). Legally binding (rechtskräftig) horizontal projection from cadastral survey. |
+| `area_m2` | Area (Official) | Fläche (Offiziell) | `numeric` | `CHECK (area_m2 >= 0)` | AV | Parcel area GSF in m² (Grundstücksfläche). Legally binding (rechtskräftig) horizontal projection from cadastral survey. |
 | `area_polygon_m2` | Polygon Area | Polygonfläche | `numeric` | `CHECK (area_polygon_m2 >= 0)` | Derived | 2D projected area calculated from polygon geometry (for validation against official area) |
 | `area_surface_m2` | Surface Area | Oberflächenfläche | `numeric` | `CHECK (area_surface_m2 >= 0)` | Derived | 3D surface area in m², accounting for terrain slope (calculated from polygon draped on swissALTI3D DTM) |
 | `area_ggf_m2` | Building Footprint Area | Gebäudegrundfläche | `numeric` | `CHECK (area_ggf_m2 >= 0)` | Derived | Sum of building footprints in m² (GGF). Based on 2D polygon area. |
@@ -227,19 +204,27 @@ Land parcels from cadastral survey.
 | `area_uuf_m2` | Unprocessed Surrounding | Unbearbeitete Umgebung | `numeric` | `CHECK (area_uuf_m2 >= 0)` | Derived | Unprocessed surrounding area in m² (UUF, SIA 416). Based on 2D polygon area. |
 | `sealed_area_m2` | Sealed Area | Versiegelte Fläche | `numeric` | `CHECK (sealed_area_m2 >= 0)` | Derived | Sealed/impervious surface in m². Based on 2D polygon area. |
 
-#### Administrative / Administrativ
+#### ⚡ 4. Features / Eigenschaften
 
-| Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
-|--------|------------|------------|------|-------------|--------|-------------|
-| `municipality_nr` | Municipality Number | Gemeindenummer | `integer` | `CHECK (municipality_nr BETWEEN 1 AND 6999)` | AV | BFS municipality number |
-| `municipality_name` | Municipality Name | Gemeindename | `text` | | AV | Municipality name |
-
-#### Zoning / Nutzungsplanung
+The "Details". Technical equipment, legal constraints, zoning, heritage.
 
 | Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
 |--------|------------|------------|------|-------------|--------|-------------|
 | `zone_main` | Main Zone | Hauptnutzungszone | `text` | | ARE | Main zoning classification |
 | `zone_type` | Zone Type | Zonentyp | `text` | | ARE | Specific zone type |
+
+#### ⚙️ 5. System / System
+
+Metadata, internal IDs, and raw source references.
+
+| Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
+|--------|------------|------------|------|-------------|--------|-------------|
+| `id` | ID | ID | `bigint` | `PRIMARY KEY, GENERATED ALWAYS AS IDENTITY` | System | System ID |
+| `egrid` | Parcel ID | Grundstückidentifikator | `text` | `CHECK (egrid ~ '^CH[0-9]{12}$')` | AV | E-GRID identifier. Often missing in source data. |
+| `source_fid` | Source Feature ID | Quell-Feature-ID | `text` | `UNIQUE, NOT NULL` | AV | Feature ID from source system. Used for upserts and data synchronization. |
+| `created_at` | Created | Erstellt | `timestamptz` | `NOT NULL DEFAULT NOW()` | System | Record creation timestamp |
+| `updated_at` | Updated | Aktualisiert | `timestamptz` | `NOT NULL DEFAULT NOW()` | System | Record last update timestamp |
+| `geog` | Geometry | Geometrie | `geography(POLYGON, 4326)` | `NOT NULL` | AV | Parcel boundary
 
 ---
 
@@ -247,26 +232,28 @@ Land parcels from cadastral survey.
 
 Landcover polygons from cadastral survey. Landcovers can represent building footprints (Type = Building / Gebäude).
 
-#### System / System
+#### ℹ️ 1. General / Allgemein
+
+The "What" and "When". Identity, type, status, and timeline.
 
 | Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
 |--------|------------|------------|------|-------------|--------|-------------|
-| `id` | ID | ID | `bigint` | `PRIMARY KEY, GENERATED ALWAYS AS IDENTITY` | System | System ID |
 | `label` | Label | Bezeichnung | `text` | | Derived | Display label for frontend |
-| `source_fid` | Source Feature ID | Quell-Feature-ID | `text` | `UNIQUE, NOT NULL` | AV | Feature ID from source system. Used for upserts and data synchronization. |
-| `egid` | Building ID | Gebäudeidentifikator | `text` | `CHECK (egid ~ '^[0-9]{1,9}$')` | GWR | Eidgenössischer Gebäudeidentifikator (EGID). Often missing in source data. |
-| `geog` | Geometry | Geometrie | `geography(POLYGON, 4326)` | `NOT NULL` | AV | Landcover polygon |
-| `created_at` | Created | Erstellt | `timestamptz` | `NOT NULL DEFAULT NOW()` | System | Record creation timestamp |
-| `updated_at` | Updated | Aktualisiert | `timestamptz` | `NOT NULL DEFAULT NOW()` | System | Record last update timestamp |
-
-#### Classification / Klassifikation
-
-| Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
-|--------|------------|------------|------|-------------|--------|-------------|
 | `status` | Status | Status | `text` | | AV | Landcover status |
 | `type` | Type | Typ | `landcover_type` | `NOT NULL` | AV | Landcover classification |
 
-#### Dimensions / Dimensionen
+#### 📍 2. Location / Standort
+
+The "Where". Address, municipality, and administrative hierarchy.
+
+| Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
+|--------|------------|------------|------|-------------|--------|-------------|
+| `parcel_id` | Parcel | Grundstück | `bigint` | `REFERENCES parcels(id)` | Derived | Containing parcel |
+| `building_id` | Building | Gebäude | `bigint` | `REFERENCES buildings(id)` | Derived | Link to building (for footprints) |
+
+#### 📐 3. Dimensions / Dimensionen
+
+The "How Big". All physical metrics (Area, Volume, Height, Floors).
 
 | Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
 |--------|------------|------------|------|-------------|--------|-------------|
@@ -275,12 +262,24 @@ Landcover polygons from cadastral survey. Landcovers can represent building foot
 | `height_mean_m` | Mean Height | Mittlere Höhe | `numeric` | `CHECK (height_mean_m >= 0)` | Derived | Mean height in m (for type=building) |
 | `height_max_m` | Max Height | Maximale Höhe | `numeric` | `CHECK (height_max_m >= 0)` | Derived | Maximum height in m (for type=building) |
 
-#### Relations / Beziehungen
+#### ⚡ 4. Features / Eigenschaften
+
+The "Details". Technical equipment, legal constraints, zoning, heritage.
+
+*(Reserved for future material/usage properties)*
+
+#### ⚙️ 5. System / System
+
+Metadata, internal IDs, and raw source references.
 
 | Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
 |--------|------------|------------|------|-------------|--------|-------------|
-| `building_id` | Building | Gebäude | `bigint` | `REFERENCES buildings(id)` | Derived | Link to building (for footprints) |
-| `parcel_id` | Parcel | Grundstück | `bigint` | `REFERENCES parcels(id)` | Derived | Containing parcel |
+| `id` | ID | ID | `bigint` | `PRIMARY KEY, GENERATED ALWAYS AS IDENTITY` | System | System ID |
+| `egid` | Building ID | Gebäudeidentifikator | `text` | `CHECK (egid ~ '^[0-9]{1,9}$')` | GWR | Eidgenössischer Gebäudeidentifikator (EGID). Often missing in source data. |
+| `source_fid` | Source Feature ID | Quell-Feature-ID | `text` | `UNIQUE, NOT NULL` | AV | Feature ID from source system. Used for upserts and data synchronization. |
+| `created_at` | Created | Erstellt | `timestamptz` | `NOT NULL DEFAULT NOW()` | System | Record creation timestamp |
+| `updated_at` | Updated | Aktualisiert | `timestamptz` | `NOT NULL DEFAULT NOW()` | System | Record last update timestamp |
+| `geog` | Geometry | Geometrie | `geography(POLYGON, 4326)` | `NOT NULL` | AV | Landcover polygon
 
 ---
 
@@ -288,53 +287,55 @@ Landcover polygons from cadastral survey. Landcovers can represent building foot
 
 Construction projects from GWR.
 
-#### System / System
+#### ℹ️ 1. General / Allgemein
+
+The "What" and "When". Identity, type, status, and timeline.
 
 | Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
 |--------|------------|------------|------|-------------|--------|-------------|
-| `id` | ID | ID | `bigint` | `PRIMARY KEY, GENERATED ALWAYS AS IDENTITY` | System | System ID |
-| `eproid` | Project ID | Bauprojektidentifikator | `text` | `CHECK (eproid ~ '^[0-9]{1,15}$')` | GWR | EPROID identifier. Often missing in source data. |
 | `label` | Label | Bezeichnung | `text` | | Derived | Display label for frontend |
-| `source_fid` | Source Feature ID | Quell-Feature-ID | `text` | `UNIQUE, NOT NULL` | GWR | Feature ID from source system. Used for upserts and data synchronization. |
-| `geog` | Geometry | Geometrie | `geography(POLYGON, 4326)` | | GWR | Project perimeter |
-| `created_at` | Created | Erstellt | `timestamptz` | `NOT NULL DEFAULT NOW()` | System | Record creation timestamp |
-| `updated_at` | Updated | Aktualisiert | `timestamptz` | `NOT NULL DEFAULT NOW()` | System | Record last update timestamp |
-
-#### Relations / Beziehungen
-
-| Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
-|--------|------------|------------|------|-------------|--------|-------------|
-| `building_id` | Building | Gebäude | `bigint` | `REFERENCES buildings(id)` | GWR | Associated building (EGID) |
-| `parcel_id` | Parcel | Grundstück | `bigint` | `REFERENCES parcels(id)` | Derived | Associated parcel |
-
-#### Identification / Identifikation
-
-| Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
-|--------|------------|------------|------|-------------|--------|-------------|
-| `name` | Name | Bezeichnung | `text` | | GWR | Project name (PBEZ) |
-
-#### Classification / Klassifikation
-
-| Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
-|--------|------------|------------|------|-------------|--------|-------------|
 | `status` | Status | Status | `project_status` | | GWR | Project status (PSTAT) |
 | `project_type` | Project Type | Projektart | `project_type` | | GWR | Type of construction (PARTBW) |
 | `building_type` | Building Type | Bauwerkstyp | `text` | | GWR | Specific building type (PTYPBW) |
-
-#### Timeline / Zeitplan
-
-| Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
-|--------|------------|------------|------|-------------|--------|-------------|
 | `date_submitted` | Submitted | Beantragt | `date` | | GWR | Permit application date (PDATIN) |
 | `date_approved` | Approved | Bewilligt | `date` | | GWR | Permit approval date (PDATOK) |
 | `date_started` | Started | Baubeginn | `date` | | GWR | Construction start date (PDATBB) |
 | `date_completed` | Completed | Abgeschlossen | `date` | | GWR | Completion date (PDATBE) |
 
-#### Administrative / Administrativ
+#### 📍 2. Location / Standort
+
+The "Where". Address, municipality, and administrative hierarchy.
 
 | Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
 |--------|------------|------------|------|-------------|--------|-------------|
 | `municipality_nr` | Municipality Number | Gemeindenummer | `integer` | `CHECK (municipality_nr BETWEEN 1 AND 6999)` | GWR | BFS municipality number |
+| `parcel_id` | Parcel | Grundstück | `bigint` | `REFERENCES parcels(id)` | Derived | Associated parcel |
+| `building_id` | Building | Gebäude | `bigint` | `REFERENCES buildings(id)` | GWR | Associated building (EGID) |
+
+#### 📐 3. Dimensions / Dimensionen
+
+The "How Big". All physical metrics (Area, Volume, Height, Floors).
+
+*(Use computed geometry area)*
+
+#### ⚡ 4. Features / Eigenschaften
+
+The "Details". Technical equipment, legal constraints, zoning, heritage.
+
+*(Reserved for future permit constraints)*
+
+#### ⚙️ 5. System / System
+
+Metadata, internal IDs, and raw source references.
+
+| Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
+|--------|------------|------------|------|-------------|--------|-------------|
+| `id` | ID | ID | `bigint` | `PRIMARY KEY, GENERATED ALWAYS AS IDENTITY` | System | System ID |
+| `eproid` | Project ID | Bauprojektidentifikator | `text` | `CHECK (eproid ~ '^[0-9]{1,15}$')` | GWR | EPROID identifier. Often missing in source data. |
+| `source_fid` | Source Feature ID | Quell-Feature-ID | `text` | `UNIQUE, NOT NULL` | GWR | Feature ID from source system. Used for upserts and data synchronization. |
+| `created_at` | Created | Erstellt | `timestamptz` | `NOT NULL DEFAULT NOW()` | System | Record creation timestamp |
+| `updated_at` | Updated | Aktualisiert | `timestamptz` | `NOT NULL DEFAULT NOW()` | System | Record last update timestamp |
+| `geog` | Geometry | Geometrie | `geography(POLYGON, 4326)` | | GWR | Project perimeter
 
 ---
 
