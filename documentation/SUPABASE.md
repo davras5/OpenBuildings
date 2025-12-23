@@ -34,6 +34,8 @@ This document covers the Supabase components that power the vector tile system f
 | 10-13 | 1 hour | City view |
 | 14+ | 5 minutes | Street/building view |
 
+**CORS:** Allows all origins (`*`), `GET` and `OPTIONS` methods.
+
 ---
 
 ### 2. MVT Tile Generator (Database Function)
@@ -55,6 +57,25 @@ This document covers the Supabase components that power the vector tile system f
 - Converts geometries to MVT binary format
 - Dynamic column selection for minimal tile size
 - Returns base64-encoded data (decoded by edge function)
+- Marked `STABLE PARALLEL SAFE` for concurrent query optimization
+
+**Security:**
+- Table name whitelist validation (only allowed tables)
+- Column name sanitization (regex: `^[a-z_][a-z0-9_]*$`)
+- Prevents SQL injection via parameterized queries
+
+**Permissions:**
+```sql
+GRANT EXECUTE ON FUNCTION mvt_tile(...) TO authenticated;
+GRANT EXECUTE ON FUNCTION mvt_tile(...) TO anon;
+```
+
+**Technical parameters:**
+| Parameter | Value | Description |
+|-----------|-------|-------------|
+| Extent | 4096 | Tile coordinate space (Mapbox standard) |
+| Buffer | 256 | Pixel buffer for label/symbol overlap |
+| Clip | true | Clips geometries to tile bounds |
 
 **Example:**
 ```sql
@@ -90,6 +111,24 @@ SELECT mvt_tile('parcels', 14, 8594, 5747, ARRAY['id', 'label', 'type']);
 
 **Performance impact:** Reduces query time from ~500-2000ms to ~5-50ms.
 
+**SQL to create indexes:**
+```sql
+-- Spatial indexes (required for tile queries)
+CREATE INDEX IF NOT EXISTS idx_buildings_geog_gist ON buildings USING GIST (geog);
+CREATE INDEX IF NOT EXISTS idx_parcels_geog_gist ON parcels USING GIST (geog);
+CREATE INDEX IF NOT EXISTS idx_landcovers_geog_gist ON landcovers USING GIST (geog);
+CREATE INDEX IF NOT EXISTS idx_projects_geog_gist ON projects USING GIST (geog);
+
+-- Identifier indexes (for detail lookups)
+CREATE INDEX IF NOT EXISTS idx_buildings_egid ON buildings (egid);
+CREATE INDEX IF NOT EXISTS idx_parcels_egrid ON parcels (egrid);
+CREATE INDEX IF NOT EXISTS idx_landcovers_egid ON landcovers (egid);
+CREATE INDEX IF NOT EXISTS idx_projects_eproid ON projects (eproid);
+
+-- Run ANALYZE after creating indexes
+ANALYZE buildings, parcels, landcovers, projects;
+```
+
 ---
 
 ## Layer Hierarchy
@@ -122,9 +161,9 @@ Required for the edge function:
 3. Ensure spatial indexes are created
 
 **Slow tile loading:**
-1. Run the Create Spatial Indexes query
+1. Run the Create Spatial Indexes SQL above
 2. Run `ANALYZE` on tables
-3. Check zoom-based simplification is working
+3. Check edge function logs for query times
 
 **Empty tiles:**
 1. Verify data exists in the requested tile bounds
