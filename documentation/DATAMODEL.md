@@ -739,6 +739,16 @@ curl "https://api3.geo.admin.ch/rest/services/api/SearchServer?searchText=bundes
 -- Version: 0.1.0 (Prototype)
 
 -- =============================================================================
+-- DROP EXISTING TABLES
+-- Order: reverse of creation (respects FK dependencies)
+-- =============================================================================
+
+DROP TABLE IF EXISTS public.projects;
+DROP TABLE IF EXISTS public.landcovers;
+DROP TABLE IF EXISTS public.buildings;
+DROP TABLE IF EXISTS public.parcels;
+
+-- =============================================================================
 -- PARCELS
 -- Land parcels from cadastral survey (Amtliche Vermessung)
 -- =============================================================================
