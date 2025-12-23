@@ -342,8 +342,29 @@ async function init() {
   // Functions
   // ============================================
 
-  // Simple EWKB parser for Point and Polygon
+  // LRU cache for parsed WKB geometries (max 100 entries)
+  const wkbCache = new Map();
+  const WKB_CACHE_MAX_SIZE = 100;
+
+  function cacheWkbResult(hex, result) {
+    // Evict oldest entry if at capacity
+    if (wkbCache.size >= WKB_CACHE_MAX_SIZE) {
+      const firstKey = wkbCache.keys().next().value;
+      wkbCache.delete(firstKey);
+    }
+    wkbCache.set(hex, result);
+  }
+
+  // Simple EWKB parser for Point and Polygon (with caching)
   function wkbToGeoJSON(hex) {
+    // Check cache first
+    if (wkbCache.has(hex)) {
+      // Move to end for LRU behavior
+      const cached = wkbCache.get(hex);
+      wkbCache.delete(hex);
+      wkbCache.set(hex, cached);
+      return cached;
+    }
     try {
       let pos = 0;
 
@@ -387,7 +408,9 @@ async function init() {
       if (geomType === 1) {
         const x = readDouble();
         const y = readDouble();
-        return { type: 'Point', coordinates: [x, y] };
+        const result = { type: 'Point', coordinates: [x, y] };
+        cacheWkbResult(hex, result);
+        return result;
       }
 
       // Polygon (type 3)
@@ -407,7 +430,9 @@ async function init() {
           rings.push(ring);
         }
 
-        return { type: 'Polygon', coordinates: rings };
+        const result = { type: 'Polygon', coordinates: rings };
+        cacheWkbResult(hex, result);
+        return result;
       }
 
       debugWarn('Unsupported geometry type:', geomType);
@@ -1050,10 +1075,15 @@ async function init() {
     basemapSelector.classList.toggle('expanded');
   });
 
-  // Close when clicking outside
+  // Consolidated handler for closing UI elements on outside click
   document.addEventListener('click', (e) => {
+    // Close basemap selector if clicking outside
     if (!basemapSelector.contains(e.target)) {
       basemapSelector.classList.remove('expanded');
+    }
+    // Close search dropdown if clicking outside
+    if (!e.target.closest('.search-container')) {
+      closeSearchDropdown();
     }
   });
 
@@ -1275,18 +1305,29 @@ async function init() {
     return escapedText.replace(regex, '<mark>$1</mark>');
   }
 
-  // Display results
+  // Display results (using DocumentFragment for batched DOM operations)
   function displaySearchResults(results, query) {
-    const locations = results.filter(r => r.attrs.origin === 'address' || r.attrs.origin === 'zipcode' || r.attrs.origin === 'sn25' || r.attrs.origin === 'gg25' || r.attrs.origin === 'district' || r.attrs.origin === 'canton' || r.attrs.origin === 'gazetteer');
-    const layers = results.filter(r => r.attrs.origin === 'layer');
+    // Single-pass filtering using Set for O(1) lookups
+    const locationOrigins = new Set(['address', 'zipcode', 'sn25', 'gg25', 'district', 'canton', 'gazetteer']);
+    const locations = [];
+    const layers = [];
+
+    for (const r of results) {
+      if (locationOrigins.has(r.attrs.origin)) {
+        locations.push(r);
+      } else if (r.attrs.origin === 'layer') {
+        layers.push(r);
+      }
+    }
 
     // Clear previous results
     locationsResults.innerHTML = '';
     layersResults.innerHTML = '';
 
-    // Locations
+    // Locations - batch DOM operations with DocumentFragment
     if (locations.length > 0) {
       locationsSection.classList.add('has-results');
+      const fragment = document.createDocumentFragment();
       locations.slice(0, 10).forEach(loc => {
         const item = document.createElement('div');
         item.className = 'search-result-item';
@@ -1296,23 +1337,26 @@ async function init() {
         item.addEventListener('click', () => {
           goToLocation(loc);
         });
-        locationsResults.appendChild(item);
+        fragment.appendChild(item);
       });
+      locationsResults.appendChild(fragment); // Single DOM write
     } else {
       locationsSection.classList.remove('has-results');
     }
 
-    // Layers (disabled for now)
+    // Layers (disabled for now) - batch DOM operations with DocumentFragment
     if (layers.length > 0) {
       layersSection.classList.add('has-results');
+      const fragment = document.createDocumentFragment();
       layers.slice(0, 10).forEach(layer => {
         const item = document.createElement('div');
         item.className = 'search-result-item disabled';
         // Safely extract text and highlight matches
         const cleanLabel = sanitizeAndExtractText(layer.attrs.label);
         item.innerHTML = highlightMatch(cleanLabel, query);
-        layersResults.appendChild(item);
+        fragment.appendChild(item);
       });
+      layersResults.appendChild(fragment); // Single DOM write
     } else {
       layersSection.classList.remove('has-results');
     }
@@ -1381,13 +1425,6 @@ async function init() {
     searchInputWrapper.classList.remove('has-value');
     closeSearchDropdown();
     searchInput.focus();
-  });
-
-  // Close dropdown on outside click
-  document.addEventListener('click', (e) => {
-    if (!e.target.closest('.search-container')) {
-      closeSearchDropdown();
-    }
   });
 
   // Close on escape
