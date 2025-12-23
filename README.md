@@ -34,14 +34,6 @@ It provides a harmonised dataset and structure that:
 * aligns schemas, identifiers, and attributes where possible
 * enables comparison, enrichment, and integration across datasets
 
-OpenBuildings is designed for:
-
-* public authorities and administrations
-* researchers and analysts
-* organisations working with planning, asset, or infrastructure data
-
-It acts as a **reference layer** that can be reused, extended, or integrated into existing workflows and systems.
-
 ---
 
 ## What It Is NOT
@@ -54,24 +46,6 @@ OpenBuildings is **not**:
 * a closed product or proprietary platform
 
 Instead, it **complements existing registers** by improving interoperability and practical reuse, while remaining open, transparent, and extensible.
-
----
-
-## Why It Exists
-
-While Switzerland has strong open-data initiatives, building data often remains difficult to reuse because:
-
-* datasets are published in different structures and formats
-* identifiers are inconsistent or missing
-* cross-dataset linking requires significant effort
-
-OpenBuildings focuses on **reducing this effort**. The project prioritises pragmatic alignment and usability over theoretical completeness.
-
-## What We Do With It
-
-OpenBuildings is used as a foundational dataset to complete and harmonise building information across Switzerland. It supports the alignment of internal real estate and asset databases with official national registers, enabling more consistent analysis, reporting, and data management.
-
-The same foundation can be reused by others for their own enrichment, analysis, or integration purposes.
 
 ---
 
