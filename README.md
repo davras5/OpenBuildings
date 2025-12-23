@@ -2,6 +2,9 @@
 
 **Swiss building data. Open by default. Open in practice.**
 
+> A harmonised, open foundation for Swiss building data, designed for public-sector reuse.
+
+
 ![image](/images/style/1.jpg)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
@@ -14,77 +17,78 @@
 
 ## Overview
 
-**Live demo:** [https://davras5.github.io/OpenBuildings/](https://davras5.github.io/OpenBuildings/)
+OpenBuildings is developed and maintained by the **Department for Digital Real Estate at the Federal Office of Buildings and Logistics (FOBL / BBL)**. While the project primarily supports internal federal needs, it is published openly to enable reuse, transparency, and collaboration beyond organisational boundaries.
 
-OpenBuildings is a **shared, open foundation for Swiss building data**.
+**Important:** The Federal Office does **not own the underlying data** and cannot guarantee its correctness. We aggregate, harmonise, and link data from official sources. The authoritative data owner for each dataset can be found in our tools and data documentation or at [https://opendata.swiss/de](https://opendata.swiss/de).
 
-It consolidates Switzerland’s most relevant public building datasets into a **consistent, reproducible reference layer** for:
+OpenBuildings brings together publicly available building data from multiple sources and aligns it into a single, consistent reference layer. The goal is not to replace existing registers, but to make building data **usable in practice** across organisational and system boundaries.
 
-* planning and scenario analysis
-* reporting and monitoring
-* portfolio and territorial comparisons
-* research and public-sector decision-making
-
-> Maintained and used by the Department for Digital Real Estate @[Federal Office for Buildings and Logistics](https://www.bbl.admin.ch/de), Switzerland
+Live demo: [https://davras5.github.io/OpenBuildings/](https://davras5.github.io/OpenBuildings/)
 
 ---
+
+## What It Is
+
+OpenBuildings is an **open building data foundation for Switzerland**.
+
+It provides a harmonised dataset and structure that:
+
+* combines building-related information from multiple public sources
+* aligns schemas, identifiers, and attributes where possible
+* enables comparison, enrichment, and integration across datasets
+
+OpenBuildings is designed for:
+
+* public authorities and administrations
+* researchers and analysts
+* organisations working with planning, asset, or infrastructure data
+
+It acts as a **reference layer** that can be reused, extended, or integrated into existing workflows and systems.
+
+---
+
+## What It Is NOT
+
+OpenBuildings is **not**:
+
+* an official or legally authoritative building register
+* a replacement for cantonal or municipal source systems
+* a single “source of truth” for regulatory or legal decisions
+* a closed product or proprietary platform
+
+Instead, it **complements existing registers** by improving interoperability and practical reuse, while remaining open, transparent, and extensible.
+
+---
+
+## Why It Exists
+
+While Switzerland has strong open-data initiatives, building data often remains difficult to reuse because:
+
+* datasets are published in different structures and formats
+* identifiers are inconsistent or missing
+* cross-dataset linking requires significant effort
+
+OpenBuildings focuses on **reducing this effort**. The project prioritises pragmatic alignment and usability over theoretical completeness.
 
 ## What We Do With It
 
-We use OpenBuildings as a base to update missing data and harmonize our internal database about the Swiss federal real estate portfolio with national registers.
+OpenBuildings is used as a foundational dataset to complete and harmonise building information across Switzerland. It supports the alignment of internal real estate and asset databases with official national registers, enabling more consistent analysis, reporting, and data management.
 
-We decided to cover the whole of Switzerland because the workflow is the same and the amount of data doesn't make that much of a difference.
-
-**Important:** The data is based on open source data sources. We do our best to validate and improve it, but it is what it is. We are not the data owner and cannot guarantee correctness.
+The same foundation can be reused by others for their own enrichment, analysis, or integration purposes.
 
 ---
 
-## Why It Matters
+## Data Sources & Openness
 
-Buildings account for **~40% of Switzerland’s CO₂ emissions**.
-Every credible path to net zero runs through the building stock.
+OpenBuildings is built entirely on **publicly available data** from authoritative sources. All original licensing conditions are respected and documented.
 
-Yet today:
+Key principles:
 
-* Data is fragmented across sources and levels
-* Methods are reimplemented again and again
-* Results remain siloed, undocumented, and short-lived
+* no proprietary source data
+* transparent provenance
+* reproducible processing
 
-You cannot decarbonize what you cannot measure.
-And you cannot coordinate what you cannot compare.
-
-**A shared foundation changes that:**
-
-* One reference layer, used by many actors
-* Comparable results across communes, cantons, and portfolios
-* Transparent methods instead of black boxes
-
-Public data. Public methods. Public value — multiplied.
-
----
-
-## What You Can Do With It
-
-### Explore
-
-* Interactive **2D / 3D web map**
-* Address search via Swisstopo
-* Building- and parcel-level attributes
-* Multiple basemaps and terrain views
-
-![image](/images/Preview1.jpg)
-
-### Analyze
-
-* Calculate building volumes and roof characteristics
-* Enrich footprints with height, area, and energy-relevant metrics
-* Reproduce results across territories
-
-### Build On Top
-
-* Use the database and API as a reference layer
-* Extend processing tools for new indicators
-* Integrate into reports, dashboards, or planning workflows
+The project follows an **open-by-default** approach to data, code, and documentation.
 
 ---
 
