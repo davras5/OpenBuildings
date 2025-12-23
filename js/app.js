@@ -7,6 +7,9 @@
 // CONFIGURATION
 // ============================================
 
+/** @type {boolean} Enable debug logging (set to false in production) */
+const DEBUG = false;
+
 /** @type {string} Supabase project URL */
 const SUPABASE_URL = 'https://awnypgafushbsvqlsjyg.supabase.co';
 
@@ -41,6 +44,28 @@ const MAP_CONFIG = {
   // Fit bounds padding
   boundsPadding: 40
 };
+
+/** @type {Object} UI timing constants */
+const UI_TIMING = {
+  clickDebounce: 100,        // Delay to prevent double-handling of clicks
+  searchDebounce: 300,       // Delay before triggering search API
+  toastDuration: 4000,       // How long toasts are displayed
+  toastFadeOut: 300          // Toast fade-out animation duration
+};
+
+// ============================================
+// Debug Logging Utilities
+// ============================================
+
+/** Log debug messages (only when DEBUG is true) */
+function debugLog(...args) {
+  if (DEBUG) console.log('[OpenBuildings]', ...args);
+}
+
+/** Log debug warnings (only when DEBUG is true) */
+function debugWarn(...args) {
+  if (DEBUG) console.warn('[OpenBuildings]', ...args);
+}
 
 // ============================================
 // Wait for DOM and scripts to load
@@ -102,7 +127,7 @@ async function init() {
   // ============================================
   const toastContainer = document.getElementById('toastContainer');
 
-  function showToast(message, type = 'error', duration = 4000) {
+  function showToast(message, type = 'error', duration = UI_TIMING.toastDuration) {
     const icons = {
       error: '<svg class="toast-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>',
       success: '<svg class="toast-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9 12l2 2 4-4"/></svg>',
@@ -124,7 +149,7 @@ async function init() {
     // Auto-remove after duration
     setTimeout(() => {
       toast.classList.remove('show');
-      setTimeout(() => toast.remove(), 300);
+      setTimeout(() => toast.remove(), UI_TIMING.toastFadeOut);
     }, duration);
   }
 
@@ -241,6 +266,54 @@ async function init() {
   };
 
   // ============================================
+  // Layer Event Handlers (named functions for cleanup)
+  // ============================================
+  // Storing handlers allows us to remove them when layers are re-added
+  const layerHandlers = {
+    parcels: {
+      mouseenter: () => { map.getCanvas().style.cursor = 'pointer'; },
+      mouseleave: () => { map.getCanvas().style.cursor = ''; }
+    },
+    landcover: {
+      mouseenter: () => { map.getCanvas().style.cursor = 'pointer'; },
+      mouseleave: () => { map.getCanvas().style.cursor = ''; }
+    },
+    buildings: {
+      click: (e) => {
+        state.markerClickHandled = true;
+        const props = e.features[0].properties;
+        const coords = e.features[0].geometry.coordinates;
+        selectBuilding(props.id, coords);
+        setTimeout(() => { state.markerClickHandled = false; }, UI_TIMING.clickDebounce);
+      },
+      mouseenter: () => { map.getCanvas().style.cursor = 'pointer'; },
+      mouseleave: () => { map.getCanvas().style.cursor = ''; }
+    }
+  };
+
+  /** Remove layer event handlers before re-adding layers */
+  function removeLayerHandlers(layerName, layerId) {
+    const handlers = layerHandlers[layerName];
+    if (!handlers) return;
+
+    Object.entries(handlers).forEach(([event, handler]) => {
+      map.off(event, layerId, handler);
+    });
+    debugLog(`Removed handlers for ${layerId}`);
+  }
+
+  /** Add layer event handlers */
+  function addLayerHandlers(layerName, layerId) {
+    const handlers = layerHandlers[layerName];
+    if (!handlers) return;
+
+    Object.entries(handlers).forEach(([event, handler]) => {
+      map.on(event, layerId, handler);
+    });
+    debugLog(`Added handlers for ${layerId}`);
+  }
+
+  // ============================================
   // Functions
   // ============================================
 
@@ -312,11 +385,11 @@ async function init() {
         return { type: 'Polygon', coordinates: rings };
       }
 
-      console.warn('Unsupported geometry type:', geomType);
+      debugWarn('Unsupported geometry type:', geomType);
       return null;
 
     } catch (err) {
-      console.error('WKB decode error:', err);
+      debugWarn('WKB decode error:', err);
       return null;
     }
   }
@@ -326,6 +399,9 @@ async function init() {
   function addParcelsLayer() {
     // Skip if source already exists
     if (map.getSource('parcels')) return;
+
+    // Remove any existing handlers (prevents memory leaks on style change)
+    removeLayerHandlers('parcels', 'parcels-fill');
 
     // Add vector tile source for parcels
     map.addSource('parcels', {
@@ -378,20 +454,16 @@ async function init() {
       }
     });
 
-    // Add hover effect
-    map.on('mouseenter', 'parcels-fill', () => {
-      map.getCanvas().style.cursor = 'pointer';
-    });
-
-    map.on('mouseleave', 'parcels-fill', () => {
-      map.getCanvas().style.cursor = '';
-    });
-
+    // Add hover effect (using named handlers for cleanup)
+    addLayerHandlers('parcels', 'parcels-fill');
   }
 
   function addLandcoverLayer() {
     // Skip if source already exists
     if (map.getSource('landcover')) return;
+
+    // Remove any existing handlers (prevents memory leaks on style change)
+    removeLayerHandlers('landcover', 'landcover-fill');
 
     // Add vector tile source for landcover
     map.addSource('landcover', {
@@ -444,15 +516,8 @@ async function init() {
       }
     });
 
-    // Add hover effect
-    map.on('mouseenter', 'landcover-fill', () => {
-      map.getCanvas().style.cursor = 'pointer';
-    });
-
-    map.on('mouseleave', 'landcover-fill', () => {
-      map.getCanvas().style.cursor = '';
-    });
-
+    // Add hover effect (using named handlers for cleanup)
+    addLayerHandlers('landcover', 'landcover-fill');
   }
 
   async function addSwitzerlandBorder() {
@@ -479,7 +544,7 @@ async function init() {
         }
       });
     } catch (err) {
-      console.error('Failed to load Switzerland border:', err);
+      debugWarn('Failed to load Switzerland border:', err);
       // Non-critical feature, no toast needed - border is decorative
     }
   }
@@ -487,6 +552,9 @@ async function init() {
   function addBuildingsLayer() {
     // Skip if source already exists
     if (map.getSource('buildings')) return;
+
+    // Remove any existing handlers (prevents memory leaks on style change)
+    removeLayerHandlers('buildings', 'unclustered-point');
 
     // Add vector tile source (streams data on-demand)
     map.addSource('buildings', {
@@ -553,23 +621,8 @@ async function init() {
       }
     });
 
-    // Click handler for buildings
-    map.on('click', 'unclustered-point', (e) => {
-      state.markerClickHandled = true;
-      const props = e.features[0].properties;
-      const coords = e.features[0].geometry.coordinates;
-      selectBuilding(props.id, coords);
-      setTimeout(() => { state.markerClickHandled = false; }, 100);
-    });
-
-    // Hover effects
-    map.on('mouseenter', 'unclustered-point', () => {
-      map.getCanvas().style.cursor = 'pointer';
-    });
-
-    map.on('mouseleave', 'unclustered-point', () => {
-      map.getCanvas().style.cursor = '';
-    });
+    // Add click and hover handlers (using named handlers for cleanup)
+    addLayerHandlers('buildings', 'unclustered-point');
   }
 
   function updateBuildingStyles() {
@@ -761,16 +814,34 @@ async function init() {
     }
   }
 
-  // Show building panel with details
-  function showBuildingPanel(building) {
-    // Title: name → egid → #id
-    const title = building.name || building.egid || `#${building.id}`;
+  // ============================================
+  // Panel Display (unified for all feature types)
+  // ============================================
+
+  /**
+   * Display the details panel with given content
+   * @param {Object} config - Panel configuration
+   * @param {string} config.title - Panel title
+   * @param {string} config.type - Feature type (Building, Parcel, Landcover)
+   * @param {Array<{label: string, value: string|number}>} config.metrics - Metrics to display
+   */
+  function showPanel({ title, type, metrics }) {
     panelBuildingName.textContent = title;
-    panelBuildingLocation.textContent = 'Building';
+    panelBuildingLocation.textContent = type;
 
+    panelMetrics.innerHTML = metrics.map(m => `
+      <div class="metric-row">
+        <span class="metric-label">${m.label}</span>
+        <span class="metric-value">${m.value}</span>
+      </div>
+    `).join('');
+
+    buildingPanel.classList.add('open');
+  }
+
+  /** Show building panel with details */
+  function showBuildingPanel(building) {
     const hasCoords = building.lat != null && building.lon != null;
-
-    // Build metrics HTML
     const metrics = [
       { label: 'EGID', value: building.egid || '–' }
     ];
@@ -779,105 +850,46 @@ async function init() {
       metrics.push({ label: 'Coordinates', value: `${building.lat.toFixed(5)}, ${building.lon.toFixed(5)}` });
     }
 
-    panelMetrics.innerHTML = metrics.map(m => `
-      <div class="metric-row">
-        <span class="metric-label">${m.label}</span>
-        <span class="metric-value">${m.value}</span>
-      </div>
-    `).join('');
-
-    buildingPanel.classList.add('open');
+    showPanel({
+      title: building.name || building.egid || `#${building.id}`,
+      type: 'Building',
+      metrics
+    });
   }
 
-  // Show parcel panel with details
+  /** Show parcel panel with details */
   function showParcelPanel(parcel) {
-    // Title: egrid → #id
-    const title = parcel.egrid || `#${parcel.id}`;
-    panelBuildingName.textContent = title;
-    panelBuildingLocation.textContent = 'Parcel';
-
-    // Build metrics HTML
     const metrics = [
       { label: 'E-GRID', value: parcel.egrid || '–' },
       { label: 'ID', value: parcel.id || '–' }
     ];
 
-    // Add building reference if exists
     if (parcel.building_id) {
       metrics.push({ label: 'Building ID', value: parcel.building_id });
     }
 
-    panelMetrics.innerHTML = metrics.map(m => `
-      <div class="metric-row">
-        <span class="metric-label">${m.label}</span>
-        <span class="metric-value">${m.value}</span>
-      </div>
-    `).join('');
-
-    buildingPanel.classList.add('open');
+    showPanel({
+      title: parcel.egrid || `#${parcel.id}`,
+      type: 'Parcel',
+      metrics
+    });
   }
 
-  // Format landcover type for display (e.g., 'road_path' → 'Road/Path')
-  function formatLandcoverType(type) {
-    if (!type) return 'Unknown';
-
-    const typeLabels = {
-      'building': 'Building',
-      'hardened_area': 'Hardened Area',
-      'greenhouse': 'Greenhouse',
-      'perennial_culture_shelter': 'Perennial Culture Shelter',
-      'reservoir': 'Reservoir',
-      'other_hardened': 'Other Hardened',
-      'railway': 'Railway',
-      'road_path': 'Road/Path',
-      'field_meadow_pasture': 'Field/Meadow/Pasture',
-      'vineyard': 'Vineyard',
-      'other_intensive_culture': 'Other Intensive Culture',
-      'garden': 'Garden',
-      'moor': 'Moor',
-      'other_humusised': 'Other Humusised',
-      'standing_water': 'Standing Water',
-      'flowing_water': 'Flowing Water',
-      'reed_belt': 'Reed Belt',
-      'closed_forest': 'Closed Forest',
-      'dense_wooded_pasture': 'Dense Wooded Pasture',
-      'open_wooded_pasture': 'Open Wooded Pasture',
-      'other_wooded': 'Other Wooded',
-      'rock': 'Rock',
-      'glacier_firn': 'Glacier/Firn',
-      'gravel_sand': 'Gravel/Sand',
-      'quarry_dump': 'Quarry/Dump',
-      'other_unvegetated': 'Other Unvegetated'
-    };
-
-    return typeLabels[type] || type.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
-  }
-
-  // Show landcover panel with details
+  /** Show landcover panel with details */
   function showLandcoverPanel(landcover) {
-    // Title: egid → #id
-    const title = landcover.egid || `#${landcover.id}`;
-    panelBuildingName.textContent = title;
-    panelBuildingLocation.textContent = 'Landcover';
-
-    // Build metrics HTML
     const metrics = [
       { label: 'ID', value: landcover.id || '–' }
     ];
 
-    // Add EGID if available
     if (landcover.egid) {
       metrics.push({ label: 'EGID', value: landcover.egid });
     }
 
-    panelMetrics.innerHTML = metrics.map(m => `
-      <div class="metric-row">
-        <span class="metric-label">${m.label}</span>
-        <span class="metric-value">${m.value}</span>
-      </div>
-    `).join('');
-
-    buildingPanel.classList.add('open');
+    showPanel({
+      title: landcover.egid || `#${landcover.id}`,
+      type: 'Landcover',
+      metrics
+    });
   }
 
   // Close panel
@@ -1120,7 +1132,7 @@ async function init() {
       map.setZoom(currentZoom - 0.01);
       requestAnimationFrame(() => map.setZoom(currentZoom));
     } catch (err) {
-      console.error('Failed to enable terrain:', err);
+      debugWarn('Failed to enable terrain:', err);
     }
 
     // Convert landcover (building footprints) to fill-extrusion for 3D view
@@ -1148,7 +1160,7 @@ async function init() {
           }
         }, beforeLayer);
       } catch (err) {
-        console.error('Failed to add landcover fill-extrusion:', err);
+        debugWarn('Failed to add landcover fill-extrusion:', err);
       }
     }
   }
@@ -1183,7 +1195,7 @@ async function init() {
           }
         }, beforeLayer);
       } catch (err) {
-        console.error('Failed to restore landcover fill:', err);
+        debugWarn('Failed to restore landcover fill:', err);
       }
     }
   }
@@ -1369,7 +1381,7 @@ async function init() {
   }
 
   // Input handlers
-  const debouncedSearch = debounce(searchSwisstopo, 300);
+  const debouncedSearch = debounce(searchSwisstopo, UI_TIMING.searchDebounce);
 
   searchInput.addEventListener('input', (e) => {
     const value = e.target.value.trim();

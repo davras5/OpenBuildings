@@ -66,6 +66,14 @@ html, body {
   --radius-sm: 4px;
   --radius-md: 6px;
   --radius-lg: 8px;
+
+  /* Layout dimensions */
+  --panel-width: 360px;
+  --search-bar-height: 48px;      /* Height of search input */
+  --panel-top-offset: 72px;       /* search-bar-height + space-lg = 48px + 24px */
+
+  /* Breakpoints (for reference, used in media queries) */
+  /* --bp-mobile: 640px; */
 }
 
 body {
@@ -85,7 +93,7 @@ body {
   top: var(--space-lg);
   left: var(--space-md);
   z-index: 25;
-  width: calc(360px - var(--space-md) * 2);
+  width: calc(var(--panel-width) - var(--space-md) * 2);
   max-width: calc(100% - var(--space-md) * 2);
 }
 
@@ -122,11 +130,12 @@ body {
   flex: 1;
   border: none;
   background: transparent;
-  padding: 0.75rem 0.5rem;
+  padding: var(--space-sm) var(--space-sm);
   font-size: 1rem;
   font-family: inherit;
   outline: none;
   color: var(--clr-text);
+  /* Combined with wrapper padding, achieves ~48px total height */
 }
 
 #searchInput::placeholder {
@@ -259,7 +268,7 @@ main {
   top: 0;
   left: 0;
   bottom: 0;
-  width: 360px;
+  width: var(--panel-width);
   max-width: 100%;
   background: var(--clr-surface);
   box-shadow: 4px 0 24px rgba(0,0,0,0.12);
@@ -269,8 +278,8 @@ main {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  /* Offset for search bar height + spacing */
-  padding-top: 72px;
+  /* Offset for search bar height + spacing (48px + 24px) */
+  padding-top: var(--panel-top-offset);
 }
 
 .building-panel.open {
