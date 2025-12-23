@@ -1920,7 +1920,7 @@
           map.setStyle(`https://api.protomaps.com/styles/v2/${styleKey}.json?key=${PROTOMAPS_KEY}`);
 
           // Re-add layers after new style loads
-          map.once('style.load', async () => {
+          map.once('load', async () => {
             // Re-add Switzerland border first
             await addSwitzerlandBorder();
 
