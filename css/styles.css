@@ -366,6 +366,7 @@ main {
 
 .metric-label {
   font-size: 0.875rem;
+   line-height: 1.4;
   color: var(--clr-text-muted);
 }
 
@@ -375,6 +376,7 @@ main {
 
 .metric-value {
   font-size: 0.875rem;
+   line-height: 1.4;
   color: var(--clr-text);
 }
 
