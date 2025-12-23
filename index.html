@@ -14,9 +14,6 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://vectortiles.geo.admin.ch">
 
-  <!-- Preload critical CSS (starts download immediately) -->
-  <link rel="preload" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" as="style">
-
   <!-- MapLibre GL CSS -->
   <link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet">
 
@@ -24,8 +21,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
   <!-- Scripts with defer - downloads in parallel, executes after HTML parsing -->
-  <script defer src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
-  <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script defer src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
   
   <style>
     * {
@@ -921,16 +918,28 @@
     const PROTOMAPS_KEY = '4d819871947c1005';
     const TILE_SERVER = `${SUPABASE_URL}/functions/v1/tiles`;
 
-    // Swisstopo basemap styles (free for Switzerland, no API key needed)
-    const SWISSTOPO_STYLES = {
-      light: 'https://vectortiles.geo.admin.ch/styles/ch.swisstopo.lightbasemap.vt/style.json',
-      standard: 'https://vectortiles.geo.admin.ch/styles/ch.swisstopo.basemap.vt/style.json',
-      satellite: 'https://vectortiles.geo.admin.ch/styles/ch.swisstopo.imagerybasemap.vt/style.json',
-      winter: 'https://vectortiles.geo.admin.ch/styles/ch.swisstopo.basemap-winter.vt/style.json'
-    };
-
     // Switzerland bounds for initial view
     const SWITZERLAND_BOUNDS = [5.9559, 45.818, 10.4921, 47.8084];
+
+    // Map view configuration
+    const MAP_CONFIG = {
+      // Zoom levels
+      defaultZoom: 7,
+      detailZoom: 14,
+      searchZoom: 17,
+
+      // Animation durations (ms)
+      quickDuration: 300,
+      standardDuration: 1000,
+      flyDuration: 1500,
+
+      // 3D settings
+      pitch3D: 60,
+      terrainExaggeration: 1.5,
+
+      // Fit bounds padding
+      boundsPadding: 40
+    };
     
     // ============================================
     // Wait for DOM and scripts to load
@@ -980,16 +989,16 @@
         container: 'map',
         style: `https://api.protomaps.com/styles/v2/white.json?key=${PROTOMAPS_KEY}`,
         center: [8.2275, 46.8182], // Switzerland center
-        zoom: 7,
+        zoom: MAP_CONFIG.defaultZoom,
         maxBounds: [[5.5, 45.5], [11.0, 48.0]] // Restrict to Switzerland region
       });
-      
+
       // Custom zoom controls
       document.getElementById('zoomInBtn').addEventListener('click', () => {
-        map.zoomIn({ duration: 300 });
+        map.zoomIn({ duration: MAP_CONFIG.quickDuration });
       });
       document.getElementById('zoomOutBtn').addEventListener('click', () => {
-        map.zoomOut({ duration: 300 });
+        map.zoomOut({ duration: MAP_CONFIG.quickDuration });
       });
 
       // Add scale control to custom footer container
@@ -1055,21 +1064,23 @@
         params.set('lon', center.lng.toFixed(5));
         params.set('lat', center.lat.toFixed(5));
 
-        if (selectedBuilding) params.set('building', selectedBuilding);
-        if (selectedParcel) params.set('parcel', selectedParcel);
-        if (selectedLandcover) params.set('landcover', selectedLandcover);
-        if (is3DMode) params.set('3d', 'true');
+        if (state.selectedBuilding) params.set('building', state.selectedBuilding);
+        if (state.selectedParcel) params.set('parcel', state.selectedParcel);
+        if (state.selectedLandcover) params.set('landcover', state.selectedLandcover);
+        if (state.is3DMode) params.set('3d', 'true');
 
         window.history.replaceState({}, '', `?${params.toString()}`);
       }
       
-      // Selection state
-      let selectedBuilding = null;
-      let selectedParcel = null;
-      let selectedLandcover = null;
-      let markerClickHandled = false;
-      let is3DMode = false;
-      let searchMarker = null;
+      // Application state
+      const state = {
+        selectedBuilding: null,
+        selectedParcel: null,
+        selectedLandcover: null,
+        markerClickHandled: false,
+        is3DMode: false,
+        searchMarker: null
+      };
       
       // ============================================
       // Functions
@@ -1177,12 +1188,12 @@
           paint: {
             'fill-color': [
               'case',
-              ['==', ['get', 'id'], selectedParcel || -1], '#059669', // Green when selected
+              ['==', ['get', 'id'], state.selectedParcel || -1], '#059669', // Green when selected
               '#1e3a5f' // Deep Blue default
             ],
             'fill-opacity': [
               'case',
-              ['==', ['get', 'id'], selectedParcel || -1], 0.3,
+              ['==', ['get', 'id'], state.selectedParcel || -1], 0.3,
               0.1
             ]
           }
@@ -1198,12 +1209,12 @@
           paint: {
             'line-color': [
               'case',
-              ['==', ['get', 'id'], selectedParcel || -1], '#059669',
+              ['==', ['get', 'id'], state.selectedParcel || -1], '#059669',
               '#1e3a5f'
             ],
             'line-width': [
               'case',
-              ['==', ['get', 'id'], selectedParcel || -1], 3,
+              ['==', ['get', 'id'], state.selectedParcel || -1], 3,
               1.5
             ]
           }
@@ -1243,12 +1254,12 @@
           paint: {
             'fill-color': [
               'case',
-              ['==', ['get', 'id'], selectedLandcover || -1], '#059669', // Green when selected
+              ['==', ['get', 'id'], state.selectedLandcover || -1], '#059669', // Green when selected
               '#8b5cf6' // Purple default for landcover
             ],
             'fill-opacity': [
               'case',
-              ['==', ['get', 'id'], selectedLandcover || -1], 0.4,
+              ['==', ['get', 'id'], state.selectedLandcover || -1], 0.4,
               0.2
             ]
           }
@@ -1264,12 +1275,12 @@
           paint: {
             'line-color': [
               'case',
-              ['==', ['get', 'id'], selectedLandcover || -1], '#059669',
+              ['==', ['get', 'id'], state.selectedLandcover || -1], '#059669',
               '#7c3aed' // Darker purple for outline
             ],
             'line-width': [
               'case',
-              ['==', ['get', 'id'], selectedLandcover || -1], 3,
+              ['==', ['get', 'id'], state.selectedLandcover || -1], 3,
               1.5
             ]
           }
@@ -1363,21 +1374,21 @@
             'circle-radius': [
               'interpolate', ['linear'], ['zoom'],
               10, 2,
-              14, ['case', ['==', ['get', 'id'], selectedBuilding || -1], 10, 7]
+              14, ['case', ['==', ['get', 'id'], state.selectedBuilding || -1], 10, 7]
             ],
             'circle-color': [
               'case',
-              ['==', ['get', 'id'], selectedBuilding || -1], '#059669', // Leaf green when selected
+              ['==', ['get', 'id'], state.selectedBuilding || -1], '#059669', // Leaf green when selected
               '#64748b' // Slate-500 default
             ],
             'circle-stroke-width': [
               'interpolate', ['linear'], ['zoom'],
               10, 0,
-              12, ['case', ['==', ['get', 'id'], selectedBuilding || -1], 3, 2]
+              12, ['case', ['==', ['get', 'id'], state.selectedBuilding || -1], 3, 2]
             ],
             'circle-stroke-color': [
               'case',
-              ['==', ['get', 'id'], selectedBuilding || -1], '#1e3a5f', // Deep Blue
+              ['==', ['get', 'id'], state.selectedBuilding || -1], '#1e3a5f', // Deep Blue
               'white'
             ],
             'circle-opacity': ['interpolate', ['linear'], ['zoom'], 10, 0.3, 12, 1]
@@ -1386,11 +1397,11 @@
 
         // Click handler for buildings
         map.on('click', 'unclustered-point', (e) => {
-          markerClickHandled = true;
+          state.markerClickHandled = true;
           const props = e.features[0].properties;
           const coords = e.features[0].geometry.coordinates;
           selectBuilding(props.id, coords);
-          setTimeout(() => { markerClickHandled = false; }, 100);
+          setTimeout(() => { state.markerClickHandled = false; }, 100);
         });
 
         // Hover effects
@@ -1408,30 +1419,30 @@
 
         map.setPaintProperty('unclustered-point', 'circle-radius', [
           'case',
-          ['==', ['get', 'id'], selectedBuilding || -1], 10,
+          ['==', ['get', 'id'], state.selectedBuilding || -1], 10,
           7
         ]);
         map.setPaintProperty('unclustered-point', 'circle-color', [
           'case',
-          ['==', ['get', 'id'], selectedBuilding || -1], '#059669', // Leaf green when selected
+          ['==', ['get', 'id'], state.selectedBuilding || -1], '#059669', // Leaf green when selected
           '#64748b' // Slate-500 default
         ]);
         map.setPaintProperty('unclustered-point', 'circle-stroke-width', [
           'case',
-          ['==', ['get', 'id'], selectedBuilding || -1], 3,
+          ['==', ['get', 'id'], state.selectedBuilding || -1], 3,
           2
         ]);
         map.setPaintProperty('unclustered-point', 'circle-stroke-color', [
           'case',
-          ['==', ['get', 'id'], selectedBuilding || -1], '#1e3a5f', // Deep Blue
+          ['==', ['get', 'id'], state.selectedBuilding || -1], '#1e3a5f', // Deep Blue
           'white'
         ]);
       }
       
       async function selectBuilding(id, coords = null) {
-        selectedBuilding = id;
-        selectedParcel = null;
-        selectedLandcover = null;
+        state.selectedBuilding = id;
+        state.selectedParcel = null;
+        state.selectedLandcover = null;
         updateUrlParams();
         // For buildings, pass coords directly since showSelectedPanel doesn't have them
         updateBuildingStyles();
@@ -1441,17 +1452,17 @@
       }
 
       async function selectParcel(id) {
-        selectedParcel = id;
-        selectedBuilding = null;
-        selectedLandcover = null;
+        state.selectedParcel = id;
+        state.selectedBuilding = null;
+        state.selectedLandcover = null;
         updateUrlParams();
         await showSelectedPanel();
       }
 
       async function selectLandcover(id) {
-        selectedLandcover = id;
-        selectedBuilding = null;
-        selectedParcel = null;
+        state.selectedLandcover = id;
+        state.selectedBuilding = null;
+        state.selectedParcel = null;
         updateUrlParams();
         await showSelectedPanel();
       }
@@ -1462,12 +1473,12 @@
         updateParcelStyles();
         updateLandcoverStyles();
 
-        if (selectedBuilding) {
-          await fetchAndShowBuilding(selectedBuilding);
-        } else if (selectedLandcover) {
-          await fetchAndShowLandcover(selectedLandcover);
-        } else if (selectedParcel) {
-          await fetchAndShowParcel(selectedParcel);
+        if (state.selectedBuilding) {
+          await fetchAndShowBuilding(state.selectedBuilding);
+        } else if (state.selectedLandcover) {
+          await fetchAndShowLandcover(state.selectedLandcover);
+        } else if (state.selectedParcel) {
+          await fetchAndShowParcel(state.selectedParcel);
         }
       }
 
@@ -1552,15 +1563,15 @@
       function updateParcelStyles() {
         if (!map.getLayer('parcels-fill')) return;
 
-        if (selectedParcel) {
+        if (state.selectedParcel) {
           map.setPaintProperty('parcels-fill', 'fill-opacity', [
             'case',
-            ['==', ['get', 'id'], selectedParcel], 0.25,
+            ['==', ['get', 'id'], state.selectedParcel], 0.25,
             0.1
           ]);
           map.setPaintProperty('parcels-outline', 'line-width', [
             'case',
-            ['==', ['get', 'id'], selectedParcel], 3,
+            ['==', ['get', 'id'], state.selectedParcel], 3,
             1.5
           ]);
         } else {
@@ -1573,21 +1584,21 @@
         if (!map.getLayer('landcover-fill')) return;
 
         // Use appropriate property based on layer type
-        const opacityProp = is3DMode ? 'fill-extrusion-opacity' : 'fill-opacity';
+        const opacityProp = state.is3DMode ? 'fill-extrusion-opacity' : 'fill-opacity';
 
-        if (selectedLandcover) {
+        if (state.selectedLandcover) {
           map.setPaintProperty('landcover-fill', opacityProp, [
             'case',
-            ['==', ['get', 'id'], selectedLandcover], is3DMode ? 0.6 : 0.4,
-            is3DMode ? 0.4 : 0.2
+            ['==', ['get', 'id'], state.selectedLandcover], state.is3DMode ? 0.6 : 0.4,
+            state.is3DMode ? 0.4 : 0.2
           ]);
           map.setPaintProperty('landcover-outline', 'line-width', [
             'case',
-            ['==', ['get', 'id'], selectedLandcover], 3,
+            ['==', ['get', 'id'], state.selectedLandcover], 3,
             1.5
           ]);
         } else {
-          map.setPaintProperty('landcover-fill', opacityProp, is3DMode ? 0.4 : 0.2);
+          map.setPaintProperty('landcover-fill', opacityProp, state.is3DMode ? 0.4 : 0.2);
           map.setPaintProperty('landcover-outline', 'line-width', 1.5);
         }
       }
@@ -1714,9 +1725,9 @@
       // Close panel
       function closeBuildingPanel() {
         buildingPanel.classList.remove('open');
-        selectedBuilding = null;
-        selectedParcel = null;
-        selectedLandcover = null;
+        state.selectedBuilding = null;
+        state.selectedParcel = null;
+        state.selectedLandcover = null;
         updateBuildingStyles();
         updateParcelStyles();
         updateLandcoverStyles();
@@ -1743,8 +1754,8 @@
 
               map.flyTo({
                 center: [lon, lat],
-                zoom: 14,
-                duration: 1500
+                zoom: MAP_CONFIG.detailZoom,
+                duration: MAP_CONFIG.flyDuration
               });
 
               showBuildingPanel({
@@ -1764,8 +1775,8 @@
 
       function goHome() {
         map.fitBounds(SWITZERLAND_BOUNDS, {
-          padding: 40,
-          duration: 1000
+          padding: MAP_CONFIG.boundsPadding,
+          duration: MAP_CONFIG.standardDuration
         });
       }
       
@@ -1775,10 +1786,10 @@
       const urlParams = getUrlParams();
       
       // Apply URL params for initial selection
-      if (urlParams.building) selectedBuilding = urlParams.building;
-      if (urlParams.parcel) selectedParcel = urlParams.parcel;
-      if (urlParams.landcover) selectedLandcover = urlParams.landcover;
-      if (urlParams.is3D) is3DMode = true;
+      if (urlParams.building) state.selectedBuilding = urlParams.building;
+      if (urlParams.parcel) state.selectedParcel = urlParams.parcel;
+      if (urlParams.landcover) state.selectedLandcover = urlParams.landcover;
+      if (urlParams.is3D) state.is3DMode = true;
 
       // Set initial view from URL if provided
       if (urlParams.zoom && urlParams.lon && urlParams.lat) {
@@ -1796,7 +1807,7 @@
           `;
           el.style.cssText = 'cursor: pointer; transform: translate(-50%, -100%);';
 
-          searchMarker = new maplibregl.Marker({ element: el })
+          state.searchMarker = new maplibregl.Marker({ element: el })
             .setLngLat([urlParams.lon, urlParams.lat])
             .addTo(map);
         }
@@ -1813,10 +1824,10 @@
         addBuildingsLayer();
 
         // Unified click handler for parcels and landcover (respects layer hierarchy)
-        // Buildings have their own handler with markerClickHandled flag
+        // Buildings have their own handler with state.markerClickHandled flag
         map.on('click', (e) => {
           // Skip if a building marker was clicked (handled by building layer)
-          if (markerClickHandled) return;
+          if (state.markerClickHandled) return;
 
           // Query features at click point - check in priority order (top to bottom)
           const landcoverFeatures = map.queryRenderedFeatures(e.point, { layers: ['landcover-fill'] });
@@ -1832,16 +1843,16 @@
 
         // If no URL params, fit to Switzerland
         if (!urlParams.zoom) {
-          map.fitBounds(SWITZERLAND_BOUNDS, { padding: 40, duration: 1000 });
+          map.fitBounds(SWITZERLAND_BOUNDS, { padding: MAP_CONFIG.boundsPadding, duration: MAP_CONFIG.standardDuration });
         }
 
         // Show panel for selected item from URL params
         await showSelectedPanel();
 
         // Apply 3D mode from URL params
-        if (is3DMode) {
+        if (state.is3DMode) {
           setup3DTerrain();
-          map.setPitch(60);
+          map.setPitch(MAP_CONFIG.pitch3D);
           toggle3DButton.textContent = '2D';
         }
 
@@ -1862,7 +1873,7 @@
       const compassSvg = compassBtn.querySelector('svg');
 
       compassBtn.addEventListener('click', () => {
-        map.easeTo({ bearing: 0, pitch: 0, duration: 500 });
+        map.easeTo({ bearing: 0, pitch: 0, duration: MAP_CONFIG.standardDuration });
       });
 
       // Rotate compass with map bearing
@@ -1922,7 +1933,7 @@
             // Note: General click handler persists across style changes, no need to re-add
 
             // Re-apply 3D mode if active
-            if (is3DMode) {
+            if (state.is3DMode) {
               setup3DTerrain();
             }
           });
@@ -1951,7 +1962,7 @@
 
         // Enable terrain
         try {
-          map.setTerrain({ source: 'terrain-dem', exaggeration: 1.5 });
+          map.setTerrain({ source: 'terrain-dem', exaggeration: MAP_CONFIG.terrainExaggeration });
           console.log('Terrain enabled');
 
           // Force terrain tiles to reload at correct LOD by triggering a tiny zoom adjustment
@@ -1979,7 +1990,7 @@
               paint: {
                 'fill-extrusion-color': [
                   'case',
-                  ['==', ['get', 'id'], selectedLandcover || -1], '#059669',
+                  ['==', ['get', 'id'], state.selectedLandcover || -1], '#059669',
                   '#8b5cf6'
                 ],
                 'fill-extrusion-height': 10,
@@ -2018,12 +2029,12 @@
               paint: {
                 'fill-color': [
                   'case',
-                  ['==', ['get', 'id'], selectedLandcover || -1], '#059669',
+                  ['==', ['get', 'id'], state.selectedLandcover || -1], '#059669',
                   '#8b5cf6'
                 ],
                 'fill-opacity': [
                   'case',
-                  ['==', ['get', 'id'], selectedLandcover || -1], 0.4,
+                  ['==', ['get', 'id'], state.selectedLandcover || -1], 0.4,
                   0.2
                 ]
               }
@@ -2035,17 +2046,17 @@
       }
 
       function toggle3D() {
-        is3DMode = !is3DMode;
+        state.is3DMode = !state.is3DMode;
 
-        if (is3DMode) {
+        if (state.is3DMode) {
           setup3DTerrain();
           // Pitch camera for 3D perspective
-          map.easeTo({ pitch: 60, duration: 1000 });
+          map.easeTo({ pitch: MAP_CONFIG.pitch3D, duration: MAP_CONFIG.standardDuration });
           toggle3DButton.textContent = '2D';
         } else {
           remove3DTerrain();
           // Reset camera to flat view
-          map.easeTo({ pitch: 0, duration: 1000 });
+          map.easeTo({ pitch: 0, duration: MAP_CONFIG.standardDuration });
           toggle3DButton.textContent = '3D';
         }
 
@@ -2182,10 +2193,10 @@
         const lat = loc.attrs.y;
         
         // Remove existing search marker
-        if (searchMarker) {
-          searchMarker.remove();
+        if (state.searchMarker) {
+          state.searchMarker.remove();
         }
-        
+
         // Create new search marker (different style from building markers)
         const el = document.createElement('div');
         el.innerHTML = `
@@ -2195,16 +2206,16 @@
           </svg>
         `;
         el.style.cssText = 'cursor: pointer; transform: translate(-50%, -100%);';
-        
-        searchMarker = new maplibregl.Marker({ element: el })
+
+        state.searchMarker = new maplibregl.Marker({ element: el })
           .setLngLat([lon, lat])
           .addTo(map);
         
         // Fly to location
         map.flyTo({
           center: [lon, lat],
-          zoom: 17,
-          duration: 1500
+          zoom: MAP_CONFIG.searchZoom,
+          duration: MAP_CONFIG.flyDuration
         });
         
         closeSearchDropdown();
