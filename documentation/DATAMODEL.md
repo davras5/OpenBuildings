@@ -192,7 +192,6 @@ Land parcels from cadastral survey.
 |--------|------------|------------|------|-------------|--------|-------------|
 | `id` | ID | ID | `bigint` | `PRIMARY KEY, GENERATED ALWAYS AS IDENTITY` | System | System ID |
 | `egrid` | Parcel ID | Grundstückidentifikator | `text` | `UNIQUE, CHECK (egrid ~ '^CH[0-9]{12}$')` | AV | E-GRID identifier |
-| `egid` | Building ID | Gebäudeidentifikator | `text` | `CHECK (egid ~ '^[0-9]{1,9}$')` | GWR | Eidgenössischer Gebäudeidentifikator (EGID) - for parcels representing building footprints |
 | `label` | Label | Bezeichnung | `text` | | Derived | Display label for frontend |
 | `parcel_number` | Parcel Number | Parzellennummer | `text` | | AV | Local parcel number (Grundstücksnummer) |
 | `source_fid` | Source Feature ID | Quell-Feature-ID | `text` | | AV | Feature ID from source system |
@@ -240,7 +239,7 @@ Land parcels from cadastral survey.
 
 ### 3. landcovers
 
-Landcover polygons from cadastral survey.
+Landcover polygons from cadastral survey. Landcovers can represent building footprints (Type = Building / Gebäude).
 
 #### System
 
