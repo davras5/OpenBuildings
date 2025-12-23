@@ -745,6 +745,13 @@ curl "https://api3.geo.admin.ch/rest/services/api/SearchServer?searchText=bundes
 -- Swiss Geodata Platform - Database Schema
 -- PostGIS on Supabase
 -- Version: 0.1.0 (Prototype)
+--
+-- Attribute Groups:
+-- 1. General (Allgemein)     - Identity, type, status, timeline
+-- 2. Location (Standort)     - Address, municipality, hierarchy
+-- 3. Dimensions (Dimensionen) - Area, volume, height, floors
+-- 4. Features (Eigenschaften) - Equipment, zoning, heritage
+-- 5. System                   - Metadata, IDs, source references
 
 -- =============================================================================
 -- DROP EXISTING TABLES
@@ -762,21 +769,17 @@ DROP TABLE IF EXISTS public.parcels;
 -- =============================================================================
 
 CREATE TABLE public.parcels (
-  -- System
-  id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  -- 1. General / Allgemein
   label text,
-  egrid text,
-  parcel_number text,
-  source_fid text UNIQUE NOT NULL,
-  geog geography(POLYGON, 4326),
-  created_at timestamptz DEFAULT now(),
-  updated_at timestamptz DEFAULT now(),
-
-  -- Classification
   status text,
   type text,
+  parcel_number text,
 
-  -- Dimensions
+  -- 2. Location / Standort
+  municipality_name text,
+  municipality_nr integer,
+
+  -- 3. Dimensions / Dimensionen
   area_m2 numeric,
   area_polygon_m2 numeric,
   area_surface_m2 numeric,
@@ -786,13 +789,17 @@ CREATE TABLE public.parcels (
   area_uuf_m2 numeric,
   sealed_area_m2 numeric,
 
-  -- Admin
-  municipality_nr integer,
-  municipality_name text,
-
-  -- Zoning
+  -- 4. Features / Eigenschaften
   zone_main text,
-  zone_type text
+  zone_type text,
+
+  -- 5. System
+  id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  egrid text,
+  source_fid text UNIQUE NOT NULL,
+  created_at timestamptz DEFAULT now(),
+  updated_at timestamptz DEFAULT now(),
+  geog geography(POLYGON, 4326)
 );
 
 -- =============================================================================
@@ -801,36 +808,31 @@ CREATE TABLE public.parcels (
 -- =============================================================================
 
 CREATE TABLE public.buildings (
-  -- System
-  id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  -- 1. General / Allgemein
   label text,
-  egid text,
-  source_fid text UNIQUE NOT NULL,
-  parcel_id bigint REFERENCES public.parcels(id),
-  geog geography(POINT, 4326),
-  created_at timestamptz DEFAULT now(),
-  updated_at timestamptz DEFAULT now(),
-
-  -- Address
-  country text,
-  region text,
-  city text,
-  postal_code text,
-  street text,
-  street_nr text,
-
-  -- Classification
   status text,
   category text,
   class text,
   roof_form text,
-
-  -- Construction
   construction_year integer,
   renovation_year integer,
-  dwellings_count integer,
 
-  -- Area
+  -- 2. Location / Standort
+  street text,
+  street_nr text,
+  postal_code text,
+  city text,
+  municipality_name text,
+  municipality_nr integer,
+  country text,
+  region text,
+  parcel_id bigint REFERENCES public.parcels(id),
+
+  -- 3. Dimensions / Dimensionen
+  floors_total integer,
+  floors_above integer,
+  floors_below integer,
+  floors_accuracy text,
   area_footprint_m2 numeric,
   area_floor_total_m2 numeric,
   area_floor_above_ground_m2 numeric,
@@ -840,41 +842,32 @@ CREATE TABLE public.buildings (
   area_roof_m2 numeric,
   area_wall_m2 numeric,
   area_accuracy text,
-
-  -- Floors
-  floors_total integer,
-  floors_above integer,
-  floors_below integer,
-  floors_accuracy text,
-
-  -- Volume
   volume_total_m3 numeric,
   volume_above_ground_m3 numeric,
   volume_below_ground_m3 numeric,
   volume_accuracy text,
-
-  -- Height
   elevation_base_m numeric,
   height_mean_m numeric,
   height_max_m numeric,
 
-  -- Energy
+  -- 4. Features / Eigenschaften
+  dwellings_count integer,
   heating_type text,
   heating_source text,
   water_heating_type text,
   water_heating_source text,
-
-  -- Admin
-  municipality_nr integer,
-  municipality_name text,
-
-  -- Heritage
   heritage_category text,
   heritage_inventory_nr integer,
-
-  -- Zoning
   zone_main text,
-  zone_type text
+  zone_type text,
+
+  -- 5. System
+  id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  egid text,
+  source_fid text UNIQUE NOT NULL,
+  created_at timestamptz DEFAULT now(),
+  updated_at timestamptz DEFAULT now(),
+  geog geography(POINT, 4326)
 );
 
 -- =============================================================================
@@ -883,28 +876,31 @@ CREATE TABLE public.buildings (
 -- =============================================================================
 
 CREATE TABLE public.landcovers (
-  -- System
-  id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  -- 1. General / Allgemein
   label text,
-  egid text,
-  source_fid text UNIQUE NOT NULL,
-  geog geography(POLYGON, 4326),
-  created_at timestamptz DEFAULT now(),
-  updated_at timestamptz DEFAULT now(),
-
-  -- Classification
   status text,
   type text,
 
-  -- Dimensions
+  -- 2. Location / Standort
+  parcel_id bigint REFERENCES public.parcels(id),
+  building_id bigint REFERENCES public.buildings(id),
+
+  -- 3. Dimensions / Dimensionen
   area_m2 numeric,
   volume_total_m3 numeric,
   height_mean_m numeric,
   height_max_m numeric,
 
-  -- Relations
-  building_id bigint REFERENCES public.buildings(id),
-  parcel_id bigint REFERENCES public.parcels(id)
+  -- 4. Features / Eigenschaften
+  -- (Reserved for future material/usage properties)
+
+  -- 5. System
+  id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  egid text,
+  source_fid text UNIQUE NOT NULL,
+  created_at timestamptz DEFAULT now(),
+  updated_at timestamptz DEFAULT now(),
+  geog geography(POLYGON, 4326)
 );
 
 -- =============================================================================
@@ -913,32 +909,34 @@ CREATE TABLE public.landcovers (
 -- =============================================================================
 
 CREATE TABLE public.projects (
-  -- System
-  id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  -- 1. General / Allgemein
   label text,
-  eproid text,
-  source_fid text UNIQUE NOT NULL,
-  geog geography(POLYGON, 4326),
-  created_at timestamptz DEFAULT now(),
-  updated_at timestamptz DEFAULT now(),
-
-  -- Relations
-  building_id bigint REFERENCES public.buildings(id),
-  parcel_id bigint REFERENCES public.parcels(id),
-
-  -- Classification
   status text,
   project_type text,
   building_type text,
-
-  -- Timeline
   date_submitted date,
   date_approved date,
   date_started date,
   date_completed date,
 
-  -- Admin
-  municipality_nr integer
+  -- 2. Location / Standort
+  municipality_nr integer,
+  parcel_id bigint REFERENCES public.parcels(id),
+  building_id bigint REFERENCES public.buildings(id),
+
+  -- 3. Dimensions / Dimensionen
+  -- (Use computed geometry area)
+
+  -- 4. Features / Eigenschaften
+  -- (Reserved for future permit constraints)
+
+  -- 5. System
+  id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  eproid text,
+  source_fid text UNIQUE NOT NULL,
+  created_at timestamptz DEFAULT now(),
+  updated_at timestamptz DEFAULT now(),
+  geog geography(POLYGON, 4326)
 );
 
 ```
