@@ -780,7 +780,7 @@ async function init() {
     },
     parcel: {
       table: 'parcels',
-      select: 'id, label, egrid, type',
+      select: 'id, label, egrid, type, area_m2, area_polygon_m2',
       showPanel: showParcelPanel,
       errorMsg: 'Failed to load parcel details. Please try again.'
     },
@@ -930,6 +930,7 @@ async function init() {
   function showBuildingPanel(building) {
     const hasCoords = building.lat != null && building.lon != null;
     const metrics = [
+      { label: 'ID', value: building.id || '–' },
       { label: 'EGID', value: building.egid || '–' }
     ];
 
@@ -947,12 +948,20 @@ async function init() {
   /** Show parcel panel with details */
   function showParcelPanel(parcel) {
     const metrics = [
-      { label: 'E-GRID', value: parcel.egrid || '–' },
-      { label: 'ID', value: parcel.id || '–' }
+      { label: 'ID', value: parcel.id || '–' },
+      { label: 'E-GRID', value: parcel.egrid || '–' }
     ];
 
     if (parcel.type) {
       metrics.push({ label: 'Type', value: parcel.type });
+    }
+
+    if (parcel.area_m2 != null) {
+      metrics.push({ label: 'Fläche', value: `${parcel.area_m2.toLocaleString()} m²` });
+    }
+
+    if (parcel.area_polygon_m2 != null) {
+      metrics.push({ label: 'Polygonfläche', value: `${parcel.area_polygon_m2.toLocaleString()} m²` });
     }
 
     showPanel({
