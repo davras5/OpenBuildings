@@ -49,6 +49,7 @@ erDiagram
     landcovers {
         bigint id PK
         text source_fid UK
+        text egid
         text label
         geography geog
         bigint building_id FK
