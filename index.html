@@ -1104,6 +1104,10 @@
           // Skip if a marker was just clicked
           if (markerClickHandled) return;
 
+          // Check if there's a landcover feature at this point - if so, let landcover handler handle it
+          const landcoverFeatures = map.queryRenderedFeatures(e.point, { layers: ['landcover-fill'] });
+          if (landcoverFeatures.length > 0) return;
+
           const props = e.features[0].properties;
           selectParcel(props.id);
         });
