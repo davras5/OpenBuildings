@@ -1920,7 +1920,9 @@
           map.setStyle(`https://api.protomaps.com/styles/v2/${styleKey}.json?key=${PROTOMAPS_KEY}`);
 
           // Re-add layers after new style loads
-          map.once('load', async () => {
+          // Using 'idle' event instead of 'load' - more reliable in MapLibre GL v4
+          // The 'load' event can have timing issues if style is cached and loads quickly
+          map.once('idle', async () => {
             // Re-add Switzerland border first
             await addSwitzerlandBorder();
 
