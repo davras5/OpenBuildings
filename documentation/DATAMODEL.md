@@ -11,12 +11,14 @@
 
 ## Entity Relationship Overview
 
-| Entity | Primary Key | Secondary Key | Geometry | Description |
-|--------|-------------|---------------|----------|-------------|
-| `buildings` | `id` | `egid` | Point | Individual buildings linked to parcels, with attributes from GWR and volumes from elevation models |
-| `parcels` | `id` | `egrid` | Polygon | Land parcels from cadastral survey |
-| `landcovers` | `id` | | Polygon | Landcover polygons including building footprints |
-| `projects` | `id` | `eproid` | Polygon | Construction projects linked to buildings and parcels |
+| Entity | Primary Key | Unique Key | Geometry | Description |
+|--------|-------------|------------|----------|-------------|
+| `buildings` | `id` | `source_fid` | Point | Individual buildings linked to parcels, with attributes from GWR and volumes from elevation models |
+| `parcels` | `id` | `source_fid` | Polygon | Land parcels from cadastral survey |
+| `landcovers` | `id` | `source_fid` | Polygon | Landcover polygons including building footprints |
+| `projects` | `id` | `source_fid` | Polygon | Construction projects linked to buildings and parcels |
+
+> **Note on identifiers:** We use `source_fid` (feature ID from source system) as the unique key for upserts and data synchronization. The Swiss identifiers (`egid`, `egrid`, `eproid`) are often missing or not unique in source data, so they cannot be relied upon as unique keys.
 
 ```mermaid
 erDiagram
@@ -28,7 +30,8 @@ erDiagram
 
     buildings {
         bigint id PK
-        text egid UK
+        text source_fid UK
+        text egid
         text label
         geography geog
         bigint parcel_id FK
@@ -36,7 +39,8 @@ erDiagram
 
     parcels {
         bigint id PK
-        text egrid UK
+        text source_fid UK
+        text egrid
         text label
         text parcel_number
         geography geog
@@ -44,7 +48,7 @@ erDiagram
 
     landcovers {
         bigint id PK
-        text egid UK
+        text source_fid UK
         text label
         geography geog
         bigint building_id FK
@@ -53,7 +57,8 @@ erDiagram
 
     projects {
         bigint id PK
-        text eproid UK
+        text source_fid UK
+        text eproid
         text label
         geography geog
         bigint building_id FK
@@ -74,9 +79,9 @@ Primary entity representing individual buildings.
 | Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
 |--------|------------|------------|------|-------------|--------|-------------|
 | `id` | ID | ID | `bigint` | `PRIMARY KEY, GENERATED ALWAYS AS IDENTITY` | System | System ID |
-| `egid` | Building ID | Gebäudeidentifikator | `text` | `UNIQUE, CHECK (egid ~ '^[0-9]{1,9}$')` | GWR | Eidgenössischer Gebäudeidentifikator (EGID) |
+| `egid` | Building ID | Gebäudeidentifikator | `text` | `CHECK (egid ~ '^[0-9]{1,9}$')` | GWR | Eidgenössischer Gebäudeidentifikator (EGID). Often missing in source data. |
 | `label` | Label | Bezeichnung | `text` | | Derived | Display label for frontend |
-| `source_fid` | Source Feature ID | Quell-Feature-ID | `text` | | Various | Feature ID from source system (for traceability) |
+| `source_fid` | Source Feature ID | Quell-Feature-ID | `text` | `UNIQUE, NOT NULL` | Various | Feature ID from source system. Used for upserts and data synchronization. |
 | `parcel_id` | Parcel | Grundstück | `bigint` | `REFERENCES parcels(id)` | Derived | Containing parcel |
 | `geog` | Location | Standort | `geography(POINT, 4326)` | `NOT NULL` | GWR | Building centroid |
 | `created_at` | Created | Erstellt | `timestamptz` | `NOT NULL DEFAULT NOW()` | System | Record creation timestamp |
@@ -191,10 +196,10 @@ Land parcels from cadastral survey.
 | Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
 |--------|------------|------------|------|-------------|--------|-------------|
 | `id` | ID | ID | `bigint` | `PRIMARY KEY, GENERATED ALWAYS AS IDENTITY` | System | System ID |
-| `egrid` | Parcel ID | Grundstückidentifikator | `text` | `UNIQUE, CHECK (egrid ~ '^CH[0-9]{12}$')` | AV | E-GRID identifier |
+| `egrid` | Parcel ID | Grundstückidentifikator | `text` | `CHECK (egrid ~ '^CH[0-9]{12}$')` | AV | E-GRID identifier. Often missing in source data. |
 | `label` | Label | Bezeichnung | `text` | | Derived | Display label for frontend |
 | `parcel_number` | Parcel Number | Parzellennummer | `text` | | AV | Local parcel number (Grundstücksnummer) |
-| `source_fid` | Source Feature ID | Quell-Feature-ID | `text` | | AV | Feature ID from source system |
+| `source_fid` | Source Feature ID | Quell-Feature-ID | `text` | `UNIQUE, NOT NULL` | AV | Feature ID from source system. Used for upserts and data synchronization. |
 | `geog` | Geometry | Geometrie | `geography(POLYGON, 4326)` | `NOT NULL` | AV | Parcel boundary |
 | `created_at` | Created | Erstellt | `timestamptz` | `NOT NULL DEFAULT NOW()` | System | Record creation timestamp |
 | `updated_at` | Updated | Aktualisiert | `timestamptz` | `NOT NULL DEFAULT NOW()` | System | Record last update timestamp |
@@ -247,7 +252,7 @@ Landcover polygons from cadastral survey. Landcovers can represent building foot
 |--------|------------|------------|------|-------------|--------|-------------|
 | `id` | ID | ID | `bigint` | `PRIMARY KEY, GENERATED ALWAYS AS IDENTITY` | System | System ID |
 | `label` | Label | Bezeichnung | `text` | | Derived | Display label for frontend |
-| `source_fid` | Source Feature ID | Quell-Feature-ID | `text` | | AV | Feature ID from source system |
+| `source_fid` | Source Feature ID | Quell-Feature-ID | `text` | `UNIQUE, NOT NULL` | AV | Feature ID from source system. Used for upserts and data synchronization. |
 | `geog` | Geometry | Geometrie | `geography(POLYGON, 4326)` | `NOT NULL` | AV | Landcover polygon |
 | `created_at` | Created | Erstellt | `timestamptz` | `NOT NULL DEFAULT NOW()` | System | Record creation timestamp |
 | `updated_at` | Updated | Aktualisiert | `timestamptz` | `NOT NULL DEFAULT NOW()` | System | Record last update timestamp |
@@ -286,9 +291,9 @@ Construction projects from GWR.
 | Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
 |--------|------------|------------|------|-------------|--------|-------------|
 | `id` | ID | ID | `bigint` | `PRIMARY KEY, GENERATED ALWAYS AS IDENTITY` | System | System ID |
-| `eproid` | Project ID | Bauprojektidentifikator | `text` | `UNIQUE, CHECK (eproid ~ '^[0-9]{1,15}$')` | GWR | EPROID identifier |
+| `eproid` | Project ID | Bauprojektidentifikator | `text` | `CHECK (eproid ~ '^[0-9]{1,15}$')` | GWR | EPROID identifier. Often missing in source data. |
 | `label` | Label | Bezeichnung | `text` | | Derived | Display label for frontend |
-| `source_fid` | Source Feature ID | Quell-Feature-ID | `text` | | GWR | Feature ID from source system |
+| `source_fid` | Source Feature ID | Quell-Feature-ID | `text` | `UNIQUE, NOT NULL` | GWR | Feature ID from source system. Used for upserts and data synchronization. |
 | `geog` | Geometry | Geometrie | `geography(POLYGON, 4326)` | | GWR | Project perimeter |
 | `created_at` | Created | Erstellt | `timestamptz` | `NOT NULL DEFAULT NOW()` | System | Record creation timestamp |
 | `updated_at` | Updated | Aktualisiert | `timestamptz` | `NOT NULL DEFAULT NOW()` | System | Record last update timestamp |
@@ -759,7 +764,7 @@ CREATE TABLE public.parcels (
   label text,
   egrid text,
   parcel_number text,
-  source_fid text,
+  source_fid text UNIQUE NOT NULL,
   geog geography(POLYGON, 4326),
   created_at timestamptz DEFAULT now(),
   updated_at timestamptz DEFAULT now(),
@@ -797,7 +802,7 @@ CREATE TABLE public.buildings (
   id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
   label text,
   egid text,
-  source_fid text,
+  source_fid text UNIQUE NOT NULL,
   parcel_id bigint REFERENCES public.parcels(id),
   geog geography(POINT, 4326),
   created_at timestamptz DEFAULT now(),
@@ -879,7 +884,7 @@ CREATE TABLE public.landcovers (
   id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
   label text,
   egid text,
-  source_fid text,
+  source_fid text UNIQUE NOT NULL,
   geog geography(POLYGON, 4326),
   created_at timestamptz DEFAULT now(),
   updated_at timestamptz DEFAULT now(),
@@ -909,7 +914,7 @@ CREATE TABLE public.projects (
   id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
   label text,
   eproid text,
-  source_fid text,
+  source_fid text UNIQUE NOT NULL,
   geog geography(POLYGON, 4326),
   created_at timestamptz DEFAULT now(),
   updated_at timestamptz DEFAULT now(),
