@@ -652,9 +652,9 @@ BFS municipality register.
 
 ---
 
-# Key Documentation
+## Key Documentation
 
-## Primary Standards
+### Primary Standards
 
 | Document | URL | Referenced in Schema |
 |----------|-----|---------------------|
@@ -666,7 +666,7 @@ BFS municipality register.
 | Weisung AV-GWR Gebäudeerfassung | https://www.housing-stat.ch/files/1754-2300.pdf | Building-GWR linkage rules |
 | Cadastre Manual | https://www.cadastre-manual.admin.ch | AV weisungen, model documentation |
 
-## Swiss Norms (SIA / CRB)
+### Swiss Norms (SIA / CRB)
 
 | Document | URL | Referenced in Schema |
 |----------|-----|---------------------|
@@ -675,7 +675,7 @@ BFS municipality register.
 | eBKP-H / SN 506 511 | https://www.crb.ch/normen-standards/baukostenplane/baukostenplan-hochbau-ebkp-h | DAF, AWF (buildings.area_roof_m2, buildings.area_wall_m2) |
 | eBKP-H Auszug (PDF) | https://www.crb.ch/_Resources/Persistent/5/1/7/d/517de4b60fd6f28b6137e873ea1c9284f345e648/Auszug_eBKP_2020_Web.pdf | Free excerpt of element-based cost plan |
 
-## Federal Geodata Infrastructure
+### Federal Geodata Infrastructure
 
 | Document | URL | Referenced in Schema |
 |----------|-----|---------------------|
@@ -686,7 +686,7 @@ BFS municipality register.
 | BFS Amtliches Gemeindeverzeichnis | https://www.bfs.admin.ch/bfs/de/home/grundlagen/agvch.html | municipalities reference table (BFS-Nr / municipality_nr) |
 | INTERLIS | https://interlis.ch | Swiss geodata transfer format |
 
-## API Endpoints
+### API Endpoints
 
 | Service | URL | Description |
 |---------|-----|-------------|
@@ -701,7 +701,7 @@ BFS municipality register.
 | Data Browser | https://data.geo.admin.ch/browser | Interactive data download |
 | geodienste.ch API | https://www.geodienste.ch/info/services.csv | Service metadata and availability |
 
-## Data Sources
+### Data Sources
 
 Primary data access is through the **Federal Spatial Data Infrastructure (FSDI)** via geo.admin.ch services.
 
@@ -717,7 +717,7 @@ Primary data access is through the **Federal Spatial Data Infrastructure (FSDI)*
 | ARE | Bauzonen Schweiz | ARE | `ch.are.bauzonen` | OGD | Annual | Zoning classifications |
 | KGS | KGS Inventar | BABS | `ch.babs.kulturgueter` | OGD | Occasional | Heritage protection (A/B) |
 
-## Notes
+### Notes
 
 - **SIA norms are commercial**: SIA 416 and SIA 380/1 require purchase from the SIA shop.
 - **DM.01-AV-CH transition**: Will be replaced by DMAV by December 31, 2027. Plan for data model migration.
