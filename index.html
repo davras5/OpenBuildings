@@ -1544,7 +1544,7 @@
       async function fetchAndShowLandcover(id) {
         try {
           const { data, error } = await db
-            .from('landcover')
+            .from('landcovers')
             .select('id, type, area_m2')
             .eq('id', id)
             .single();
