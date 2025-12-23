@@ -1545,7 +1545,7 @@
         try {
           const { data, error } = await db
             .from('landcover')
-            .select('id, type, area_m2')
+            .select('id, egid, created_at')
             .eq('id', id)
             .single();
 
@@ -1697,8 +1697,8 @@
 
       // Show landcover panel with details
       function showLandcoverPanel(landcover) {
-        // Title: formatted type → #id
-        const title = formatLandcoverType(landcover.type) || `#${landcover.id}`;
+        // Title: egid → #id
+        const title = landcover.egid || `#${landcover.id}`;
         panelBuildingName.textContent = title;
         panelBuildingLocation.textContent = 'Landcover';
 
@@ -1707,9 +1707,9 @@
           { label: 'ID', value: landcover.id || '–' }
         ];
 
-        // Add area if available
-        if (landcover.area_m2) {
-          metrics.push({ label: 'Area', value: `${landcover.area_m2.toLocaleString()} m²` });
+        // Add EGID if available
+        if (landcover.egid) {
+          metrics.push({ label: 'EGID', value: landcover.egid });
         }
 
         panelMetrics.innerHTML = metrics.map(m => `
