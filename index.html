@@ -923,6 +923,7 @@
           lat: params.get('lat') ? parseFloat(params.get('lat')) : null,
           building: params.get('building') ? parseInt(params.get('building')) : null,
           parcel: params.get('parcel') ? parseInt(params.get('parcel')) : null,
+          landcover: params.get('landcover') ? parseInt(params.get('landcover')) : null,
           is3D: params.get('3d') === 'true',
           marker: params.get('marker') === 'true'
         };
@@ -939,6 +940,7 @@
 
         if (selectedBuilding) params.set('building', selectedBuilding);
         if (selectedParcel) params.set('parcel', selectedParcel);
+        if (selectedLandcover) params.set('landcover', selectedLandcover);
         if (is3DMode) params.set('3d', 'true');
 
         window.history.replaceState({}, '', `?${params.toString()}`);
@@ -1670,6 +1672,7 @@
       // Apply URL params for initial selection
       if (urlParams.building) selectedBuilding = urlParams.building;
       if (urlParams.parcel) selectedParcel = urlParams.parcel;
+      if (urlParams.landcover) selectedLandcover = urlParams.landcover;
       if (urlParams.is3D) is3DMode = true;
 
       // Set initial view from URL if provided
@@ -1709,15 +1712,19 @@
           map.fitBounds(SWITZERLAND_BOUNDS, { padding: 40, duration: 1000 });
         }
 
-        // Load selected building/parcel from URL params
+        // Load selected building/parcel/landcover from URL params
         if (selectedBuilding) {
           await fetchAndShowBuilding(selectedBuilding);
         }
         if (selectedParcel) {
           await fetchAndShowParcel(selectedParcel);
         }
+        if (selectedLandcover) {
+          await fetchAndShowLandcover(selectedLandcover);
+        }
         updateBuildingStyles();
         updateParcelStyles();
+        updateLandcoverStyles();
 
         // Apply 3D mode from URL params
         if (is3DMode) {
