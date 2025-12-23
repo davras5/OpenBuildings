@@ -132,6 +132,52 @@
       </div>
     </div>
 
+    <!-- Map Context Menu (right-click) -->
+    <div class="map-context-menu" id="mapContextMenu">
+      <button class="context-menu-coords" id="contextMenuCoords">
+        <span class="coords-text">47.35191, 8.49471</span>
+        <svg class="copy-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+          <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"></path>
+        </svg>
+      </button>
+      <div class="context-menu-divider"></div>
+      <button class="context-menu-item" id="contextMenuShare">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="18" cy="5" r="3"></circle>
+          <circle cx="6" cy="12" r="3"></circle>
+          <circle cx="18" cy="19" r="3"></circle>
+          <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+          <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+        </svg>
+        Share this location
+      </button>
+      <button class="context-menu-item" id="contextMenuPrint">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="6 9 6 2 18 2 18 9"></polyline>
+          <path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"></path>
+          <rect x="6" y="14" width="12" height="8"></rect>
+        </svg>
+        Print
+      </button>
+      <div class="context-menu-divider"></div>
+      <button class="context-menu-item" id="contextMenuMeasure" disabled>
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M2 12h2M6 12h2M10 12h2M14 12h2M18 12h2M22 12h2"></path>
+          <line x1="2" y1="8" x2="2" y2="16"></line>
+          <line x1="22" y1="8" x2="22" y2="16"></line>
+        </svg>
+        Measure distance
+      </button>
+      <button class="context-menu-item" id="contextMenuReport" disabled>
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path>
+          <line x1="4" y1="22" x2="4" y2="15"></line>
+        </svg>
+        Report a data problem
+      </button>
+    </div>
+
     <div class="loading-overlay" id="loadingOverlay">
       <div class="loading-spinner"></div>
       <span style="margin-top: 12px; color: #64748b; font-size: 14px;">Loading map...</span>
