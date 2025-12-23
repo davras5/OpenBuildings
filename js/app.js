@@ -653,27 +653,36 @@ async function init() {
     manageLayerHandlers('add', 'buildings', 'unclustered-point');
   }
 
+  // Track previous selection to avoid unnecessary paint updates
+  let lastRenderedBuildingSelection = undefined;
+
   function updateBuildingStyles() {
     if (!map.getLayer('unclustered-point')) return;
 
+    // Skip update if selection hasn't changed
+    const currentSelection = state.selectedBuilding || -1;
+    if (lastRenderedBuildingSelection === currentSelection) return;
+    lastRenderedBuildingSelection = currentSelection;
+
+    // Batch all paint property updates (MapLibre batches synchronous calls internally)
     map.setPaintProperty('unclustered-point', 'circle-radius', [
       'case',
-      ['==', ['get', 'id'], state.selectedBuilding || -1], 10,
+      ['==', ['get', 'id'], currentSelection], 10,
       7
     ]);
     map.setPaintProperty('unclustered-point', 'circle-color', [
       'case',
-      ['==', ['get', 'id'], state.selectedBuilding || -1], '#059669', // Leaf green when selected
+      ['==', ['get', 'id'], currentSelection], '#059669', // Leaf green when selected
       '#64748b' // Slate-500 default
     ]);
     map.setPaintProperty('unclustered-point', 'circle-stroke-width', [
       'case',
-      ['==', ['get', 'id'], state.selectedBuilding || -1], 3,
+      ['==', ['get', 'id'], currentSelection], 3,
       2
     ]);
     map.setPaintProperty('unclustered-point', 'circle-stroke-color', [
       'case',
-      ['==', ['get', 'id'], state.selectedBuilding || -1], '#1e3a5f', // Deep Blue
+      ['==', ['get', 'id'], currentSelection], '#1e3a5f', // Deep Blue
       'white'
     ]);
   }
@@ -731,6 +740,36 @@ async function init() {
     }
   }
 
+  // LRU cache for fetched features (max 50 entries per type)
+  const featureCache = {
+    building: new Map(),
+    parcel: new Map(),
+    landcover: new Map()
+  };
+  const FEATURE_CACHE_MAX_SIZE = 50;
+
+  function getCachedFeature(type, id) {
+    const cache = featureCache[type];
+    if (cache.has(id)) {
+      // Move to end for LRU behavior
+      const data = cache.get(id);
+      cache.delete(id);
+      cache.set(id, data);
+      return data;
+    }
+    return null;
+  }
+
+  function setCachedFeature(type, id, data) {
+    const cache = featureCache[type];
+    // Evict oldest entry if at capacity
+    if (cache.size >= FEATURE_CACHE_MAX_SIZE) {
+      const firstKey = cache.keys().next().value;
+      cache.delete(firstKey);
+    }
+    cache.set(id, data);
+  }
+
   // Feature fetch configurations
   const featureConfigs = {
     building: {
@@ -754,7 +793,7 @@ async function init() {
   };
 
   /**
-   * Fetch feature from Supabase and show panel
+   * Fetch feature from Supabase and show panel (with caching)
    * @param {'building'|'parcel'|'landcover'} featureType - Type of feature
    * @param {number} id - Feature ID
    * @param {Array} [coords] - Optional coordinates (for buildings from click events)
@@ -762,6 +801,13 @@ async function init() {
   async function fetchAndShowFeature(featureType, id, coords = null) {
     const config = featureConfigs[featureType];
     if (!config) return;
+
+    // Check cache first
+    const cached = getCachedFeature(featureType, id);
+    if (cached) {
+      displayFeatureData(featureType, cached, coords, config);
+      return;
+    }
 
     try {
       const { data, error } = await db
@@ -773,28 +819,39 @@ async function init() {
       if (error) throw error;
 
       if (data) {
-        // Special handling for buildings: parse coordinates
-        if (featureType === 'building') {
-          let lon, lat;
-          if (coords) {
-            [lon, lat] = coords;
-          } else if (data.geog) {
-            const geojson = wkbToGeoJSON(data.geog);
-            if (geojson) {
-              lon = geojson.coordinates[0];
-              lat = geojson.coordinates[1];
-            }
-          }
-          config.showPanel({ ...data, lon, lat });
-        } else {
-          config.showPanel(data);
-        }
+        // Cache the result
+        setCachedFeature(featureType, id, data);
+        displayFeatureData(featureType, data, coords, config);
       }
     } catch (err) {
       console.error(`Error fetching ${featureType}:`, err);
       showToast(config.errorMsg, 'error');
     }
   }
+
+  /**
+   * Display feature data in the appropriate panel
+   */
+  function displayFeatureData(featureType, data, coords, config) {
+    if (featureType === 'building') {
+      let lon, lat;
+      if (coords) {
+        [lon, lat] = coords;
+      } else if (data.geog) {
+        const geojson = wkbToGeoJSON(data.geog);
+        if (geojson) {
+          lon = geojson.coordinates[0];
+          lat = geojson.coordinates[1];
+        }
+      }
+      config.showPanel({ ...data, lon, lat });
+    } else {
+      config.showPanel(data);
+    }
+  }
+
+  // Track previous polygon selections to avoid unnecessary paint updates
+  const lastRenderedPolygonSelection = { parcels: undefined, landcover: undefined };
 
   /**
    * Update polygon layer styles based on selection state
@@ -805,6 +862,10 @@ async function init() {
 
     const config = polygonLayerConfigs[layerName];
     const selectedId = config.getSelectedId();
+
+    // Skip update if selection hasn't changed
+    if (lastRenderedPolygonSelection[layerName] === selectedId) return;
+    lastRenderedPolygonSelection[layerName] = selectedId;
 
     // Landcover in 3D mode uses fill-extrusion-opacity, otherwise fill-opacity
     const is3DLandcover = layerName === 'landcover' && state.is3DMode;
@@ -1057,10 +1118,20 @@ async function init() {
     map.easeTo({ bearing: 0, pitch: 0, duration: MAP_CONFIG.standardDuration });
   });
 
-  // Rotate compass with map bearing
+  // Rotate compass with map bearing (throttled with requestAnimationFrame)
+  let pendingCompassBearing = null;
+  let compassAnimationFrame = null;
+
   map.on('rotate', () => {
-    const bearing = map.getBearing();
-    compassSvg.style.transform = `rotate(${-bearing}deg)`;
+    pendingCompassBearing = map.getBearing();
+    if (!compassAnimationFrame) {
+      compassAnimationFrame = requestAnimationFrame(() => {
+        if (pendingCompassBearing !== null) {
+          compassSvg.style.transform = `rotate(${-pendingCompassBearing}deg)`;
+        }
+        compassAnimationFrame = null;
+      });
+    }
   });
 
   // ============================================
