@@ -194,16 +194,31 @@ async function init() {
     scaleContainer.appendChild(scaleControl._container);
   });
 
-  // Mouse coordinates display
+  // Mouse coordinates display (throttled with requestAnimationFrame)
   const mouseCoordsDisplay = document.getElementById('mouseCoords');
+  let pendingMouseCoords = null;
+  let mouseAnimationFrame = null;
 
   map.on('mousemove', (e) => {
-    const lng = e.lngLat.lng.toFixed(5);
-    const lat = e.lngLat.lat.toFixed(5);
-    mouseCoordsDisplay.textContent = `${lng}, ${lat}`;
+    pendingMouseCoords = e.lngLat;
+    if (!mouseAnimationFrame) {
+      mouseAnimationFrame = requestAnimationFrame(() => {
+        if (pendingMouseCoords) {
+          const lng = pendingMouseCoords.lng.toFixed(5);
+          const lat = pendingMouseCoords.lat.toFixed(5);
+          mouseCoordsDisplay.textContent = `${lng}, ${lat}`;
+        }
+        mouseAnimationFrame = null;
+      });
+    }
   });
 
   map.on('mouseout', () => {
+    if (mouseAnimationFrame) {
+      cancelAnimationFrame(mouseAnimationFrame);
+      mouseAnimationFrame = null;
+    }
+    pendingMouseCoords = null;
     mouseCoordsDisplay.textContent = '–';
   });
 
