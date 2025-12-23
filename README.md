@@ -75,6 +75,8 @@ The project follows an **open-by-default** approach to data, code, and documenta
 
 ## Tools
 
+We developed modular tools, see documentation.
+
 | Tool                                            | Status         | Purpose                                                           |
 | ----------------------------------------------- | -------------- | ----------------------------------------------------------------- |
 | [**Base Worker**](tools/base-worker/)           | Available      | Aggregates core data like IDs, geometry and messurements     |
