@@ -951,7 +951,6 @@
       let selectedParcel = null;
       let selectedLandcover = null;
       let markerClickHandled = false;
-      let landcoverClickHandled = false;
       let is3DMode = false;
       let searchMarker = null;
       
@@ -1102,14 +1101,6 @@
           map.getCanvas().style.cursor = '';
         });
 
-        // Add click handler for parcels
-        map.on('click', 'parcels-fill', (e) => {
-          // Skip if a marker or landcover was just clicked (respect layer hierarchy)
-          if (markerClickHandled || landcoverClickHandled) return;
-
-          const props = e.features[0].properties;
-          selectParcel(props.id);
-        });
       }
 
       function addLandcoverLayer() {
@@ -1176,16 +1167,6 @@
           map.getCanvas().style.cursor = '';
         });
 
-        // Add click handler for landcover
-        map.on('click', 'landcover-fill', (e) => {
-          // Skip if a marker was just clicked
-          if (markerClickHandled) return;
-
-          landcoverClickHandled = true;
-          const props = e.features[0].properties;
-          selectLandcover(props.id);
-          setTimeout(() => { landcoverClickHandled = false; }, 100);
-        });
       }
 
       async function addSwitzerlandBorder() {
@@ -1707,6 +1688,24 @@
         addLandcoverLayer();
         addBuildingsLayer();
 
+        // Unified click handler for parcels and landcover (respects layer hierarchy)
+        // Buildings have their own handler with markerClickHandled flag
+        map.on('click', (e) => {
+          // Skip if a building marker was clicked (handled by building layer)
+          if (markerClickHandled) return;
+
+          // Query features at click point - check in priority order (top to bottom)
+          const landcoverFeatures = map.queryRenderedFeatures(e.point, { layers: ['landcover-fill'] });
+          const parcelFeatures = map.queryRenderedFeatures(e.point, { layers: ['parcels-fill'] });
+
+          // Select based on layer hierarchy: landcover (middle) > parcels (bottom)
+          if (landcoverFeatures.length > 0) {
+            selectLandcover(landcoverFeatures[0].properties.id);
+          } else if (parcelFeatures.length > 0) {
+            selectParcel(parcelFeatures[0].properties.id);
+          }
+        });
+
         // If no URL params, fit to Switzerland
         if (!urlParams.zoom) {
           map.fitBounds(SWITZERLAND_BOUNDS, { padding: 40, duration: 1000 });
@@ -1806,6 +1805,18 @@
             addParcelsLayer();
             addLandcoverLayer();
             addBuildingsLayer();
+
+            // Re-add unified click handler for parcels and landcover
+            map.on('click', (e) => {
+              if (markerClickHandled) return;
+              const landcoverFeatures = map.queryRenderedFeatures(e.point, { layers: ['landcover-fill'] });
+              const parcelFeatures = map.queryRenderedFeatures(e.point, { layers: ['parcels-fill'] });
+              if (landcoverFeatures.length > 0) {
+                selectLandcover(landcoverFeatures[0].properties.id);
+              } else if (parcelFeatures.length > 0) {
+                selectParcel(parcelFeatures[0].properties.id);
+              }
+            });
 
             // Re-apply 3D mode if active
             if (is3DMode) {
