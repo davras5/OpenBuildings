@@ -652,6 +652,55 @@ BFS municipality register.
 
 ---
 
+# Key Documentation
+
+## Primary Standards
+
+| Document | URL | Referenced in Schema |
+|----------|-----|---------------------|
+| GWR Merkmalskatalog 4.2 | https://www.housing-stat.ch/files/881-2200.pdf | buildings (GSTAT, GKAT, GKLAS, GASTW, GBAUJ, GENH, GWAERZH, etc.), projects (PSTAT, PARTBW, PTYPBW) |
+| GWR Public Data | https://www.housing-stat.ch/__publicdata | buildings, projects data access |
+| DM.01-AV-CH (Datenmodell AV) | https://www.cadastre-manual.admin.ch/de/datenmodell-der-amtlichen-vermessung-dm01-av-ch | parcels, landcovers (25 Bodenbedeckungsarten), parcel types (LTYP) |
+| DMAV (Geodatenmodell AV) | https://www.cadastre-manual.admin.ch/de/geodatenmodell-der-amtlichen-vermessung-dmav | Future replacement for DM.01-AV-CH (deadline: 31.12.2027) |
+| KKVA Richtlinie Detaillierungsgrad BB | https://www.cadastre-manual.admin.ch/dam/de/sd-web/J969zG4lGjuV/Richtlinie-Detaillierungsgrad-BB-de.pdf | Validation source for landcover classification |
+| Weisung AV-GWR Gebäudeerfassung | https://www.housing-stat.ch/files/1754-2300.pdf | Building-GWR linkage rules |
+| Cadastre Manual | https://www.cadastre-manual.admin.ch | AV weisungen, model documentation |
+
+## Swiss Norms (SIA / CRB)
+
+| Document | URL | Referenced in Schema |
+|----------|-----|---------------------|
+| SIA 416 (Flächen und Volumen) | https://shop.sia.ch/normenwerk/architekt/sia%20416/dfi/D/Product | GGF, GF, NGF, GV, UF, BUF, UUF (buildings.area_*, buildings.volume_*, parcels.area_*) |
+| SIA 380/1 (Thermische Energie) | https://shop.sia.ch/normenwerk/architekt/sia%20380-1/d/D/Product | EBF Energiebezugsfläche (buildings.area_ebf_m2) |
+| eBKP-H / SN 506 511 | https://www.crb.ch/normen-standards/baukostenplane/baukostenplan-hochbau-ebkp-h | DAF, AWF (buildings.area_roof_m2, buildings.area_wall_m2) |
+| eBKP-H Auszug (PDF) | https://www.crb.ch/_Resources/Persistent/5/1/7/d/517de4b60fd6f28b6137e873ea1c9284f345e648/Auszug_eBKP_2020_Web.pdf | Free excerpt of element-based cost plan |
+
+## Federal Geodata Infrastructure
+
+| Document | URL | Referenced in Schema |
+|----------|-----|---------------------|
+| geo.admin.ch Tech Docs | https://docs.geo.admin.ch | API documentation for all geo.admin.ch services |
+| swisstopo Products | https://www.swisstopo.admin.ch/de/geodata | swissALTI3D, swissSURFACE3D, swissBUILDINGS3D, swissBOUNDARIES3D |
+| geodienste.ch | https://www.geodienste.ch | Cantonal AV data (WMS, WFS, INTERLIS downloads) |
+| opendata.swiss | https://opendata.swiss | Swiss OGD portal (aggregated datasets) |
+| BFS Amtliches Gemeindeverzeichnis | https://www.bfs.admin.ch/bfs/de/home/grundlagen/agvch.html | municipalities reference table (BFS-Nr / municipality_nr) |
+| INTERLIS | https://interlis.ch | Swiss geodata transfer format |
+
+## API Endpoints
+
+| Service | URL | Description |
+|---------|-----|-------------|
+| Tech Docs | https://docs.geo.admin.ch | API documentation and guides |
+| Layer Catalog | https://api3.geo.admin.ch/rest/services/ech/MapServer | Complete list of available layers |
+| Identify | https://api3.geo.admin.ch/rest/services/api/MapServer/identify | Query features by location |
+| Find | https://api3.geo.admin.ch/rest/services/api/MapServer/find | Search features by attribute |
+| Search | https://api3.geo.admin.ch/rest/services/api/SearchServer | Full-text search (addresses, layers, features) |
+| WMS | https://wms.geo.admin.ch | OGC Web Map Service |
+| WMTS | https://wmts.geo.admin.ch | OGC Web Map Tile Service |
+| STAC | https://data.geo.admin.ch/api/stac/v1 | Spatiotemporal Asset Catalog for downloads |
+| Data Browser | https://data.geo.admin.ch/browser | Interactive data download |
+| geodienste.ch API | https://www.geodienste.ch/info/services.csv | Service metadata and availability |
+
 ## Data Sources
 
 Primary data access is through the **Federal Spatial Data Infrastructure (FSDI)** via geo.admin.ch services.
@@ -668,46 +717,11 @@ Primary data access is through the **Federal Spatial Data Infrastructure (FSDI)*
 | ARE | Bauzonen Schweiz | ARE | `ch.are.bauzonen` | OGD | Annual | Zoning classifications |
 | KGS | KGS Inventar | BABS | `ch.babs.kulturgueter` | OGD | Occasional | Heritage protection (A/B) |
 
-### API Endpoints
+## Notes
 
-| Service | URL | Description |
-|---------|-----|-------------|
-| Tech Docs | https://docs.geo.admin.ch | API documentation and guides |
-| Layer Catalog | https://api3.geo.admin.ch/rest/services/ech/MapServer | Complete list of available layers |
-| Identify | https://api3.geo.admin.ch/rest/services/api/MapServer/identify | Query features by location |
-| Find | https://api3.geo.admin.ch/rest/services/api/MapServer/find | Search features by attribute |
-| Search | https://api3.geo.admin.ch/rest/services/api/SearchServer | Full-text search (addresses, layers, features) |
-| WMS | https://wms.geo.admin.ch | OGC Web Map Service |
-| WMTS | https://wmts.geo.admin.ch | OGC Web Map Tile Service |
-| STAC | https://data.geo.admin.ch/api/stac/v1 | Spatiotemporal Asset Catalog for downloads |
-| Data Browser | https://data.geo.admin.ch/browser | Interactive data download |
-
-### Example API Calls
-
-```bash
-# Get building by EGID
-curl "https://api3.geo.admin.ch/rest/services/api/MapServer/find?layer=ch.bfs.gebaeude_wohnungs_register&searchText=1231641&searchField=egid&returnGeometry=true"
-
-# Identify features at coordinates (LV95)
-curl "https://api3.geo.admin.ch/rest/services/api/MapServer/identify?geometryType=esriGeometryPoint&geometry=2600000,1200000&layers=all:ch.bfs.gebaeude_wohnungs_register&tolerance=50&returnGeometry=true&sr=2056"
-
-# Search for address
-curl "https://api3.geo.admin.ch/rest/services/api/SearchServer?searchText=bundesplatz%203%20bern&type=locations"
-```
-
----
-
-## Key Documentation
-
-| Document | URL |
-|----------|-----|
-| geo.admin.ch Tech Docs | https://docs.geo.admin.ch |
-| GWR Merkmalskatalog 4.2 | https://www.housing-stat.ch/files/881-2200.pdf |
-| GWR Public Data | https://www.housing-stat.ch/__publicdata |
-| KKVA Richtlinie Detaillierungsgrad BB | https://www.cadastre-manual.admin.ch/dam/de/sd-web/J969zG4lGjuV/Richtlinie-Detaillierungsgrad-BB-de.pdf |
-| Weisung AV-GWR Gebäudeerfassung | https://www.housing-stat.ch/files/1754-2300.pdf |
-| Cadastre Manual | https://www.cadastre-manual.admin.ch |
-| swisstopo Products | https://www.swisstopo.admin.ch/de/geodata |
+- **SIA norms are commercial**: SIA 416 and SIA 380/1 require purchase from the SIA shop.
+- **DM.01-AV-CH transition**: Will be replaced by DMAV by December 31, 2027. Plan for data model migration.
+- **geodienste.ch**: Provides cantonal AV data in multiple formats (INTERLIS, GeoPackage, Shapefile, DXF). Registration may be required for some cantons.
 
 ## SQL
 
