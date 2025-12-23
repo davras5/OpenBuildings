@@ -72,12 +72,13 @@ erDiagram
 
 ## Column Category Concept
 
-Icon	Group Name (EN)	Group Name (DE)	Purpose
-ℹ️	1. General	Allgemein	Identity, type, status, timeline
-📍	2. Location	Standort	Address, municipality, hierarchy
-📐	3. Dimensions	Dimensionen	Area, volume, height, floors
-⚡	4. Features	Eigenschaften	Equipment, zoning, heritage
-⚙️	5. System	System	Metadata, IDs, source references
+|Icon|Group Name (EN)|Group Name (DE)|Content Strategy|
+|:----|:----|:----|:----|
+|ℹ️|1. General|Allgemein|The "What" and "When". Identity, type, status, and timeline.|
+|📍|2. Location|Standort|The "Where". Address, municipality, and administrative hierarchy.|
+|📐|3. Dimensions|Dimensionen|The "How Big". All physical metrics (Area, Volume, Height, Floors).|
+|⚡|4. Features|Eigenschaften|The "Details". Technical equipment, legal constraints, zoning, heritage.|
+|⚙️|5. System|System|Metadata, internal IDs, and raw source references.|
 
 ## Core Tables
 
