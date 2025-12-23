@@ -923,6 +923,7 @@
           lat: params.get('lat') ? parseFloat(params.get('lat')) : null,
           building: params.get('building') ? parseInt(params.get('building')) : null,
           parcel: params.get('parcel') ? parseInt(params.get('parcel')) : null,
+          landcover: params.get('landcover') ? parseInt(params.get('landcover')) : null,
           is3D: params.get('3d') === 'true',
           marker: params.get('marker') === 'true'
         };
@@ -939,6 +940,7 @@
 
         if (selectedBuilding) params.set('building', selectedBuilding);
         if (selectedParcel) params.set('parcel', selectedParcel);
+        if (selectedLandcover) params.set('landcover', selectedLandcover);
         if (is3DMode) params.set('3d', 'true');
 
         window.history.replaceState({}, '', `?${params.toString()}`);
@@ -1099,14 +1101,6 @@
           map.getCanvas().style.cursor = '';
         });
 
-        // Add click handler for parcels
-        map.on('click', 'parcels-fill', (e) => {
-          // Skip if a marker was just clicked
-          if (markerClickHandled) return;
-
-          const props = e.features[0].properties;
-          selectParcel(props.id);
-        });
       }
 
       function addLandcoverLayer() {
@@ -1173,18 +1167,6 @@
           map.getCanvas().style.cursor = '';
         });
 
-        // Add click handler for landcover
-        map.on('click', 'landcover-fill', (e) => {
-          // Skip if a marker was just clicked
-          if (markerClickHandled) return;
-
-          // Skip if there's a parcel at this point - let parcel handler take priority
-          const parcelFeatures = map.queryRenderedFeatures(e.point, { layers: ['parcels-fill'] });
-          if (parcelFeatures.length > 0) return;
-
-          const props = e.features[0].properties;
-          selectLandcover(props.id);
-        });
       }
 
       async function addSwitzerlandBorder() {
@@ -1329,44 +1311,45 @@
       
       async function selectBuilding(id, coords = null) {
         selectedBuilding = id;
-        selectedParcel = null; // Deselect parcel
-        selectedLandcover = null; // Deselect landcover
-
-        // Fetch building details from API
-        await fetchAndShowBuilding(id, coords);
-
+        selectedParcel = null;
+        selectedLandcover = null;
+        updateUrlParams();
+        // For buildings, pass coords directly since showSelectedPanel doesn't have them
         updateBuildingStyles();
         updateParcelStyles();
         updateLandcoverStyles();
-        updateUrlParams();
+        await fetchAndShowBuilding(id, coords);
       }
 
       async function selectParcel(id) {
         selectedParcel = id;
-        selectedBuilding = null; // Deselect building
-        selectedLandcover = null; // Deselect landcover
-
-        // Fetch parcel details from API
-        await fetchAndShowParcel(id);
-
-        updateBuildingStyles();
-        updateParcelStyles();
-        updateLandcoverStyles();
+        selectedBuilding = null;
+        selectedLandcover = null;
         updateUrlParams();
+        await showSelectedPanel();
       }
 
       async function selectLandcover(id) {
         selectedLandcover = id;
-        selectedBuilding = null; // Deselect building
-        selectedParcel = null; // Deselect parcel
+        selectedBuilding = null;
+        selectedParcel = null;
+        updateUrlParams();
+        await showSelectedPanel();
+      }
 
-        // Fetch landcover details from API
-        await fetchAndShowLandcover(id);
-
+      // Single function to show panel based on what's selected (from URL params)
+      async function showSelectedPanel() {
         updateBuildingStyles();
         updateParcelStyles();
         updateLandcoverStyles();
-        updateUrlParams();
+
+        if (selectedBuilding) {
+          await fetchAndShowBuilding(selectedBuilding);
+        } else if (selectedLandcover) {
+          await fetchAndShowLandcover(selectedLandcover);
+        } else if (selectedParcel) {
+          await fetchAndShowParcel(selectedParcel);
+        }
       }
 
       // Fetch building from Supabase and show panel
@@ -1671,6 +1654,7 @@
       // Apply URL params for initial selection
       if (urlParams.building) selectedBuilding = urlParams.building;
       if (urlParams.parcel) selectedParcel = urlParams.parcel;
+      if (urlParams.landcover) selectedLandcover = urlParams.landcover;
       if (urlParams.is3D) is3DMode = true;
 
       // Set initial view from URL if provided
@@ -1705,20 +1689,31 @@
         addLandcoverLayer();
         addBuildingsLayer();
 
+        // Unified click handler for parcels and landcover (respects layer hierarchy)
+        // Buildings have their own handler with markerClickHandled flag
+        map.on('click', (e) => {
+          // Skip if a building marker was clicked (handled by building layer)
+          if (markerClickHandled) return;
+
+          // Query features at click point - check in priority order (top to bottom)
+          const landcoverFeatures = map.queryRenderedFeatures(e.point, { layers: ['landcover-fill'] });
+          const parcelFeatures = map.queryRenderedFeatures(e.point, { layers: ['parcels-fill'] });
+
+          // Select based on layer hierarchy: landcover (middle) > parcels (bottom)
+          if (landcoverFeatures.length > 0) {
+            selectLandcover(landcoverFeatures[0].properties.id);
+          } else if (parcelFeatures.length > 0) {
+            selectParcel(parcelFeatures[0].properties.id);
+          }
+        });
+
         // If no URL params, fit to Switzerland
         if (!urlParams.zoom) {
           map.fitBounds(SWITZERLAND_BOUNDS, { padding: 40, duration: 1000 });
         }
 
-        // Load selected building/parcel from URL params
-        if (selectedBuilding) {
-          await fetchAndShowBuilding(selectedBuilding);
-        }
-        if (selectedParcel) {
-          await fetchAndShowParcel(selectedParcel);
-        }
-        updateBuildingStyles();
-        updateParcelStyles();
+        // Show panel for selected item from URL params
+        await showSelectedPanel();
 
         // Apply 3D mode from URL params
         if (is3DMode) {
@@ -1800,6 +1795,18 @@
             addParcelsLayer();
             addLandcoverLayer();
             addBuildingsLayer();
+
+            // Re-add unified click handler for parcels and landcover
+            map.on('click', (e) => {
+              if (markerClickHandled) return;
+              const landcoverFeatures = map.queryRenderedFeatures(e.point, { layers: ['landcover-fill'] });
+              const parcelFeatures = map.queryRenderedFeatures(e.point, { layers: ['parcels-fill'] });
+              if (landcoverFeatures.length > 0) {
+                selectLandcover(landcoverFeatures[0].properties.id);
+              } else if (parcelFeatures.length > 0) {
+                selectParcel(parcelFeatures[0].properties.id);
+              }
+            });
 
             // Re-apply 3D mode if active
             if (is3DMode) {
