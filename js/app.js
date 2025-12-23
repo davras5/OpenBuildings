@@ -194,16 +194,31 @@ async function init() {
     scaleContainer.appendChild(scaleControl._container);
   });
 
-  // Mouse coordinates display
+  // Mouse coordinates display (throttled with requestAnimationFrame)
   const mouseCoordsDisplay = document.getElementById('mouseCoords');
+  let pendingMouseCoords = null;
+  let mouseAnimationFrame = null;
 
   map.on('mousemove', (e) => {
-    const lng = e.lngLat.lng.toFixed(5);
-    const lat = e.lngLat.lat.toFixed(5);
-    mouseCoordsDisplay.textContent = `${lng}, ${lat}`;
+    pendingMouseCoords = e.lngLat;
+    if (!mouseAnimationFrame) {
+      mouseAnimationFrame = requestAnimationFrame(() => {
+        if (pendingMouseCoords) {
+          const lng = pendingMouseCoords.lng.toFixed(5);
+          const lat = pendingMouseCoords.lat.toFixed(5);
+          mouseCoordsDisplay.textContent = `${lng}, ${lat}`;
+        }
+        mouseAnimationFrame = null;
+      });
+    }
   });
 
   map.on('mouseout', () => {
+    if (mouseAnimationFrame) {
+      cancelAnimationFrame(mouseAnimationFrame);
+      mouseAnimationFrame = null;
+    }
+    pendingMouseCoords = null;
     mouseCoordsDisplay.textContent = '–';
   });
 
@@ -327,8 +342,29 @@ async function init() {
   // Functions
   // ============================================
 
-  // Simple EWKB parser for Point and Polygon
+  // LRU cache for parsed WKB geometries (max 100 entries)
+  const wkbCache = new Map();
+  const WKB_CACHE_MAX_SIZE = 100;
+
+  function cacheWkbResult(hex, result) {
+    // Evict oldest entry if at capacity
+    if (wkbCache.size >= WKB_CACHE_MAX_SIZE) {
+      const firstKey = wkbCache.keys().next().value;
+      wkbCache.delete(firstKey);
+    }
+    wkbCache.set(hex, result);
+  }
+
+  // Simple EWKB parser for Point and Polygon (with caching)
   function wkbToGeoJSON(hex) {
+    // Check cache first
+    if (wkbCache.has(hex)) {
+      // Move to end for LRU behavior
+      const cached = wkbCache.get(hex);
+      wkbCache.delete(hex);
+      wkbCache.set(hex, cached);
+      return cached;
+    }
     try {
       let pos = 0;
 
@@ -372,7 +408,9 @@ async function init() {
       if (geomType === 1) {
         const x = readDouble();
         const y = readDouble();
-        return { type: 'Point', coordinates: [x, y] };
+        const result = { type: 'Point', coordinates: [x, y] };
+        cacheWkbResult(hex, result);
+        return result;
       }
 
       // Polygon (type 3)
@@ -392,7 +430,9 @@ async function init() {
           rings.push(ring);
         }
 
-        return { type: 'Polygon', coordinates: rings };
+        const result = { type: 'Polygon', coordinates: rings };
+        cacheWkbResult(hex, result);
+        return result;
       }
 
       debugWarn('Unsupported geometry type:', geomType);
@@ -613,27 +653,36 @@ async function init() {
     manageLayerHandlers('add', 'buildings', 'unclustered-point');
   }
 
+  // Track previous selection to avoid unnecessary paint updates
+  let lastRenderedBuildingSelection = undefined;
+
   function updateBuildingStyles() {
     if (!map.getLayer('unclustered-point')) return;
 
+    // Skip update if selection hasn't changed
+    const currentSelection = state.selectedBuilding || -1;
+    if (lastRenderedBuildingSelection === currentSelection) return;
+    lastRenderedBuildingSelection = currentSelection;
+
+    // Batch all paint property updates (MapLibre batches synchronous calls internally)
     map.setPaintProperty('unclustered-point', 'circle-radius', [
       'case',
-      ['==', ['get', 'id'], state.selectedBuilding || -1], 10,
+      ['==', ['get', 'id'], currentSelection], 10,
       7
     ]);
     map.setPaintProperty('unclustered-point', 'circle-color', [
       'case',
-      ['==', ['get', 'id'], state.selectedBuilding || -1], '#059669', // Leaf green when selected
+      ['==', ['get', 'id'], currentSelection], '#059669', // Leaf green when selected
       '#64748b' // Slate-500 default
     ]);
     map.setPaintProperty('unclustered-point', 'circle-stroke-width', [
       'case',
-      ['==', ['get', 'id'], state.selectedBuilding || -1], 3,
+      ['==', ['get', 'id'], currentSelection], 3,
       2
     ]);
     map.setPaintProperty('unclustered-point', 'circle-stroke-color', [
       'case',
-      ['==', ['get', 'id'], state.selectedBuilding || -1], '#1e3a5f', // Deep Blue
+      ['==', ['get', 'id'], currentSelection], '#1e3a5f', // Deep Blue
       'white'
     ]);
   }
@@ -691,6 +740,36 @@ async function init() {
     }
   }
 
+  // LRU cache for fetched features (max 50 entries per type)
+  const featureCache = {
+    building: new Map(),
+    parcel: new Map(),
+    landcover: new Map()
+  };
+  const FEATURE_CACHE_MAX_SIZE = 50;
+
+  function getCachedFeature(type, id) {
+    const cache = featureCache[type];
+    if (cache.has(id)) {
+      // Move to end for LRU behavior
+      const data = cache.get(id);
+      cache.delete(id);
+      cache.set(id, data);
+      return data;
+    }
+    return null;
+  }
+
+  function setCachedFeature(type, id, data) {
+    const cache = featureCache[type];
+    // Evict oldest entry if at capacity
+    if (cache.size >= FEATURE_CACHE_MAX_SIZE) {
+      const firstKey = cache.keys().next().value;
+      cache.delete(firstKey);
+    }
+    cache.set(id, data);
+  }
+
   // Feature fetch configurations
   const featureConfigs = {
     building: {
@@ -714,7 +793,7 @@ async function init() {
   };
 
   /**
-   * Fetch feature from Supabase and show panel
+   * Fetch feature from Supabase and show panel (with caching)
    * @param {'building'|'parcel'|'landcover'} featureType - Type of feature
    * @param {number} id - Feature ID
    * @param {Array} [coords] - Optional coordinates (for buildings from click events)
@@ -722,6 +801,13 @@ async function init() {
   async function fetchAndShowFeature(featureType, id, coords = null) {
     const config = featureConfigs[featureType];
     if (!config) return;
+
+    // Check cache first
+    const cached = getCachedFeature(featureType, id);
+    if (cached) {
+      displayFeatureData(featureType, cached, coords, config);
+      return;
+    }
 
     try {
       const { data, error } = await db
@@ -733,28 +819,39 @@ async function init() {
       if (error) throw error;
 
       if (data) {
-        // Special handling for buildings: parse coordinates
-        if (featureType === 'building') {
-          let lon, lat;
-          if (coords) {
-            [lon, lat] = coords;
-          } else if (data.geog) {
-            const geojson = wkbToGeoJSON(data.geog);
-            if (geojson) {
-              lon = geojson.coordinates[0];
-              lat = geojson.coordinates[1];
-            }
-          }
-          config.showPanel({ ...data, lon, lat });
-        } else {
-          config.showPanel(data);
-        }
+        // Cache the result
+        setCachedFeature(featureType, id, data);
+        displayFeatureData(featureType, data, coords, config);
       }
     } catch (err) {
       console.error(`Error fetching ${featureType}:`, err);
       showToast(config.errorMsg, 'error');
     }
   }
+
+  /**
+   * Display feature data in the appropriate panel
+   */
+  function displayFeatureData(featureType, data, coords, config) {
+    if (featureType === 'building') {
+      let lon, lat;
+      if (coords) {
+        [lon, lat] = coords;
+      } else if (data.geog) {
+        const geojson = wkbToGeoJSON(data.geog);
+        if (geojson) {
+          lon = geojson.coordinates[0];
+          lat = geojson.coordinates[1];
+        }
+      }
+      config.showPanel({ ...data, lon, lat });
+    } else {
+      config.showPanel(data);
+    }
+  }
+
+  // Track previous polygon selections to avoid unnecessary paint updates
+  const lastRenderedPolygonSelection = { parcels: undefined, landcover: undefined };
 
   /**
    * Update polygon layer styles based on selection state
@@ -765,6 +862,10 @@ async function init() {
 
     const config = polygonLayerConfigs[layerName];
     const selectedId = config.getSelectedId();
+
+    // Skip update if selection hasn't changed
+    if (lastRenderedPolygonSelection[layerName] === selectedId) return;
+    lastRenderedPolygonSelection[layerName] = selectedId;
 
     // Landcover in 3D mode uses fill-extrusion-opacity, otherwise fill-opacity
     const is3DLandcover = layerName === 'landcover' && state.is3DMode;
@@ -1017,10 +1118,20 @@ async function init() {
     map.easeTo({ bearing: 0, pitch: 0, duration: MAP_CONFIG.standardDuration });
   });
 
-  // Rotate compass with map bearing
+  // Rotate compass with map bearing (throttled with requestAnimationFrame)
+  let pendingCompassBearing = null;
+  let compassAnimationFrame = null;
+
   map.on('rotate', () => {
-    const bearing = map.getBearing();
-    compassSvg.style.transform = `rotate(${-bearing}deg)`;
+    pendingCompassBearing = map.getBearing();
+    if (!compassAnimationFrame) {
+      compassAnimationFrame = requestAnimationFrame(() => {
+        if (pendingCompassBearing !== null) {
+          compassSvg.style.transform = `rotate(${-pendingCompassBearing}deg)`;
+        }
+        compassAnimationFrame = null;
+      });
+    }
   });
 
   // ============================================
@@ -1035,10 +1146,15 @@ async function init() {
     basemapSelector.classList.toggle('expanded');
   });
 
-  // Close when clicking outside
+  // Consolidated handler for closing UI elements on outside click
   document.addEventListener('click', (e) => {
+    // Close basemap selector if clicking outside
     if (!basemapSelector.contains(e.target)) {
       basemapSelector.classList.remove('expanded');
+    }
+    // Close search dropdown if clicking outside
+    if (!e.target.closest('.search-container')) {
+      closeSearchDropdown();
     }
   });
 
@@ -1260,18 +1376,29 @@ async function init() {
     return escapedText.replace(regex, '<mark>$1</mark>');
   }
 
-  // Display results
+  // Display results (using DocumentFragment for batched DOM operations)
   function displaySearchResults(results, query) {
-    const locations = results.filter(r => r.attrs.origin === 'address' || r.attrs.origin === 'zipcode' || r.attrs.origin === 'sn25' || r.attrs.origin === 'gg25' || r.attrs.origin === 'district' || r.attrs.origin === 'canton' || r.attrs.origin === 'gazetteer');
-    const layers = results.filter(r => r.attrs.origin === 'layer');
+    // Single-pass filtering using Set for O(1) lookups
+    const locationOrigins = new Set(['address', 'zipcode', 'sn25', 'gg25', 'district', 'canton', 'gazetteer']);
+    const locations = [];
+    const layers = [];
+
+    for (const r of results) {
+      if (locationOrigins.has(r.attrs.origin)) {
+        locations.push(r);
+      } else if (r.attrs.origin === 'layer') {
+        layers.push(r);
+      }
+    }
 
     // Clear previous results
     locationsResults.innerHTML = '';
     layersResults.innerHTML = '';
 
-    // Locations
+    // Locations - batch DOM operations with DocumentFragment
     if (locations.length > 0) {
       locationsSection.classList.add('has-results');
+      const fragment = document.createDocumentFragment();
       locations.slice(0, 10).forEach(loc => {
         const item = document.createElement('div');
         item.className = 'search-result-item';
@@ -1281,23 +1408,26 @@ async function init() {
         item.addEventListener('click', () => {
           goToLocation(loc);
         });
-        locationsResults.appendChild(item);
+        fragment.appendChild(item);
       });
+      locationsResults.appendChild(fragment); // Single DOM write
     } else {
       locationsSection.classList.remove('has-results');
     }
 
-    // Layers (disabled for now)
+    // Layers (disabled for now) - batch DOM operations with DocumentFragment
     if (layers.length > 0) {
       layersSection.classList.add('has-results');
+      const fragment = document.createDocumentFragment();
       layers.slice(0, 10).forEach(layer => {
         const item = document.createElement('div');
         item.className = 'search-result-item disabled';
         // Safely extract text and highlight matches
         const cleanLabel = sanitizeAndExtractText(layer.attrs.label);
         item.innerHTML = highlightMatch(cleanLabel, query);
-        layersResults.appendChild(item);
+        fragment.appendChild(item);
       });
+      layersResults.appendChild(fragment); // Single DOM write
     } else {
       layersSection.classList.remove('has-results');
     }
@@ -1366,13 +1496,6 @@ async function init() {
     searchInputWrapper.classList.remove('has-value');
     closeSearchDropdown();
     searchInput.focus();
-  });
-
-  // Close dropdown on outside click
-  document.addEventListener('click', (e) => {
-    if (!e.target.closest('.search-container')) {
-      closeSearchDropdown();
-    }
   });
 
   // Close on escape
