@@ -32,8 +32,8 @@ erDiagram
         bigint id PK
         text source_fid UK
         text label
-        text egid
         text adress
+        text egid
         geography geog
         bigint parcel_id FK
     }
