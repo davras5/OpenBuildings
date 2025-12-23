@@ -396,6 +396,18 @@ main {
   padding-top: 0;
 }
 
+.metric-docs-link {
+  grid-column: 1 / -1;
+  font-size: 0.8125rem;
+  color: var(--clr-text-muted);
+  text-decoration: none;
+  padding-top: var(--space-lg);
+}
+
+.metric-docs-link:hover {
+  color: var(--clr-ocean);
+}
+
 .building-panel-footer {
   padding: var(--space-lg);
   border-top: 1px solid var(--clr-slate-200);

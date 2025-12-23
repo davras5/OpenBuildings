@@ -1064,7 +1064,9 @@ async function init() {
           <span class="metric-value">${m.value}</span>
         </div>
       `;
-    }).join('');
+    }).join('') + `
+      <a href="documentation/DATAMODEL.md" target="_blank" class="metric-docs-link">Datenmodell →</a>
+    `;
 
     buildingPanel.classList.add('open');
   }
