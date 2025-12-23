@@ -213,18 +213,6 @@ OpenBuildings/
 
 ---
 
-## Sustainability Model
-
-| Tier     | Access                                   |
-| -------- | ---------------------------------------- |
-| **Free** | Exploration and individual downloads     |
-| **Paid** | Bulk data, APIs, portfolio-level outputs |
-
-Revenue supports maintenance and continuity.
-The foundation remains open.
-
----
-
 ## Contributing
 
 OpenBuildings is a shared foundation.
