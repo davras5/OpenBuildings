@@ -29,6 +29,7 @@ erDiagram
     buildings {
         bigint id PK
         text egid UK
+        text label
         geography geog
         bigint parcel_id FK
     }
@@ -37,12 +38,14 @@ erDiagram
         bigint id PK
         text egrid UK
         text egid
+        text label
         text parcel_number
         geography geog
     }
 
     landcovers {
         bigint id PK
+        text label
         geography geog
         bigint building_id FK
         bigint parcel_id FK
@@ -51,6 +54,7 @@ erDiagram
     projects {
         bigint id PK
         text eproid UK
+        text label
         geography geog
         bigint building_id FK
         bigint parcel_id FK
@@ -71,6 +75,7 @@ Primary entity representing individual buildings.
 |--------|------------|------------|------|-------------|--------|-------------|
 | `id` | ID | ID | `bigint` | `PRIMARY KEY, GENERATED ALWAYS AS IDENTITY` | System | System ID |
 | `egid` | Building ID | Gebäudeidentifikator | `text` | `UNIQUE, CHECK (egid ~ '^[0-9]{1,9}$')` | GWR | Eidgenössischer Gebäudeidentifikator (EGID) |
+| `label` | Label | Bezeichnung | `text` | | Derived | Display label for frontend |
 | `source_fid` | Source Feature ID | Quell-Feature-ID | `text` | | Various | Feature ID from source system (for traceability) |
 | `parcel_id` | Parcel | Grundstück | `bigint` | `REFERENCES parcels(id)` | Derived | Containing parcel |
 | `geog` | Location | Standort | `geography(POINT, 4326)` | `NOT NULL` | GWR | Building centroid |
@@ -188,6 +193,7 @@ Land parcels from cadastral survey.
 | `id` | ID | ID | `bigint` | `PRIMARY KEY, GENERATED ALWAYS AS IDENTITY` | System | System ID |
 | `egrid` | Parcel ID | Grundstückidentifikator | `text` | `UNIQUE, CHECK (egrid ~ '^CH[0-9]{12}$')` | AV | E-GRID identifier |
 | `egid` | Building ID | Gebäudeidentifikator | `text` | `CHECK (egid ~ '^[0-9]{1,9}$')` | GWR | Eidgenössischer Gebäudeidentifikator (EGID) - for parcels representing building footprints |
+| `label` | Label | Bezeichnung | `text` | | Derived | Display label for frontend |
 | `parcel_number` | Parcel Number | Parzellennummer | `text` | | AV | Local parcel number (Grundstücksnummer) |
 | `source_fid` | Source Feature ID | Quell-Feature-ID | `text` | | AV | Feature ID from source system |
 | `geog` | Geometry | Geometrie | `geography(POLYGON, 4326)` | `NOT NULL` | AV | Parcel boundary |
@@ -241,6 +247,7 @@ Landcover polygons from cadastral survey.
 | Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
 |--------|------------|------------|------|-------------|--------|-------------|
 | `id` | ID | ID | `bigint` | `PRIMARY KEY, GENERATED ALWAYS AS IDENTITY` | System | System ID |
+| `label` | Label | Bezeichnung | `text` | | Derived | Display label for frontend |
 | `source_fid` | Source Feature ID | Quell-Feature-ID | `text` | | AV | Feature ID from source system |
 | `geog` | Geometry | Geometrie | `geography(POLYGON, 4326)` | `NOT NULL` | AV | Landcover polygon |
 | `created_at` | Created | Erstellt | `timestamptz` | `NOT NULL DEFAULT NOW()` | System | Record creation timestamp |
@@ -281,6 +288,7 @@ Construction projects from GWR.
 |--------|------------|------------|------|-------------|--------|-------------|
 | `id` | ID | ID | `bigint` | `PRIMARY KEY, GENERATED ALWAYS AS IDENTITY` | System | System ID |
 | `eproid` | Project ID | Bauprojektidentifikator | `text` | `UNIQUE, CHECK (eproid ~ '^[0-9]{1,15}$')` | GWR | EPROID identifier |
+| `label` | Label | Bezeichnung | `text` | | Derived | Display label for frontend |
 | `source_fid` | Source Feature ID | Quell-Feature-ID | `text` | | GWR | Feature ID from source system |
 | `geog` | Geometry | Geometrie | `geography(POLYGON, 4326)` | | GWR | Project perimeter |
 | `created_at` | Created | Erstellt | `timestamptz` | `NOT NULL DEFAULT NOW()` | System | Record creation timestamp |
