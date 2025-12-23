@@ -2,9 +2,6 @@
 
 **Swiss building data. Open by default. Open in practice.**
 
-> A harmonised, open foundation for Swiss building data, designed for public-sector reuse.
-
-
 ![image](/images/style/1.jpg)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
