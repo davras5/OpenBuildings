@@ -75,7 +75,7 @@ erDiagram
 
 Primary entity representing individual buildings.
 
-#### System
+#### System / System
 
 | Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
 |--------|------------|------------|------|-------------|--------|-------------|
@@ -88,7 +88,7 @@ Primary entity representing individual buildings.
 | `created_at` | Created | Erstellt | `timestamptz` | `NOT NULL DEFAULT NOW()` | System | Record creation timestamp |
 | `updated_at` | Updated | Aktualisiert | `timestamptz` | `NOT NULL DEFAULT NOW()` | System | Record last update timestamp |
 
-#### Address
+#### Address / Adresse
 
 | Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
 |--------|------------|------------|------|-------------|--------|-------------|
@@ -99,7 +99,7 @@ Primary entity representing individual buildings.
 | `street` | Street | Strasse | `text` | | GWR | Street name |
 | `street_nr` | Street Number | Hausnummer | `text` | | GWR | Street number |
 
-#### Classification
+#### Classification / Klassifikation
 
 | Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
 |--------|------------|------------|------|-------------|--------|-------------|
@@ -108,7 +108,7 @@ Primary entity representing individual buildings.
 | `class` | Class | Klasse | `text` | `CHECK (class ~ '^[0-9]{4}$')` | GWR | Building class code (GKLAS) |
 | `roof_form` | Roof Form | Dachform | `roof_form` | | Derived | Roof form |
 
-#### Construction
+#### Construction / Bau
 
 | Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
 |--------|------------|------------|------|-------------|--------|-------------|
@@ -116,7 +116,7 @@ Primary entity representing individual buildings.
 | `renovation_year` | Renovation Year | Renovationsjahr | `integer` | `CHECK (renovation_year BETWEEN 1000 AND 2100)` | GWR | Year of last renovation |
 | `dwellings_count` | Dwellings | Wohnungen | `integer` | `CHECK (dwellings_count >= 0)` | GWR | Number of dwellings |
 
-#### Dimensions - Area
+#### Dimensions - Area / Dimensionen - Fläche
 
 | Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
 |--------|------------|------------|------|-------------|--------|-------------|
@@ -130,7 +130,7 @@ Primary entity representing individual buildings.
 | `area_wall_m2` | Wall Area | Aussenwandfläche | `numeric` | `CHECK (area_wall_m2 >= 0)` | Derived | Fläche Aussenwand AWF (eBKP-H) |
 | `area_accuracy` | Area Accuracy | Flächen-Genauigkeit | `text` | | Derived | Accuracy and source of area data |
 
-#### Dimensions - Floors
+#### Dimensions - Floors / Dimensionen - Geschosse
 
 | Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
 |--------|------------|------------|------|-------------|--------|-------------|
@@ -139,7 +139,7 @@ Primary entity representing individual buildings.
 | `floors_below` | Floors Below Ground | Unterirdische Geschosse | `integer` | `CHECK (floors_below >= 0)` | GWR | Geschosse unterirdisch (SIA 416) |
 | `floors_accuracy` | Floors Accuracy | Geschoss-Genauigkeit | `text` | | Derived | Accuracy and source of floor data |
 
-#### Dimensions - Volume
+#### Dimensions - Volume / Dimensionen - Volumen
 
 | Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
 |--------|------------|------------|------|-------------|--------|-------------|
@@ -148,7 +148,7 @@ Primary entity representing individual buildings.
 | `volume_below_ground_m3` | Below Ground Volume | Unterirdisches Volumen | `numeric` | `CHECK (volume_below_ground_m3 >= 0)` | Derived | GV unterirdisch (SIA 416) |
 | `volume_accuracy` | Volume Accuracy | Volumen-Genauigkeit | `text` | | Derived | Accuracy and source of volume data |
 
-#### Dimensions - Height
+#### Dimensions - Height / Dimensionen - Höhe
 
 | Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
 |--------|------------|------------|------|-------------|--------|-------------|
@@ -156,7 +156,7 @@ Primary entity representing individual buildings.
 | `height_mean_m` | Mean Height | Mittlere Höhe | `numeric` | `CHECK (height_mean_m >= 0)` | Derived | Mean building height |
 | `height_max_m` | Max Height | Maximale Höhe | `numeric` | `CHECK (height_max_m >= 0)` | Derived | Maximum building height |
 
-#### Energy
+#### Energy / Energie
 
 | Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
 |--------|------------|------------|------|-------------|--------|-------------|
@@ -165,21 +165,21 @@ Primary entity representing individual buildings.
 | `water_heating_type` | Water Heating Type | Wärmeerzeuger Warmwasser | `text` | | GWR | Hot water system type (GWAERZW) |
 | `water_heating_source` | Water Heating Source | Energiequelle Warmwasser | `text` | | GWR | Hot water energy source (GENW) |
 
-#### Administrative
+#### Administrative / Administrativ
 
 | Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
 |--------|------------|------------|------|-------------|--------|-------------|
 | `municipality_nr` | Municipality Number | Gemeindenummer | `integer` | `CHECK (municipality_nr BETWEEN 1 AND 6999)` | GWR | BFS municipality number (GGDENR) |
 | `municipality_name` | Municipality Name | Gemeindename | `text` | | GWR | Municipality name |
 
-#### Heritage
+#### Heritage / Denkmalschutz
 
 | Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
 |--------|------------|------------|------|-------------|--------|-------------|
 | `heritage_category` | Heritage Category | Schutzkategorie | `heritage_category` | | KGS | Protection category (A/B) |
 | `heritage_inventory_nr` | Heritage Inventory Nr | KGS-Inventarnummer | `integer` | | KGS | Inventory number |
 
-#### Zoning
+#### Zoning / Nutzungsplanung
 
 | Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
 |--------|------------|------------|------|-------------|--------|-------------|
@@ -192,7 +192,7 @@ Primary entity representing individual buildings.
 
 Land parcels from cadastral survey.
 
-#### System
+#### System / System
 
 | Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
 |--------|------------|------------|------|-------------|--------|-------------|
@@ -205,14 +205,14 @@ Land parcels from cadastral survey.
 | `created_at` | Created | Erstellt | `timestamptz` | `NOT NULL DEFAULT NOW()` | System | Record creation timestamp |
 | `updated_at` | Updated | Aktualisiert | `timestamptz` | `NOT NULL DEFAULT NOW()` | System | Record last update timestamp |
 
-#### Classification
+#### Classification / Klassifikation
 
 | Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
 |--------|------------|------------|------|-------------|--------|-------------|
 | `status` | Status | Status | `parcel_status` | | AV | Parcel status |
 | `type` | Type | Typ | `parcel_type` | | AV | Parcel type (LTYP) |
 
-#### Dimensions
+#### Dimensions / Dimensionen
 
 > **Note on area calculations:** Swiss cadastral surveys use **horizontal projection** (Horizontalprojektion) for all area measurements. This means the official `area_m2` represents the 2D planimetric area, not the actual 3D surface area. On sloped terrain, the true surface area can be significantly larger (e.g., +41% at 45° slope). The legally binding value from AV is always the projected area.
 
@@ -227,14 +227,14 @@ Land parcels from cadastral survey.
 | `area_uuf_m2` | Unprocessed Surrounding | Unbearbeitete Umgebung | `numeric` | `CHECK (area_uuf_m2 >= 0)` | Derived | Unprocessed surrounding area in m² (UUF, SIA 416). Based on 2D polygon area. |
 | `sealed_area_m2` | Sealed Area | Versiegelte Fläche | `numeric` | `CHECK (sealed_area_m2 >= 0)` | Derived | Sealed/impervious surface in m². Based on 2D polygon area. |
 
-#### Administrative
+#### Administrative / Administrativ
 
 | Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
 |--------|------------|------------|------|-------------|--------|-------------|
 | `municipality_nr` | Municipality Number | Gemeindenummer | `integer` | `CHECK (municipality_nr BETWEEN 1 AND 6999)` | AV | BFS municipality number |
 | `municipality_name` | Municipality Name | Gemeindename | `text` | | AV | Municipality name |
 
-#### Zoning
+#### Zoning / Nutzungsplanung
 
 | Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
 |--------|------------|------------|------|-------------|--------|-------------|
@@ -247,7 +247,7 @@ Land parcels from cadastral survey.
 
 Landcover polygons from cadastral survey. Landcovers can represent building footprints (Type = Building / Gebäude).
 
-#### System
+#### System / System
 
 | Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
 |--------|------------|------------|------|-------------|--------|-------------|
@@ -259,14 +259,14 @@ Landcover polygons from cadastral survey. Landcovers can represent building foot
 | `created_at` | Created | Erstellt | `timestamptz` | `NOT NULL DEFAULT NOW()` | System | Record creation timestamp |
 | `updated_at` | Updated | Aktualisiert | `timestamptz` | `NOT NULL DEFAULT NOW()` | System | Record last update timestamp |
 
-#### Classification
+#### Classification / Klassifikation
 
 | Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
 |--------|------------|------------|------|-------------|--------|-------------|
 | `status` | Status | Status | `text` | | AV | Landcover status |
 | `type` | Type | Typ | `landcover_type` | `NOT NULL` | AV | Landcover classification |
 
-#### Dimensions
+#### Dimensions / Dimensionen
 
 | Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
 |--------|------------|------------|------|-------------|--------|-------------|
@@ -275,7 +275,7 @@ Landcover polygons from cadastral survey. Landcovers can represent building foot
 | `height_mean_m` | Mean Height | Mittlere Höhe | `numeric` | `CHECK (height_mean_m >= 0)` | Derived | Mean height in m (for type=building) |
 | `height_max_m` | Max Height | Maximale Höhe | `numeric` | `CHECK (height_max_m >= 0)` | Derived | Maximum height in m (for type=building) |
 
-#### Relations
+#### Relations / Beziehungen
 
 | Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
 |--------|------------|------------|------|-------------|--------|-------------|
@@ -288,7 +288,7 @@ Landcover polygons from cadastral survey. Landcovers can represent building foot
 
 Construction projects from GWR.
 
-#### System
+#### System / System
 
 | Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
 |--------|------------|------------|------|-------------|--------|-------------|
@@ -300,20 +300,20 @@ Construction projects from GWR.
 | `created_at` | Created | Erstellt | `timestamptz` | `NOT NULL DEFAULT NOW()` | System | Record creation timestamp |
 | `updated_at` | Updated | Aktualisiert | `timestamptz` | `NOT NULL DEFAULT NOW()` | System | Record last update timestamp |
 
-#### Relations
+#### Relations / Beziehungen
 
 | Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
 |--------|------------|------------|------|-------------|--------|-------------|
 | `building_id` | Building | Gebäude | `bigint` | `REFERENCES buildings(id)` | GWR | Associated building (EGID) |
 | `parcel_id` | Parcel | Grundstück | `bigint` | `REFERENCES parcels(id)` | Derived | Associated parcel |
 
-#### Identification
+#### Identification / Identifikation
 
 | Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
 |--------|------------|------------|------|-------------|--------|-------------|
 | `name` | Name | Bezeichnung | `text` | | GWR | Project name (PBEZ) |
 
-#### Classification
+#### Classification / Klassifikation
 
 | Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
 |--------|------------|------------|------|-------------|--------|-------------|
@@ -321,7 +321,7 @@ Construction projects from GWR.
 | `project_type` | Project Type | Projektart | `project_type` | | GWR | Type of construction (PARTBW) |
 | `building_type` | Building Type | Bauwerkstyp | `text` | | GWR | Specific building type (PTYPBW) |
 
-#### Timeline
+#### Timeline / Zeitplan
 
 | Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
 |--------|------------|------------|------|-------------|--------|-------------|
@@ -330,7 +330,7 @@ Construction projects from GWR.
 | `date_started` | Started | Baubeginn | `date` | | GWR | Construction start date (PDATBB) |
 | `date_completed` | Completed | Abgeschlossen | `date` | | GWR | Completion date (PDATBE) |
 
-#### Administrative
+#### Administrative / Administrativ
 
 | Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
 |--------|------------|------------|------|-------------|--------|-------------|

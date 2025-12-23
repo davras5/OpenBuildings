@@ -383,6 +383,20 @@ main {
   text-align: right;
 }
 
+.metric-category {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--clr-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding-top: var(--space-md);
+  margin-bottom: calc(-1 * var(--space-sm));
+}
+
+.metric-category:first-child {
+  padding-top: 0;
+}
+
 .building-panel-footer {
   padding: var(--space-lg);
   border-top: 1px solid var(--clr-slate-200);
