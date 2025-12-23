@@ -1784,7 +1784,7 @@
           basemapSelector.classList.remove('expanded');
 
           // Change map style (Protomaps)
-          map.setStyle(`https://api.protomaps.com/styles/v2/${style}.json?key=${PROTOMAPS_KEY}`);
+          map.setStyle(`https://api.protomaps.com/styles/v2/${styleKey}.json?key=${PROTOMAPS_KEY}`);
         });
       });
       
@@ -1818,8 +1818,11 @@
       const toggle3DButton = document.getElementById('toggle3DBtn');
 
       function setup3DTerrain() {
+        console.log('Setting up 3D terrain...');
+
         // Add AWS Terrarium terrain source if not exists
         if (!map.getSource('terrain-dem')) {
+          console.log('Adding terrain-dem source');
           map.addSource('terrain-dem', {
             type: 'raster-dem',
             tiles: ['https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png'],
@@ -1830,104 +1833,82 @@
         }
 
         // Enable terrain
-        map.setTerrain({ source: 'terrain-dem', exaggeration: 1.5 });
-
-        // Convert landcover to fill-extrusion for 3D view
-        if (map.getLayer('landcover-fill')) {
-          map.removeLayer('landcover-fill');
-          map.addLayer({
-            id: 'landcover-fill',
-            type: 'fill-extrusion',
-            source: 'landcover',
-            'source-layer': 'landcover',
-            minzoom: 12,
-            paint: {
-              'fill-extrusion-color': [
-                'case',
-                ['==', ['get', 'id'], selectedLandcover || -1], '#059669',
-                '#8b5cf6'
-              ],
-              'fill-extrusion-height': 10,
-              'fill-extrusion-base': 0,
-              'fill-extrusion-opacity': [
-                'case',
-                ['==', ['get', 'id'], selectedLandcover || -1], 0.6,
-                0.4
-              ]
-            }
-          }, 'landcover-outline');
+        try {
+          map.setTerrain({ source: 'terrain-dem', exaggeration: 1.5 });
+          console.log('Terrain enabled');
+        } catch (err) {
+          console.error('Failed to enable terrain:', err);
         }
 
-        // Add 3D buildings layer using Supabase buildings source
-        if (!map.getLayer('3d-buildings')) {
-          // Find the first symbol layer to insert before it
-          const layers = map.getStyle().layers;
-          let labelLayerId;
-          for (let i = 0; i < layers.length; i++) {
-            if (layers[i].type === 'symbol' && layers[i].layout && layers[i].layout['text-field']) {
-              labelLayerId = layers[i].id;
-              break;
-            }
-          }
+        // Convert landcover (building footprints) to fill-extrusion for 3D view
+        if (map.getLayer('landcover-fill')) {
+          console.log('Converting landcover to fill-extrusion');
+          try {
+            // Get the outline layer position if it exists
+            const beforeLayer = map.getLayer('landcover-outline') ? 'landcover-outline' : undefined;
 
-          // Ensure buildings source exists
-          if (!map.getSource('buildings')) {
-            map.addSource('buildings', {
-              type: 'vector',
-              tiles: [`${TILE_SERVER}/buildings/{z}/{x}/{y}.pbf`],
-              minzoom: 0,
-              maxzoom: 14,
-              bounds: SWITZERLAND_BOUNDS
-            });
+            map.removeLayer('landcover-fill');
+            map.addLayer({
+              id: 'landcover-fill',
+              type: 'fill-extrusion',
+              source: 'landcover',
+              'source-layer': 'landcover',
+              minzoom: 12,
+              paint: {
+                'fill-extrusion-color': [
+                  'case',
+                  ['==', ['get', 'id'], selectedLandcover || -1], '#059669',
+                  '#8b5cf6'
+                ],
+                'fill-extrusion-height': 10,
+                'fill-extrusion-base': 0,
+                'fill-extrusion-opacity': 0.8
+              }
+            }, beforeLayer);
+            console.log('Landcover fill-extrusion layer added successfully');
+          } catch (err) {
+            console.error('Failed to add landcover fill-extrusion:', err);
           }
-
-          map.addLayer({
-            id: '3d-buildings',
-            source: 'buildings',
-            'source-layer': 'buildings',
-            type: 'fill-extrusion',
-            minzoom: 14,
-            paint: {
-              'fill-extrusion-color': '#ddd',
-              'fill-extrusion-height': ['coalesce', ['get', 'height'], 10], // Use height if available, else 10m
-              'fill-extrusion-base': 0,
-              'fill-extrusion-opacity': 0.7
-            }
-          });
+        } else {
+          console.warn('landcover-fill layer not found');
         }
       }
 
       function remove3DTerrain() {
+        console.log('Removing 3D terrain...');
+
         // Disable terrain
         map.setTerrain(null);
 
-        // Remove 3D buildings layer
-        if (map.getLayer('3d-buildings')) {
-          map.removeLayer('3d-buildings');
-        }
-
         // Convert landcover back to flat fill
         if (map.getLayer('landcover-fill')) {
-          map.removeLayer('landcover-fill');
-          map.addLayer({
-            id: 'landcover-fill',
-            type: 'fill',
-            source: 'landcover',
-            'source-layer': 'landcover',
-            minzoom: 12,
-            paint: {
-              'fill-color': [
-                'case',
-                ['==', ['get', 'id'], selectedLandcover || -1], '#059669',
-                '#8b5cf6'
-              ],
-              'fill-opacity': [
-                'case',
-                ['==', ['get', 'id'], selectedLandcover || -1], 0.4,
-                0.2
-              ]
-            }
-          }, 'landcover-outline');
+          console.log('Converting landcover back to flat fill');
+          try {
+            const beforeLayer = map.getLayer('landcover-outline') ? 'landcover-outline' : undefined;
+
+            map.removeLayer('landcover-fill');
+            map.addLayer({
+              id: 'landcover-fill',
+              type: 'fill',
+              source: 'landcover',
+              'source-layer': 'landcover',
+              minzoom: 12,
+              paint: {
+                'fill-color': [
+                  'case',
+                  ['==', ['get', 'id'], selectedLandcover || -1], '#059669',
+                  '#8b5cf6'
+                ],
+                'fill-opacity': [
+                  'case',
+                  ['==', ['get', 'id'], selectedLandcover || -1], 0.4,
+                  0.2
+                ]
+              }
+            }, beforeLayer);
+          } catch (err) {
+            console.error('Failed to restore landcover fill:', err);
+          }
         }
       }
 
