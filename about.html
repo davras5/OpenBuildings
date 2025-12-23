@@ -1,0 +1,2109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenBuildings.ch - Swiss Building Data Infrastructure</title>
+    <meta name="description" content="Swiss building data. Open by default. A shared, authoritative foundation for Swiss building data—open, connected, and maintained.">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        /* ===== CSS VARIABLES ===== */
+        :root {
+            /* Primary Colors */
+            --deep-blue: #1e3a5f;
+            --ocean: #2563eb;
+            --sky: #3b82f6;
+
+            /* Accent Colors */
+            --leaf: #059669;
+            --leaf-light: #10b981;
+            --amber: #d97706;
+            --coral: #dc2626;
+
+            /* Neutral Colors */
+            --slate-900: #0f172a;
+            --slate-700: #334155;
+            --slate-500: #64748b;
+            --slate-300: #cbd5e1;
+            --slate-200: #e2e8f0;
+            --slate-100: #f1f5f9;
+            --white: #ffffff;
+
+            /* Spacing */
+            --space-xs: 4px;
+            --space-sm: 8px;
+            --space-md: 16px;
+            --space-lg: 24px;
+            --space-xl: 32px;
+            --space-2xl: 48px;
+            --space-3xl: 64px;
+            --space-4xl: 96px;
+
+            /* Typography */
+            --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+            /* Borders & Shadows */
+            --radius-sm: 6px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+        }
+
+        /* ===== RESET & BASE ===== */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font-family);
+            font-size: 16px;
+            line-height: 1.6;
+            color: var(--slate-700);
+            background-color: var(--white);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        a {
+            color: var(--ocean);
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        a:hover {
+            color: var(--deep-blue);
+        }
+
+        /* ===== TYPOGRAPHY ===== */
+        h1, h2, h3, h4, h5, h6 {
+            color: var(--slate-900);
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        h1 {
+            font-size: clamp(2.25rem, 5vw, 3rem);
+            letter-spacing: -0.02em;
+        }
+
+        h2 {
+            font-size: clamp(1.75rem, 4vw, 2.25rem);
+            letter-spacing: -0.01em;
+        }
+
+        h3 {
+            font-size: 1.375rem;
+            font-weight: 600;
+        }
+
+        h4 {
+            font-size: 1.125rem;
+            font-weight: 600;
+        }
+
+        p {
+            margin-bottom: 1rem;
+        }
+
+        .text-large {
+            font-size: 1.25rem;
+            line-height: 1.7;
+        }
+
+        .text-small {
+            font-size: 0.875rem;
+        }
+
+        .text-muted {
+            color: var(--slate-500);
+        }
+
+        /* ===== LAYOUT ===== */
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 var(--space-md);
+        }
+
+        @media (min-width: 768px) {
+            .container {
+                padding: 0 var(--space-lg);
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .container {
+                padding: 0 var(--space-2xl);
+            }
+        }
+
+        section {
+            padding: var(--space-3xl) 0;
+        }
+
+        @media (min-width: 768px) {
+            section {
+                padding: var(--space-4xl) 0;
+            }
+        }
+
+        /* ===== BUTTONS ===== */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-sm);
+            padding: 12px 24px;
+            font-family: var(--font-family);
+            font-size: 1rem;
+            font-weight: 500;
+            border-radius: var(--radius-sm);
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background-color: var(--ocean);
+            color: var(--white);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--sky);
+            color: var(--white);
+        }
+
+        .btn-secondary {
+            background-color: var(--white);
+            color: var(--slate-900);
+            border: 1px solid var(--slate-300);
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--slate-100);
+            color: var(--slate-900);
+        }
+
+        .btn-large {
+            padding: 16px 32px;
+            font-size: 1.125rem;
+        }
+
+        /* ===== HEADER ===== */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            background-color: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(8px);
+            border-bottom: 1px solid var(--slate-200);
+        }
+
+        .header-inner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 64px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--deep-blue);
+        }
+
+        .logo:hover {
+            color: var(--deep-blue);
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--ocean), var(--leaf));
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .nav {
+            display: none;
+            gap: var(--space-xl);
+        }
+
+        @media (min-width: 768px) {
+            .nav {
+                display: flex;
+            }
+        }
+
+        .nav a {
+            color: var(--slate-700);
+            font-weight: 500;
+        }
+
+        .nav a:hover {
+            color: var(--ocean);
+        }
+
+        .header-cta {
+            display: none;
+        }
+
+        @media (min-width: 640px) {
+            .header-cta {
+                display: flex;
+            }
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+        }
+
+        /* ===== HERO ===== */
+        .hero {
+            padding-top: calc(64px + var(--space-3xl));
+            padding-bottom: var(--space-3xl);
+            background: linear-gradient(180deg, var(--slate-100) 0%, var(--white) 100%);
+        }
+
+        @media (min-width: 768px) {
+            .hero {
+                padding-top: calc(64px + var(--space-4xl));
+                padding-bottom: var(--space-4xl);
+            }
+        }
+
+        .hero-content {
+            text-align: center;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-sm);
+            padding: var(--space-xs) var(--space-md);
+            background-color: var(--white);
+            border: 1px solid var(--slate-200);
+            border-radius: 999px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--slate-700);
+            margin-bottom: var(--space-lg);
+        }
+
+        .hero-badge-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--leaf);
+            border-radius: 50%;
+        }
+
+        .hero h1 {
+            margin-bottom: var(--space-lg);
+        }
+
+        .hero h1 span {
+            color: var(--ocean);
+        }
+
+        .hero-subtitle {
+            font-size: clamp(1.125rem, 2.5vw, 1.375rem);
+            color: var(--slate-500);
+            margin-bottom: var(--space-xl);
+            max-width: 640px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .hero-image {
+            position: relative;
+            max-width: 1100px;
+            margin: 0 auto;
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: var(--shadow-lg), 0 25px 50px -12px rgba(0,0,0,0.15);
+        }
+
+        .hero-image img {
+            width: 100%;
+        }
+
+        .hero-stats {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: var(--space-lg);
+            flex-wrap: wrap;
+            margin-bottom: var(--space-3xl);
+        }
+
+        .hero-stat {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: var(--space-xs);
+        }
+
+        .hero-stat-number {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--deep-blue);
+        }
+
+        .hero-stat-label {
+            font-size: 0.875rem;
+            color: var(--slate-500);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .hero-stat-divider {
+            width: 1px;
+            height: 40px;
+            background-color: var(--slate-300);
+        }
+
+        @media (max-width: 640px) {
+            .hero-stats {
+                gap: var(--space-md);
+            }
+
+            .hero-stat-divider {
+                display: none;
+            }
+
+            .hero-stat {
+                min-width: 45%;
+            }
+        }
+
+        .hero-search {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%;
+            max-width: 500px;
+            z-index: 10;
+        }
+
+        .hero-search-wrapper {
+            position: relative;
+        }
+
+        .hero-search-icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--slate-500);
+            pointer-events: none;
+        }
+
+        .hero-search-input {
+            width: 100%;
+            padding: 16px 16px 16px 48px;
+            font-size: 1rem;
+            font-family: var(--font-family);
+            border: none;
+            border-radius: var(--radius-lg);
+            background-color: var(--white);
+            color: var(--slate-900);
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        }
+
+        .hero-search-input:focus {
+            outline: none;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2), 0 0 0 4px rgba(37, 99, 235, 0.2);
+        }
+
+        .hero-search-input::placeholder {
+            color: var(--slate-400);
+        }
+
+        .hero-search-hint {
+            display: block;
+            margin-top: var(--space-sm);
+            font-size: 0.875rem;
+            color: var(--white);
+            text-align: center;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+        }
+
+        .hero-partners {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-md);
+            flex-wrap: wrap;
+            padding: var(--space-md) var(--space-lg);
+            background: linear-gradient(to top, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0) 100%);
+            border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+        }
+
+        .hero-partners-label {
+            font-size: 0.75rem;
+            color: rgba(255,255,255,0.7);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-weight: 500;
+        }
+
+        .hero-partners-list {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+            flex-wrap: wrap;
+        }
+
+        .hero-partners-list span {
+            font-size: 0.85rem;
+            color: var(--white);
+            font-weight: 500;
+        }
+
+        .hero-partners-divider {
+            width: 1px;
+            height: 14px;
+            background-color: rgba(255,255,255,0.4);
+        }
+
+        @media (max-width: 640px) {
+            .hero-partners {
+                flex-direction: column;
+                gap: var(--space-xs);
+                padding: var(--space-sm) var(--space-md);
+            }
+
+            .hero-partners-divider {
+                display: none;
+            }
+
+            .hero-partners-list {
+                justify-content: center;
+            }
+        }
+
+        .hero-search-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            margin-top: 4px;
+            background-color: var(--white);
+            border: 1px solid var(--slate-200);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-lg);
+            max-height: 300px;
+            overflow-y: auto;
+            display: none;
+            z-index: 50;
+            text-align: left;
+        }
+
+        .hero-search-results.active {
+            display: block;
+        }
+
+        .hero-search-result {
+            padding: 12px 16px;
+            cursor: pointer;
+            border-bottom: 1px solid var(--slate-100);
+            transition: background-color 0.15s ease;
+        }
+
+        .hero-search-result:last-child {
+            border-bottom: none;
+        }
+
+        .hero-search-result:hover {
+            background-color: var(--slate-100);
+        }
+
+        .hero-search-result-title {
+            font-weight: 500;
+            color: var(--slate-900);
+            font-size: 0.9rem;
+        }
+
+        .hero-search-result-subtitle {
+            font-size: 0.75rem;
+            color: var(--slate-500);
+            margin-top: 2px;
+        }
+
+        /* ===== PROBLEM SECTION ===== */
+        .problem {
+            background-color: var(--deep-blue);
+            color: var(--white);
+        }
+
+        .problem h2 {
+            color: var(--white);
+            text-align: center;
+            margin-bottom: var(--space-2xl);
+        }
+
+        .problem-grid {
+            display: grid;
+            gap: var(--space-xl);
+        }
+
+        @media (min-width: 768px) {
+            .problem-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .problem-card {
+            padding: var(--space-xl);
+            background-color: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-md);
+        }
+
+        .problem-card h3 {
+            color: var(--white);
+            margin-bottom: var(--space-md);
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+        }
+
+        .problem-card p {
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 0;
+        }
+
+        .stat-highlight {
+            text-align: center;
+            padding: var(--space-2xl);
+            margin-bottom: var(--space-2xl);
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-lg);
+        }
+
+        .stat-number {
+            font-size: clamp(3rem, 8vw, 4.5rem);
+            font-weight: 700;
+            color: var(--leaf-light);
+            line-height: 1;
+            margin-bottom: var(--space-sm);
+        }
+
+        .stat-label {
+            font-size: 1.25rem;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        /* ===== SOLUTION SECTION ===== */
+        .solution {
+            background-color: var(--white);
+        }
+
+        .solution-header {
+            text-align: center;
+            max-width: 700px;
+            margin: 0 auto var(--space-3xl);
+        }
+
+        .solution-header h2 {
+            margin-bottom: var(--space-md);
+        }
+
+        .solution-header p {
+            font-size: 1.125rem;
+            color: var(--slate-500);
+        }
+
+        .features-grid {
+            display: grid;
+            gap: var(--space-xl);
+        }
+
+        @media (min-width: 768px) {
+            .features-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        .feature-card {
+            padding: var(--space-lg) 0;
+            text-align: center;
+        }
+
+        .feature-icon {
+            width: 48px;
+            height: 48px;
+            margin: 0 auto var(--space-md);
+            background-color: var(--slate-100);
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--ocean);
+        }
+
+        .feature-card h3 {
+            margin-bottom: var(--space-sm);
+        }
+
+        .feature-card p {
+            color: var(--slate-500);
+            margin-bottom: 0;
+        }
+
+        /* ===== TOOLS SECTION (CAROUSEL) ===== */
+        .tools {
+            background-color: var(--slate-100);
+        }
+
+        .tools-header {
+            text-align: center;
+            max-width: 700px;
+            margin: 0 auto var(--space-2xl);
+        }
+
+        .tools-header h2 {
+            margin-bottom: var(--space-md);
+        }
+
+        .tools-header p {
+            font-size: 1.125rem;
+            color: var(--slate-500);
+        }
+
+        .tools-carousel-wrapper {
+            position: relative;
+            max-width: 1100px;
+            margin: 0 auto;
+            overflow: hidden;
+        }
+
+        .tools-carousel {
+            display: flex;
+            gap: var(--space-lg);
+            padding: var(--space-sm) 0 var(--space-lg);
+            transition: transform 0.3s ease;
+        }
+
+        .tool-card {
+            flex: 0 0 280px;
+            min-width: 280px;
+            padding: var(--space-xl);
+            background-color: var(--white);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-sm);
+            transition: all 0.2s ease;
+        }
+
+        .tool-card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+        @media (min-width: 768px) {
+            .tool-card {
+                flex: 0 0 320px;
+            }
+        }
+
+        .tool-icon {
+            width: 56px;
+            height: 56px;
+            background-color: var(--slate-100);
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--ocean);
+            margin-bottom: var(--space-md);
+        }
+
+        .tool-card h3 {
+            margin-bottom: var(--space-sm);
+        }
+
+        .tool-card p {
+            color: var(--slate-500);
+            margin-bottom: var(--space-md);
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .tool-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--space-xs);
+        }
+
+        .tool-tags span {
+            padding: 4px 10px;
+            background-color: var(--slate-100);
+            border-radius: var(--radius-sm);
+            font-size: 0.75rem;
+            color: var(--slate-600);
+        }
+
+        .tool-tags span.available {
+            background-color: var(--leaf);
+            color: var(--white);
+        }
+
+        .tool-tags span.coming-soon {
+            background-color: var(--amber);
+            color: var(--white);
+        }
+
+        .tools-nav {
+            display: flex;
+            justify-content: center;
+            gap: var(--space-sm);
+            margin-top: var(--space-lg);
+        }
+
+        .tools-nav-btn {
+            width: 40px;
+            height: 40px;
+            border: 1px solid var(--slate-300);
+            background-color: var(--white);
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--slate-700);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .tools-nav-btn:hover {
+            background-color: var(--slate-100);
+            border-color: var(--slate-400);
+        }
+
+        .tools-nav-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .tools-cta {
+            text-align: center;
+            margin-top: var(--space-2xl);
+        }
+
+        /* ===== SHOWCASE SECTION ===== */
+        .showcase {
+            background-color: var(--white);
+        }
+
+        .showcase-header {
+            text-align: center;
+            max-width: 700px;
+            margin: 0 auto var(--space-3xl);
+        }
+
+        .showcase-header h2 {
+            margin-bottom: var(--space-md);
+        }
+
+        .showcase-content {
+            display: grid;
+            gap: var(--space-2xl);
+            align-items: center;
+        }
+
+        @media (min-width: 1024px) {
+            .showcase-content {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .showcase-image {
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .showcase-features {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-lg);
+        }
+
+        .showcase-feature {
+            display: flex;
+            gap: var(--space-md);
+        }
+
+        .showcase-feature-icon {
+            flex-shrink: 0;
+            width: 40px;
+            height: 40px;
+            background-color: var(--ocean);
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+        }
+
+        .showcase-feature h4 {
+            margin-bottom: var(--space-xs);
+        }
+
+        .showcase-feature p {
+            color: var(--slate-500);
+            margin-bottom: 0;
+        }
+
+        .showcase-actions {
+            margin-top: var(--space-3xl);
+            text-align: center;
+        }
+
+        .showcase-search {
+            max-width: 500px;
+            margin: 0 auto var(--space-xl);
+        }
+
+        .showcase-search-wrapper {
+            position: relative;
+        }
+
+        .showcase-search-icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--slate-400);
+            pointer-events: none;
+        }
+
+        .showcase-search-input {
+            width: 100%;
+            padding: 16px 16px 16px 48px;
+            font-size: 1rem;
+            font-family: var(--font-family);
+            border: 2px solid var(--slate-300);
+            border-radius: var(--radius-lg);
+            background-color: var(--white);
+            color: var(--slate-900);
+            transition: all 0.2s ease;
+        }
+
+        .showcase-search-input:focus {
+            outline: none;
+            border-color: var(--ocean);
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+        }
+
+        .showcase-search-input::placeholder {
+            color: var(--slate-400);
+        }
+
+        .showcase-search-hint {
+            display: block;
+            margin-top: var(--space-sm);
+            font-size: 0.875rem;
+            color: var(--slate-400);
+        }
+
+        .showcase-search-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            margin-top: 4px;
+            background-color: var(--white);
+            border: 1px solid var(--slate-200);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-lg);
+            max-height: 300px;
+            overflow-y: auto;
+            display: none;
+            z-index: 50;
+            text-align: left;
+        }
+
+        .showcase-search-results.active {
+            display: block;
+        }
+
+        .showcase-search-result {
+            padding: 12px 16px;
+            cursor: pointer;
+            border-bottom: 1px solid var(--slate-100);
+            transition: background-color 0.15s ease;
+        }
+
+        .showcase-search-result:last-child {
+            border-bottom: none;
+        }
+
+        .showcase-search-result:hover {
+            background-color: var(--slate-100);
+        }
+
+        .showcase-search-result-title {
+            font-weight: 500;
+            color: var(--slate-900);
+            font-size: 0.9rem;
+        }
+
+        .showcase-search-result-subtitle {
+            font-size: 0.75rem;
+            color: var(--slate-500);
+            margin-top: 2px;
+        }
+
+        .showcase-search-loading {
+            padding: 16px;
+            text-align: center;
+            color: var(--slate-500);
+        }
+
+        /* ===== FOR WHO SECTION ===== */
+        .audience {
+            background-color: var(--slate-100);
+        }
+
+        .audience-header {
+            text-align: center;
+            max-width: 700px;
+            margin: 0 auto var(--space-3xl);
+        }
+
+        .audience-header h2 {
+            margin-bottom: var(--space-md);
+        }
+
+        .audience-grid {
+            display: grid;
+            gap: var(--space-lg);
+        }
+
+        @media (min-width: 640px) {
+            .audience-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .audience-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        .audience-card {
+            padding: var(--space-lg);
+            background-color: var(--slate-100);
+            border-radius: var(--radius-md);
+            text-align: center;
+        }
+
+        .audience-card-icon {
+            width: 56px;
+            height: 56px;
+            margin: 0 auto var(--space-md);
+            background-color: var(--white);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--deep-blue);
+        }
+
+        .audience-card h4 {
+            margin-bottom: var(--space-sm);
+        }
+
+        .audience-card p {
+            color: var(--slate-500);
+            font-size: 0.875rem;
+            margin-bottom: 0;
+        }
+
+        /* ===== PRINCIPLES SECTION ===== */
+        .principles {
+            background-color: var(--white);
+        }
+
+        .principles-header {
+            text-align: center;
+            max-width: 700px;
+            margin: 0 auto var(--space-3xl);
+        }
+
+        .principles-header h2 {
+            margin-bottom: var(--space-md);
+        }
+
+        .principles-header p {
+            font-size: 1.125rem;
+            color: var(--slate-500);
+        }
+
+        .principles-grid {
+            display: grid;
+            gap: var(--space-md);
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        @media (min-width: 768px) {
+            .principles-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        .principle-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: var(--space-md);
+            padding: var(--space-xl);
+            background-color: var(--white);
+            border: 1px solid var(--slate-200);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-sm);
+            transition: all 0.2s ease;
+        }
+
+        .principle-item:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+        .principle-item i {
+            color: var(--ocean);
+            flex-shrink: 0;
+        }
+
+        .principle-item strong {
+            display: block;
+            color: var(--slate-900);
+            margin-bottom: var(--space-xs);
+        }
+
+        .principle-item span {
+            color: var(--slate-500);
+            font-size: 0.9rem;
+        }
+
+        /* ===== ABOUT SECTION ===== */
+        .about {
+            background-color: var(--slate-100);
+        }
+
+        .about-content {
+            display: grid;
+            gap: var(--space-3xl);
+        }
+
+        @media (min-width: 768px) {
+            .about-content {
+                grid-template-columns: 2fr 1fr;
+            }
+        }
+
+        .about-text h2 {
+            margin-bottom: var(--space-lg);
+        }
+
+        .about-lead {
+            font-size: 1.125rem;
+            color: var(--slate-700);
+            margin-bottom: var(--space-lg);
+        }
+
+        .about-text p {
+            color: var(--slate-500);
+        }
+
+        .about-contact {
+            padding: var(--space-xl);
+            background-color: var(--slate-100);
+            border-radius: var(--radius-md);
+            height: fit-content;
+        }
+
+        .about-contact h3 {
+            margin-bottom: var(--space-lg);
+        }
+
+        .contact-items {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-md);
+            margin-bottom: var(--space-lg);
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            color: var(--slate-700);
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .contact-item:hover {
+            color: var(--ocean);
+        }
+
+        .contact-item i {
+            color: var(--ocean);
+        }
+
+        .about-location {
+            color: var(--slate-400);
+            font-size: 0.875rem;
+            margin-bottom: 0;
+        }
+
+        /* ===== CTA SECTION ===== */
+        .cta {
+            background: linear-gradient(135deg, var(--deep-blue) 0%, var(--ocean) 100%);
+            color: var(--white);
+            text-align: center;
+        }
+
+        .cta h2 {
+            color: var(--white);
+            margin-bottom: var(--space-md);
+        }
+
+        .cta > .container > p {
+            font-size: 1.125rem;
+            color: rgba(255, 255, 255, 0.9);
+            max-width: 600px;
+            margin: 0 auto var(--space-2xl);
+        }
+
+        .cta-cards {
+            display: grid;
+            gap: var(--space-xl);
+        }
+
+        @media (min-width: 768px) {
+            .cta-cards {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        .cta-card {
+            padding: var(--space-xl);
+            background-color: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-md);
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .cta-badge {
+            padding: 4px 12px;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: var(--space-md);
+        }
+
+        .cta-badge.free {
+            background-color: var(--leaf);
+            color: var(--white);
+        }
+
+        .cta-badge.contact {
+            background-color: var(--ocean);
+            color: var(--white);
+        }
+
+        .cta-card h3 {
+            color: var(--white);
+            margin-bottom: var(--space-sm);
+        }
+
+        .cta-card p {
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: var(--space-lg);
+            flex-grow: 1;
+        }
+
+        .cta-card .btn {
+            width: 100%;
+        }
+
+        .cta-card .btn-primary {
+            background-color: var(--ocean);
+            color: var(--white);
+        }
+
+        .cta-card .btn-primary:hover {
+            background-color: var(--deep-blue);
+        }
+
+        .cta-card .btn-secondary {
+            background-color: var(--white);
+            border-color: var(--slate-300);
+            color: var(--slate-700);
+        }
+
+        .cta-card .btn-secondary:hover {
+            background-color: var(--slate-100);
+            border-color: var(--slate-400);
+        }
+
+        /* ===== FOOTER ===== */
+        .footer {
+            background-color: var(--slate-900);
+            color: var(--slate-300);
+            padding: var(--space-3xl) 0 var(--space-xl);
+        }
+
+        .footer-content {
+            display: grid;
+            gap: var(--space-2xl);
+            margin-bottom: var(--space-2xl);
+        }
+
+        @media (min-width: 768px) {
+            .footer-content {
+                grid-template-columns: 2fr 1fr;
+            }
+        }
+
+        .footer-brand h3 {
+            color: var(--white);
+            margin-bottom: var(--space-md);
+        }
+
+        .footer-brand p {
+            color: var(--slate-400);
+            margin-bottom: 0;
+        }
+
+        .footer-links h4 {
+            color: var(--white);
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: var(--space-md);
+        }
+
+        .footer-links ul {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-sm);
+        }
+
+        .footer-links a {
+            color: var(--slate-400);
+        }
+
+        .footer-links a:hover {
+            color: var(--white);
+        }
+
+        .footer-bottom {
+            padding-top: var(--space-xl);
+            border-top: 1px solid var(--slate-700);
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-md);
+            align-items: center;
+            text-align: center;
+        }
+
+        @media (min-width: 640px) {
+            .footer-bottom {
+                flex-direction: row;
+                justify-content: space-between;
+            }
+        }
+
+        .footer-bottom p {
+            margin-bottom: 0;
+            color: var(--slate-500);
+            font-size: 0.875rem;
+        }
+
+        .footer-social {
+            display: flex;
+            gap: var(--space-md);
+        }
+
+        .footer-social a {
+            color: var(--slate-400);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-sm);
+            transition: all 0.2s ease;
+        }
+
+        .footer-social a:hover {
+            color: var(--white);
+            background-color: var(--slate-800);
+        }
+
+        /* ===== UTILITIES ===== */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container header-inner">
+            <a href="#" class="logo">
+                <div class="logo-icon">
+                    <i data-lucide="building-2" style="width: 18px; height: 18px;"></i>
+                </div>
+                OpenBuildings.ch
+            </a>
+
+            <nav class="nav">
+                <a href="#challenge">Challenge</a>
+                <a href="#features">Solution</a>
+                <a href="#principles">Values</a>
+                <a href="#contact">About</a>
+                <a href="mailto:info@openbuildings.ch">For Institutions</a>
+                <a href="https://github.com/davras5/OpenBuildings" target="_blank">GitHub</a>
+            </nav>
+
+            <div class="header-actions">
+                <a href="./" class="btn btn-primary header-cta">
+                    <i data-lucide="map" style="width: 16px; height: 16px;"></i>
+                    Explore the map
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <div class="hero-badge">
+                    <span class="hero-badge-dot"></span>
+                    Swiss Open Government Data
+                </div>
+
+                <h1>Swiss building data.<br><span>Open by default.</span></h1>
+
+                <p class="hero-subtitle">
+                    Unified, open building data for Swiss planning, climate action, and institutional reporting.
+                </p>
+
+                <div class="hero-stats">
+                    <div class="hero-stat">
+                        <span class="hero-stat-number">2M+</span>
+                        <span class="hero-stat-label">Buildings</span>
+                    </div>
+                    <div class="hero-stat-divider"></div>
+                    <div class="hero-stat">
+                        <span class="hero-stat-number">60+</span>
+                        <span class="hero-stat-label">Attributes</span>
+                    </div>
+                    <div class="hero-stat-divider"></div>
+                    <div class="hero-stat">
+                        <span class="hero-stat-number">3</span>
+                        <span class="hero-stat-label">Federal Partners</span>
+                    </div>
+                    <div class="hero-stat-divider"></div>
+                    <div class="hero-stat">
+                        <span class="hero-stat-number">Daily</span>
+                        <span class="hero-stat-label">Updates</span>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="hero-image">
+                <img src="images/style/1.jpg" alt="OpenBuildings.ch - Swiss building data visualization showing transition from traditional architecture to digital data infrastructure">
+                <div class="hero-search">
+                    <div class="hero-search-wrapper">
+                        <i data-lucide="search" class="hero-search-icon" style="width: 20px; height: 20px;"></i>
+                        <input type="text" id="heroSearch" class="hero-search-input" placeholder="Search any address in Switzerland..." autocomplete="off">
+                        <div class="hero-search-results" id="heroSearchResults"></div>
+                    </div>
+                    <span class="hero-search-hint">e.g. Bundesplatz 3, Bern</span>
+                </div>
+                <div class="hero-partners">
+                    <span class="hero-partners-label">Supported by</span>
+                    <div class="hero-partners-list">
+                        <span>BBL</span>
+                        <div class="hero-partners-divider"></div>
+                        <span>KBOB</span>
+                        <div class="hero-partners-divider"></div>
+                        <span>swisstopo</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Problem Section -->
+    <section class="problem" id="challenge">
+        <div class="container">
+            <h2>The challenge we're solving</h2>
+
+            <div class="stat-highlight">
+                <div class="stat-number">~40%</div>
+                <div class="stat-label">of Switzerland's CO₂ emissions come from buildings</div>
+            </div>
+
+            <div class="problem-grid">
+                <div class="problem-card">
+                    <h3>
+                        <i data-lucide="layers" style="width: 24px; height: 24px; color: #f59e0b;"></i>
+                        Fragmented data
+                    </h3>
+                    <p>Data scattered across sources. Same work redone by municipalities, cantons, and agencies—with public money—without a shared baseline.</p>
+                </div>
+
+                <div class="problem-card">
+                    <h3>
+                        <i data-lucide="repeat" style="width: 24px; height: 24px; color: #f59e0b;"></i>
+                        Duplicated effort
+                    </h3>
+                    <p>Institutions build datasets internally and repeatedly. Results stay siloed and eventually become obsolete.</p>
+                </div>
+
+                <div class="problem-card">
+                    <h3>
+                        <i data-lucide="eye-off" style="width: 24px; height: 24px; color: #f59e0b;"></i>
+                        Missing transparency
+                    </h3>
+                    <p>You cannot decarbonize what you cannot measure, coordinate what you cannot compare, or govern what you cannot reproduce.</p>
+                </div>
+
+                <div class="problem-card">
+                    <h3>
+                        <i data-lucide="scale" style="width: 24px; height: 24px; color: #f59e0b;"></i>
+                        Inconsistent results
+                    </h3>
+                    <p>Without standardized methods, comparing results across regions and portfolios is impossible—hindering effective policy.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Solution Section -->
+    <section class="solution" id="features">
+        <div class="container">
+            <div class="solution-header">
+                <h2>One foundation. Many applications.</h2>
+                <p>OpenBuildings consolidates Switzerland's most relevant public building datasets into a consistent, reproducible reference layer.</p>
+                <p class="text-muted" style="margin-top: var(--space-sm);">GWR, swisstopo, and cantonal data are powerful—but scattered. We've done the integration, enrichment, and quality control so you don't have to.</p>
+            </div>
+
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i data-lucide="map-pin" style="width: 24px; height: 24px;"></i>
+                    </div>
+                    <h3>Explore</h3>
+                    <p>Interactive 2D/3D web map with terrain visualization. Search any address or EGID with autocomplete powered by swisstopo.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i data-lucide="bar-chart-2" style="width: 24px; height: 24px;"></i>
+                    </div>
+                    <h3>Analyze</h3>
+                    <p>Calculate volumes from swissALTI3D at 0.5m resolution. Get floor area, wall area, and energy reference area per SIA 380.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i data-lucide="code-2" style="width: 24px; height: 24px;"></i>
+                    </div>
+                    <h3>Build on top</h3>
+                    <p>Query via API or download bulk data. Run our Python tools locally, or extend them. MIT licensed and fully open source.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Tools Section (Carousel) -->
+    <section class="tools" id="data">
+        <div class="container">
+            <div class="tools-header">
+                <h2>Processing Tools</h2>
+                <p>Open-source tools to process, enrich, and analyze Swiss building data.</p>
+            </div>
+
+            <div class="tools-carousel-wrapper">
+                <div class="tools-carousel" id="toolsCarousel">
+                    <div class="tool-card">
+                        <div class="tool-icon">
+                            <i data-lucide="database" style="width: 32px; height: 32px;"></i>
+                        </div>
+                        <h3>Base Worker</h3>
+                        <p>Foundational data processing. Ensures ID, geometry, and measurements are up-to-date and correct. Everything else builds on top of it.</p>
+                        <div class="tool-tags">
+                            <span class="available">Available</span>
+                            <span>EGID</span>
+                            <span>Geometry</span>
+                            <span>Measurements</span>
+                        </div>
+                    </div>
+
+                    <div class="tool-card">
+                        <div class="tool-icon">
+                            <i data-lucide="box" style="width: 32px; height: 32px;"></i>
+                        </div>
+                        <h3>Volume Estimator</h3>
+                        <p>Calculate building volumes from swissALTI3D and swissSURFACE3D at 1m² resolution. Python CLI and FME Workbench available.</p>
+                        <div class="tool-tags">
+                            <span class="available">Available</span>
+                            <span>Python</span>
+                            <span>FME</span>
+                        </div>
+                    </div>
+
+                    <div class="tool-card">
+                        <div class="tool-icon">
+                            <i data-lucide="home" style="width: 32px; height: 32px;"></i>
+                        </div>
+                        <h3>Roof Estimator</h3>
+                        <p>Derive roof form, orientation, slope, and area from elevation data. Essential for solar potential and renovation planning.</p>
+                        <div class="tool-tags">
+                            <span class="coming-soon">Coming Soon</span>
+                            <span>Python</span>
+                        </div>
+                    </div>
+
+                    <div class="tool-card">
+                        <div class="tool-icon">
+                            <i data-lucide="leaf" style="width: 32px; height: 32px;"></i>
+                        </div>
+                        <h3>Biodiversity</h3>
+                        <p>Green roof detection and biodiversity index per parcel. Assess urban greening potential and ecological value of building surfaces.</p>
+                        <div class="tool-tags">
+                            <span class="coming-soon">Coming Soon</span>
+                            <span>Green Roofs</span>
+                            <span>Ecology</span>
+                        </div>
+                    </div>
+
+                    <div class="tool-card">
+                        <div class="tool-icon">
+                            <i data-lucide="cloud" style="width: 32px; height: 32px;"></i>
+                        </div>
+                        <h3>Carbon Reporting</h3>
+                        <p>Calculate embodied carbon and operational emissions per building. Support climate risk assessment and decarbonization planning.</p>
+                        <div class="tool-tags">
+                            <span class="coming-soon">Coming Soon</span>
+                            <span>CO₂</span>
+                            <span>Climate Risk</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tools-nav">
+                    <button class="tools-nav-btn" id="toolsPrev" aria-label="Previous tools">
+                        <i data-lucide="chevron-left" style="width: 20px; height: 20px;"></i>
+                    </button>
+                    <button class="tools-nav-btn" id="toolsNext" aria-label="Next tools">
+                        <i data-lucide="chevron-right" style="width: 20px; height: 20px;"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="tools-cta">
+                <a href="https://github.com/davras5/OpenBuildings/tree/main/tools" target="_blank" class="btn btn-primary">
+                    <i data-lucide="wrench" style="width: 18px; height: 18px;"></i>
+                    Explore All Tools
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Showcase Section -->
+    <section class="showcase">
+        <div class="container">
+            <div class="showcase-header">
+                <h2>See it in action</h2>
+            </div>
+
+            <div class="showcase-content">
+                <div class="showcase-image">
+                    <img src="images/Preview1.jpg" alt="OpenBuildings.ch interactive map interface showing building details and data panel">
+                </div>
+
+                <div class="showcase-features">
+                    <div class="showcase-feature">
+                        <div class="showcase-feature-icon">
+                            <i data-lucide="box" style="width: 20px; height: 20px;"></i>
+                        </div>
+                        <div>
+                            <h4>3D terrain visualization</h4>
+                            <p>Explore buildings in context with accurate terrain models and elevation data from swisstopo.</p>
+                        </div>
+                    </div>
+
+                    <div class="showcase-feature">
+                        <div class="showcase-feature-icon">
+                            <i data-lucide="search" style="width: 20px; height: 20px;"></i>
+                        </div>
+                        <div>
+                            <h4>Smart address search</h4>
+                            <p>Find any building by address, EGID, or place name with autocomplete powered by swisstopo.</p>
+                        </div>
+                    </div>
+
+                    <div class="showcase-feature">
+                        <div class="showcase-feature-icon">
+                            <i data-lucide="database" style="width: 20px; height: 20px;"></i>
+                        </div>
+                        <div>
+                            <h4>Rich building attributes</h4>
+                            <p>Access volumes, floor counts, heating types, heritage status, and more for every building.</p>
+                        </div>
+                    </div>
+
+                    <div class="showcase-feature">
+                        <div class="showcase-feature-icon">
+                            <i data-lucide="download" style="width: 20px; height: 20px;"></i>
+                        </div>
+                        <div>
+                            <h4>Export detailed reports</h4>
+                            <p>Download comprehensive building data in standard formats for your planning workflows.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="showcase-actions">
+                <a href="./" class="btn btn-primary btn-large">
+                    <i data-lucide="map" style="width: 20px; height: 20px;"></i>
+                    Try it now
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Audience Section -->
+    <section class="audience">
+        <div class="container">
+            <div class="audience-header">
+                <h2>Built for those who shape our cities</h2>
+                <p>If building data is essential—but not your core mandate—this is for you.</p>
+            </div>
+
+            <div class="audience-grid">
+                <div class="audience-card">
+                    <div class="audience-card-icon">
+                        <i data-lucide="landmark" style="width: 28px; height: 28px;"></i>
+                    </div>
+                    <h4>Municipalities & cantons</h4>
+                    <p>Build energy cadastres in days, not months. Plan district heating with complete coverage. Meet cantonal reporting requirements.</p>
+                </div>
+
+                <div class="audience-card">
+                    <div class="audience-card-icon">
+                        <i data-lucide="building" style="width: 28px; height: 28px;"></i>
+                    </div>
+                    <h4>Federal agencies</h4>
+                    <p>Run nationwide analyses with consistent methodology. Compare cantons on the same baseline. Track building stock evolution.</p>
+                </div>
+
+                <div class="audience-card">
+                    <div class="audience-card-icon">
+                        <i data-lucide="briefcase" style="width: 28px; height: 28px;"></i>
+                    </div>
+                    <h4>Portfolio owners</h4>
+                    <p>Score every building in your portfolio instantly. Identify renovation priorities. Model Net Zero pathways with real data.</p>
+                </div>
+
+                <div class="audience-card">
+                    <div class="audience-card-icon">
+                        <i data-lucide="microscope" style="width: 28px; height: 28px;"></i>
+                    </div>
+                    <h4>Researchers</h4>
+                    <p>Download reproducible datasets with full documentation. Cite sources, not pipelines. Focus on analysis, not data wrangling.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Principles Section -->
+    <section class="principles" id="principles">
+        <div class="container">
+            <div class="principles-header">
+                <h2>Our Principles</h2>
+                <p>Built for long-term institutional use.</p>
+            </div>
+
+            <div class="principles-grid">
+                <div class="principle-item">
+                    <i data-lucide="unlock" style="width: 28px; height: 28px;"></i>
+                    <div>
+                        <strong>Open by default</strong>
+                        <span>Methods, sources, and limitations are documented and public.</span>
+                    </div>
+                </div>
+                <div class="principle-item">
+                    <i data-lucide="check-circle" style="width: 28px; height: 28px;"></i>
+                    <div>
+                        <strong>Institutional quality</strong>
+                        <span>Reproducibility and traceability over novelty.</span>
+                    </div>
+                </div>
+                <div class="principle-item">
+                    <i data-lucide="link" style="width: 28px; height: 28px;"></i>
+                    <div>
+                        <strong>Interoperability</strong>
+                        <span>Data outlives tools. We align with established standards.</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section class="about" id="contact">
+        <div class="container">
+            <div class="about-content">
+                <div class="about-text">
+                    <h2>About OpenBuildings</h2>
+                    <p class="about-lead">OpenBuildings started from a practical need: our team manages a portfolio of 3,000 buildings and needed reliable, unified data for daily operations. We realized the same workflows could serve the entire Swiss building stock—so we built it.</p>
+                    <p>Today, OpenBuildings covers every building in Switzerland, with Germany in development. The project is self-sustaining, not-for-profit, and designed for long-term institutional use. We believe building data is a public good—and should be treated as such.</p>
+                    <p>Our goal is to eliminate redundant data work across institutions and enable better decisions for climate, energy, and urban planning. Open source, transparent in methods, built to last.</p>
+                </div>
+
+                <div class="about-contact">
+                    <h3>Contact</h3>
+                    <div class="contact-items">
+                        <a href="mailto:info@openbuildings.ch" class="contact-item">
+                            <i data-lucide="mail" style="width: 20px; height: 20px;"></i>
+                            <span>info@openbuildings.ch</span>
+                        </a>
+                        <a href="https://github.com/davras5/OpenBuildings/issues" target="_blank" class="contact-item">
+                            <i data-lucide="message-circle" style="width: 20px; height: 20px;"></i>
+                            <span>GitHub Issues (technical)</span>
+                        </a>
+                        <a href="https://github.com/davras5/OpenBuildings" target="_blank" class="contact-item">
+                            <i data-lucide="github" style="width: 20px; height: 20px;"></i>
+                            <span>GitHub Repository</span>
+                        </a>
+                    </div>
+                    <p class="about-location">Based in Switzerland</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta">
+        <div class="container">
+            <h2>Start using OpenBuildings today</h2>
+            <p>Free for exploration. Open source. No registration required.</p>
+
+            <div class="cta-cards">
+                <div class="cta-card">
+                    <div class="cta-badge free">Free</div>
+                    <h3>Explore</h3>
+                    <p>Interactive map, building search, individual lookups. No registration required.</p>
+                    <a href="./" class="btn btn-primary">
+                        <i data-lucide="map" style="width: 16px; height: 16px;"></i>
+                        Start exploring
+                    </a>
+                </div>
+
+                <div class="cta-card">
+                    <div class="cta-badge free">Free</div>
+                    <h3>Download</h3>
+                    <p>Sample datasets, documentation, processing tools. Everything on GitHub.</p>
+                    <a href="https://github.com/davras5/OpenBuildings" target="_blank" class="btn btn-secondary">
+                        <i data-lucide="github" style="width: 16px; height: 16px;"></i>
+                        View on GitHub
+                    </a>
+                </div>
+
+                <div class="cta-card">
+                    <div class="cta-badge contact">Contact</div>
+                    <h3>Institutional Access</h3>
+                    <p>Bulk data downloads, API access, custom processing for municipalities, cantons, and federal offices.</p>
+                    <a href="mailto:info@openbuildings.ch" class="btn btn-secondary">
+                        <i data-lucide="mail" style="width: 16px; height: 16px;"></i>
+                        Get in touch
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <h3>OpenBuildings.ch</h3>
+                    <p>Building data is a public good.<br>OpenBuildings turns that principle into infrastructure.</p>
+                </div>
+
+                <div class="footer-links">
+                    <h4>Resources</h4>
+                    <ul>
+                        <li><a href="./">Interactive Map</a></li>
+                        <li><a href="https://github.com/davras5/OpenBuildings" target="_blank">GitHub</a></li>
+                        <li><a href="https://github.com/davras5/OpenBuildings/blob/main/documentation/DATAMODEL.md" target="_blank">Data Model</a></li>
+                        <li><a href="https://github.com/davras5/OpenBuildings/tree/main/tools" target="_blank">Tools</a></li>
+                    </ul>
+                </div>
+
+            </div>
+
+            <div class="footer-bottom">
+                <p>© 2025 OpenBuildings.ch · MIT License · Made in Switzerland</p>
+
+                <div class="footer-social">
+                    <a href="https://github.com/davras5/OpenBuildings" target="_blank" aria-label="GitHub">
+                        <i data-lucide="github" style="width: 20px; height: 20px;"></i>
+                    </a>
+                    <a href="mailto:info@openbuildings.ch" aria-label="Email">
+                        <i data-lucide="mail" style="width: 20px; height: 20px;"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Initialize Lucide Icons and Search -->
+    <script>
+        lucide.createIcons();
+
+        // Hero Search Functionality
+        (function() {
+            const searchInput = document.getElementById('heroSearch');
+            const searchResults = document.getElementById('heroSearchResults');
+            let searchTimeout = null;
+
+            async function searchLocations(query) {
+                if (query.length < 2) {
+                    searchResults.classList.remove('active');
+                    return;
+                }
+
+                searchResults.innerHTML = '<div class="hero-search-loading">Searching...</div>';
+                searchResults.classList.add('active');
+
+                try {
+                    const url = `https://api3.geo.admin.ch/rest/services/ech/SearchServer?searchText=${encodeURIComponent(query)}&type=locations&lang=de&sr=4326`;
+                    const response = await fetch(url);
+                    const data = await response.json();
+
+                    const locations = data.results.filter(r =>
+                        r.attrs.origin === 'address' ||
+                        r.attrs.origin === 'zipcode' ||
+                        r.attrs.origin === 'sn25' ||
+                        r.attrs.origin === 'gg25' ||
+                        r.attrs.origin === 'gazetteer'
+                    ).slice(0, 8);
+
+                    if (locations.length === 0) {
+                        searchResults.innerHTML = '<div class="hero-search-loading">No results found</div>';
+                        return;
+                    }
+
+                    searchResults.innerHTML = locations.map(loc => {
+                        const label = loc.attrs.label.replace(/<[^>]*>/g, '');
+                        const detail = loc.attrs.detail || '';
+                        return `
+                            <div class="hero-search-result"
+                                 data-lon="${loc.attrs.lon}"
+                                 data-lat="${loc.attrs.lat}"
+                                 data-label="${label}">
+                                <div class="hero-search-result-title">${label}</div>
+                                ${detail ? `<div class="hero-search-result-subtitle">${detail}</div>` : ''}
+                            </div>
+                        `;
+                    }).join('');
+
+                } catch (err) {
+                    searchResults.innerHTML = '<div class="hero-search-loading">Search error. Please try again.</div>';
+                }
+            }
+
+            searchInput.addEventListener('input', (e) => {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    searchLocations(e.target.value.trim());
+                }, 300);
+            });
+
+            searchInput.addEventListener('focus', () => {
+                if (searchInput.value.trim().length >= 2) {
+                    searchResults.classList.add('active');
+                }
+            });
+
+            searchResults.addEventListener('click', (e) => {
+                const result = e.target.closest('.hero-search-result');
+                if (result) {
+                    const lon = result.dataset.lon;
+                    const lat = result.dataset.lat;
+
+                    // Navigate to app with coordinates and marker
+                    window.location.href = `./?zoom=17&lon=${lon}&lat=${lat}&marker=true`;
+                }
+            });
+
+            // Close results when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('.hero-search-wrapper')) {
+                    searchResults.classList.remove('active');
+                }
+            });
+
+            // Handle keyboard navigation
+            searchInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    const firstResult = searchResults.querySelector('.hero-search-result');
+                    if (firstResult) {
+                        firstResult.click();
+                    }
+                }
+                if (e.key === 'Escape') {
+                    searchResults.classList.remove('active');
+                    searchInput.blur();
+                }
+            });
+        })();
+
+        // Tools Carousel - Seamless Infinite Loop
+        (function() {
+            const carousel = document.getElementById('toolsCarousel');
+            const prevBtn = document.getElementById('toolsPrev');
+            const nextBtn = document.getElementById('toolsNext');
+            const originalCards = Array.from(carousel.querySelectorAll('.tool-card'));
+            const cardCount = originalCards.length;
+
+            // Clone all cards and append for infinite effect
+            originalCards.forEach(card => {
+                const clone = card.cloneNode(true);
+                carousel.appendChild(clone);
+            });
+
+            const allCards = carousel.querySelectorAll('.tool-card');
+            let currentIndex = 0;
+            let isTransitioning = false;
+
+            function getCardWidth() {
+                return allCards[0].offsetWidth + 24; // card width + gap
+            }
+
+            function updateCarousel(animate = true) {
+                const cardWidth = getCardWidth();
+                const offset = currentIndex * cardWidth;
+                carousel.style.transition = animate ? 'transform 0.3s ease' : 'none';
+                carousel.style.transform = `translateX(-${offset}px)`;
+            }
+
+            function handleTransitionEnd() {
+                isTransitioning = false;
+                // If we've scrolled into the cloned section, jump back seamlessly
+                if (currentIndex >= cardCount) {
+                    currentIndex = currentIndex - cardCount;
+                    updateCarousel(false);
+                }
+                // If we've scrolled before the start, jump to the end seamlessly
+                if (currentIndex < 0) {
+                    currentIndex = currentIndex + cardCount;
+                    updateCarousel(false);
+                }
+            }
+
+            carousel.addEventListener('transitionend', handleTransitionEnd);
+
+            prevBtn.addEventListener('click', () => {
+                if (isTransitioning) return;
+                isTransitioning = true;
+                if (currentIndex === 0) {
+                    // Jump to cloned section (no animation), then animate back
+                    currentIndex = cardCount;
+                    updateCarousel(false);
+                    // Force reflow then animate
+                    carousel.offsetHeight;
+                }
+                currentIndex--;
+                updateCarousel(true);
+            });
+
+            nextBtn.addEventListener('click', () => {
+                if (isTransitioning) return;
+                isTransitioning = true;
+                currentIndex++;
+                updateCarousel(true);
+            });
+
+            // Initial setup
+            updateCarousel(false);
+
+            // Re-initialize Lucide icons for cloned cards
+            if (window.lucide) {
+                lucide.createIcons();
+            }
+        })();
+    </script>
+</body>
+</html>
