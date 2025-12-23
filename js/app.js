@@ -308,7 +308,7 @@ async function init() {
   // Storing handlers allows us to remove them when layers are re-added
   const layerHandlers = {
     parcels: cursorHandlers,
-    landcover: cursorHandlers,
+    landcovers: cursorHandlers,
     buildings: {
       click: (e) => {
         state.markerClickHandled = true;
@@ -457,8 +457,8 @@ async function init() {
       selectedFillOpacity: 0.25,
       getSelectedId: () => state.selectedParcel
     },
-    landcover: {
-      name: 'landcover',
+    landcovers: {
+      name: 'landcovers',
       fillColor: '#8b5cf6',      // Purple default
       outlineColor: '#7c3aed',   // Darker purple for outline
       selectedColor: '#059669',  // Green when selected
@@ -545,7 +545,7 @@ async function init() {
   }
 
   function addLandcoverLayer() {
-    addPolygonLayer('landcover');
+    addPolygonLayer('landcovers');
   }
 
   async function addSwitzerlandBorder() {
@@ -689,7 +689,7 @@ async function init() {
 
   /**
    * Select a feature and update state/UI accordingly
-   * @param {'building'|'parcel'|'landcover'} featureType - Type of feature
+   * @param {'building'|'parcel'|'landcovers'} featureType - Type of feature
    * @param {number} id - Feature ID
    * @param {Array} [coords] - Optional coordinates (for buildings from click events)
    */
@@ -697,7 +697,7 @@ async function init() {
     // Clear all selections, then set the selected one
     state.selectedBuilding = featureType === 'building' ? id : null;
     state.selectedParcel = featureType === 'parcel' ? id : null;
-    state.selectedLandcover = featureType === 'landcover' ? id : null;
+    state.selectedLandcover = featureType === 'landcovers' ? id : null;
 
     updateUrlParams();
     updateBuildingStyles();
@@ -722,7 +722,7 @@ async function init() {
   }
 
   async function selectLandcover(id) {
-    await selectFeature('landcover', id);
+    await selectFeature('landcovers', id);
   }
 
   // Single function to show panel based on what's selected (from URL params)
@@ -734,7 +734,7 @@ async function init() {
     if (state.selectedBuilding) {
       await fetchAndShowFeature('building', state.selectedBuilding);
     } else if (state.selectedLandcover) {
-      await fetchAndShowFeature('landcover', state.selectedLandcover);
+      await fetchAndShowFeature('landcovers', state.selectedLandcover);
     } else if (state.selectedParcel) {
       await fetchAndShowFeature('parcel', state.selectedParcel);
     }
@@ -744,7 +744,7 @@ async function init() {
   const featureCache = {
     building: new Map(),
     parcel: new Map(),
-    landcover: new Map()
+    landcovers: new Map()
   };
   const FEATURE_CACHE_MAX_SIZE = 50;
 
@@ -774,19 +774,19 @@ async function init() {
   const featureConfigs = {
     building: {
       table: 'buildings',
-      select: 'id, name, egid, geog',
+      select: 'id, label, egid, geog',
       showPanel: showBuildingPanel,
       errorMsg: 'Failed to load building details. Please try again.'
     },
     parcel: {
       table: 'parcels',
-      select: 'id, name, egrid, building_id',
+      select: 'id, label, egrid, type',
       showPanel: showParcelPanel,
       errorMsg: 'Failed to load parcel details. Please try again.'
     },
-    landcover: {
-      table: 'landcover',
-      select: 'id, egid, created_at',
+    landcovers: {
+      table: 'landcovers',
+      select: 'id, label, type, egid',
       showPanel: showLandcoverPanel,
       errorMsg: 'Failed to load landcover details. Please try again.'
     }
@@ -851,7 +851,7 @@ async function init() {
   }
 
   // Track previous polygon selections to avoid unnecessary paint updates
-  const lastRenderedPolygonSelection = { parcels: undefined, landcover: undefined };
+  const lastRenderedPolygonSelection = { parcels: undefined, landcovers: undefined };
 
   /**
    * Update polygon layer styles based on selection state
@@ -868,7 +868,7 @@ async function init() {
     lastRenderedPolygonSelection[layerName] = selectedId;
 
     // Landcover in 3D mode uses fill-extrusion-opacity, otherwise fill-opacity
-    const is3DLandcover = layerName === 'landcover' && state.is3DMode;
+    const is3DLandcover = layerName === 'landcovers' && state.is3DMode;
     const opacityProp = is3DLandcover ? 'fill-extrusion-opacity' : 'fill-opacity';
 
     // Adjust opacity values for 3D mode (higher visibility needed)
@@ -898,7 +898,7 @@ async function init() {
   }
 
   function updateLandcoverStyles() {
-    updatePolygonStyles('landcover');
+    updatePolygonStyles('landcovers');
   }
 
   // ============================================
@@ -938,7 +938,7 @@ async function init() {
     }
 
     showPanel({
-      title: building.name || building.egid || `#${building.id}`,
+      title: building.label || building.egid || `#${building.id}`,
       type: 'Building',
       metrics
     });
@@ -951,12 +951,12 @@ async function init() {
       { label: 'ID', value: parcel.id || '–' }
     ];
 
-    if (parcel.building_id) {
-      metrics.push({ label: 'Building ID', value: parcel.building_id });
+    if (parcel.type) {
+      metrics.push({ label: 'Type', value: parcel.type });
     }
 
     showPanel({
-      title: parcel.egrid || `#${parcel.id}`,
+      title: parcel.label || parcel.egrid || `#${parcel.id}`,
       type: 'Parcel',
       metrics
     });
@@ -968,12 +968,16 @@ async function init() {
       { label: 'ID', value: landcover.id || '–' }
     ];
 
+    if (landcover.type) {
+      metrics.push({ label: 'Type', value: landcover.type });
+    }
+
     if (landcover.egid) {
       metrics.push({ label: 'EGID', value: landcover.egid });
     }
 
     showPanel({
-      title: landcover.egid || `#${landcover.id}`,
+      title: landcover.label || landcover.egid || `#${landcover.id}`,
       type: 'Landcover',
       metrics
     });
@@ -998,7 +1002,7 @@ async function init() {
     try {
       const { data, error } = await db
         .from('buildings')
-        .select('id, name, egid, geog')
+        .select('id, label, egid, geog')
         .eq('id', id)
         .single();
 
@@ -1017,7 +1021,7 @@ async function init() {
 
           showBuildingPanel({
             id: data.id,
-            name: data.name,
+            label: data.label,
             egid: data.egid,
             lon,
             lat
@@ -1072,7 +1076,7 @@ async function init() {
       if (state.markerClickHandled) return;
 
       // Query features at click point - check in priority order (top to bottom)
-      const landcoverFeatures = map.queryRenderedFeatures(e.point, { layers: ['landcover-fill'] });
+      const landcoverFeatures = map.queryRenderedFeatures(e.point, { layers: ['landcovers-fill'] });
       const parcelFeatures = map.queryRenderedFeatures(e.point, { layers: ['parcels-fill'] });
 
       // Select based on layer hierarchy: landcover (middle) > parcels (bottom)
@@ -1209,18 +1213,18 @@ async function init() {
    * @param {boolean} is3D - Whether to use 3D fill-extrusion or flat fill
    */
   function setLandcoverLayerType(is3D) {
-    if (!map.getLayer('landcover-fill')) return;
+    if (!map.getLayer('landcovers-fill')) return;
 
     try {
-      const beforeLayer = map.getLayer('landcover-outline') ? 'landcover-outline' : undefined;
-      const config = polygonLayerConfigs.landcover;
+      const beforeLayer = map.getLayer('landcovers-outline') ? 'landcovers-outline' : undefined;
+      const config = polygonLayerConfigs.landcovers;
 
-      map.removeLayer('landcover-fill');
+      map.removeLayer('landcovers-fill');
       map.addLayer({
-        id: 'landcover-fill',
+        id: 'landcovers-fill',
         type: is3D ? 'fill-extrusion' : 'fill',
-        source: 'landcover',
-        'source-layer': 'landcover',
+        source: 'landcovers',
+        'source-layer': 'landcovers',
         minzoom: 12,
         paint: is3D ? {
           'fill-extrusion-color': [
