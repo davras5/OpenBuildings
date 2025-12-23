@@ -84,7 +84,7 @@ OpenBuildings provides modular tools for data processing.
 | **Carbon Risks**                                | Idea           | Location data for carbon risk assessment                  |
 | **Environmental Risks**                         | Idea           | Location data for environmental risk assessment           |
 
-See each tool's README for full details: [tools](documentation/DATAMODEL.md)
+See each tool's README for full details: [tools](tools/)
 
 ---
 
