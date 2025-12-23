@@ -7,22 +7,23 @@
   <title>OpenBuildings.ch</title>
 
   <!-- Preconnect to external domains (do this FIRST for faster connections) -->
-  <link rel="preconnect" href="https://api.mapbox.com">
+  <link rel="preconnect" href="https://unpkg.com">
+  <link rel="preconnect" href="https://api.protomaps.com">
   <link rel="preconnect" href="https://cdn.jsdelivr.net">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
   <!-- Preload critical CSS (starts download immediately) -->
-  <link rel="preload" href="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.css" as="style">
+  <link rel="preload" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" as="style">
 
-  <!-- Mapbox GL CSS -->
-  <link href="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.css" rel="stylesheet">
+  <!-- MapLibre GL CSS -->
+  <link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet">
 
   <!-- Fonts - display=swap already ensures text is visible immediately -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
   <!-- Scripts with defer - downloads in parallel, executes after HTML parsing -->
-  <script defer src="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.js"></script>
+  <script defer src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   
   <style>
@@ -631,8 +632,8 @@
       margin: var(--space-xs) 0;
     }
 
-    /* Hide default Mapbox navigation */
-    .mapboxgl-ctrl-top-right {
+    /* Hide default MapLibre navigation */
+    .maplibregl-ctrl-top-right {
       display: none;
     }
 
@@ -676,8 +677,8 @@
       width: 70px;
     }
 
-    /* Override Mapbox scale control styles */
-    .map-header-scale .mapboxgl-ctrl-scale {
+    /* Override MapLibre scale control styles */
+    .map-header-scale .maplibregl-ctrl-scale {
       background: transparent;
       border: none;
       border-bottom: 2px solid var(--clr-slate-500);
@@ -708,7 +709,7 @@
     }
 
     /* Hide default scale control position */
-    .mapboxgl-ctrl-bottom-left .mapboxgl-ctrl-scale {
+    .maplibregl-ctrl-bottom-left .maplibregl-ctrl-scale {
       display: none;
     }
   </style>
@@ -772,10 +773,10 @@
     <div class="basemap-selector" id="basemapSelector">
       <div class="basemap-toggle light" id="basemapToggle"></div>
       <div class="basemap-options">
-        <div class="basemap-option light active" data-style="light-v11" data-label="Light"></div>
-        <div class="basemap-option streets" data-style="streets-v12" data-label="Streets"></div>
-        <div class="basemap-option outdoors" data-style="outdoors-v12" data-label="Outdoors"></div>
-        <div class="basemap-option satellite" data-style="satellite-streets-v12" data-label="Satellite"></div>
+        <div class="basemap-option light active" data-style="white" data-label="White"></div>
+        <div class="basemap-option streets" data-style="light" data-label="Light"></div>
+        <div class="basemap-option outdoors" data-style="grayscale" data-label="Gray"></div>
+        <div class="basemap-option satellite" data-style="dark" data-label="Dark"></div>
       </div>
     </div>
     <!-- Building Panel -->
@@ -829,7 +830,7 @@
     // ============================================
     const SUPABASE_URL = 'https://awnypgafushbsvqlsjyg.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable_PdbeSmuL6XQEaXyaKqhOYQ_fpzIByJQ';
-    const MAPBOX_TOKEN = 'pk.eyJ1IjoiZGF2aWRyYXNuZXI1IiwiYSI6ImNtMm5yamVkdjA5MDcycXMyZ2I2MHRhamgifQ.m651j7WIX7MyxNh8KIQ1Gg';
+    const PROTOMAPS_KEY = '4d819871947c1005';
     const TILE_SERVER = `${SUPABASE_URL}/functions/v1/tiles`;
 
     // Switzerland bounds for initial view
@@ -849,11 +850,9 @@
       // ============================================
       // Initialize Map
       // ============================================
-      mapboxgl.accessToken = MAPBOX_TOKEN;
-      
-      const map = new mapboxgl.Map({
+      const map = new maplibregl.Map({
         container: 'map',
-        style: 'mapbox://styles/mapbox/light-v11',
+        style: `https://api.protomaps.com/styles/v2/white.json?key=${PROTOMAPS_KEY}`,
         center: [8.2275, 46.8182], // Switzerland center
         zoom: 7
       });
@@ -867,7 +866,7 @@
       });
 
       // Add scale control to custom footer container
-      const scaleControl = new mapboxgl.ScaleControl({ unit: 'metric' });
+      const scaleControl = new maplibregl.ScaleControl({ unit: 'metric' });
       const scaleContainer = document.getElementById('scaleContainer');
 
       // Mount scale control after map loads
@@ -1113,23 +1112,25 @@
           bounds: SWITZERLAND_BOUNDS
         });
 
-        // Add fill layer with land usage colors
+        // Add fill-extrusion layer with 10m height
         map.addLayer({
           id: 'landcover-fill',
-          type: 'fill',
+          type: 'fill-extrusion',
           source: 'landcover',
           'source-layer': 'landcover',
           minzoom: 12,
           paint: {
-            'fill-color': [
+            'fill-extrusion-color': [
               'case',
               ['==', ['get', 'id'], selectedLandcover || -1], '#059669', // Green when selected
               '#8b5cf6' // Purple default for landcover
             ],
-            'fill-opacity': [
+            'fill-extrusion-height': 10,
+            'fill-extrusion-base': 0,
+            'fill-extrusion-opacity': [
               'case',
-              ['==', ['get', 'id'], selectedLandcover || -1], 0.4,
-              0.2
+              ['==', ['get', 'id'], selectedLandcover || -1], 0.6,
+              0.4
             ]
           }
         });
@@ -1428,10 +1429,10 @@
         if (!map.getLayer('landcover-fill')) return;
 
         if (selectedLandcover) {
-          map.setPaintProperty('landcover-fill', 'fill-opacity', [
+          map.setPaintProperty('landcover-fill', 'fill-extrusion-opacity', [
             'case',
-            ['==', ['get', 'id'], selectedLandcover], 0.4,
-            0.2
+            ['==', ['get', 'id'], selectedLandcover], 0.6,
+            0.4
           ]);
           map.setPaintProperty('landcover-outline', 'line-width', [
             'case',
@@ -1439,7 +1440,7 @@
             1.5
           ]);
         } else {
-          map.setPaintProperty('landcover-fill', 'fill-opacity', 0.2);
+          map.setPaintProperty('landcover-fill', 'fill-extrusion-opacity', 0.4);
           map.setPaintProperty('landcover-outline', 'line-width', 1.5);
         }
       }
@@ -1646,7 +1647,7 @@
           `;
           el.style.cssText = 'cursor: pointer; transform: translate(-50%, -100%);';
 
-          searchMarker = new mapboxgl.Marker({ element: el })
+          searchMarker = new maplibregl.Marker({ element: el })
             .setLngLat([urlParams.lon, urlParams.lat])
             .addTo(map);
         }
@@ -1730,19 +1731,19 @@
         option.addEventListener('click', () => {
           const style = option.dataset.style;
           const styleClass = option.classList[1]; // light, streets, outdoors, satellite
-          
+
           // Update active state
           basemapOptions.forEach(o => o.classList.remove('active'));
           option.classList.add('active');
-          
+
           // Update toggle appearance
           basemapToggle.className = 'basemap-toggle ' + styleClass;
-          
+
           // Collapse selector
           basemapSelector.classList.remove('expanded');
-          
-          // Change map style
-          map.setStyle(`mapbox://styles/mapbox/${style}`);
+
+          // Change map style (Protomaps)
+          map.setStyle(`https://api.protomaps.com/styles/v2/${style}.json?key=${PROTOMAPS_KEY}`);
         });
       });
       
@@ -1771,55 +1772,53 @@
       const toggle3DButton = document.getElementById('toggle3DBtn');
 
       function setup3DTerrain() {
-        // Add terrain source if not exists
-        if (!map.getSource('mapbox-dem')) {
-          map.addSource('mapbox-dem', {
+        // Add AWS Terrarium terrain source if not exists
+        if (!map.getSource('terrain-dem')) {
+          map.addSource('terrain-dem', {
             type: 'raster-dem',
-            url: 'mapbox://mapbox.mapbox-terrain-dem-v1',
-            tileSize: 512,
-            maxzoom: 14
+            tiles: ['https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png'],
+            encoding: 'terrarium',
+            tileSize: 256,
+            maxzoom: 15
           });
         }
 
         // Enable terrain
-        map.setTerrain({ source: 'mapbox-dem', exaggeration: 1.5 });
+        map.setTerrain({ source: 'terrain-dem', exaggeration: 1.5 });
 
-        // Add sky layer for atmosphere
-        if (!map.getLayer('sky')) {
-          map.addLayer({
-            id: 'sky',
-            type: 'sky',
-            paint: {
-              'sky-type': 'atmosphere',
-              'sky-atmosphere-sun': [0.0, 90.0],
-              'sky-atmosphere-sun-intensity': 15
-            }
-          });
-        }
-
-        // Add 3D buildings layer
+        // Add 3D buildings layer using Supabase buildings source
         if (!map.getLayer('3d-buildings')) {
           // Find the first symbol layer to insert before it
           const layers = map.getStyle().layers;
           let labelLayerId;
           for (let i = 0; i < layers.length; i++) {
-            if (layers[i].type === 'symbol' && layers[i].layout['text-field']) {
+            if (layers[i].type === 'symbol' && layers[i].layout && layers[i].layout['text-field']) {
               labelLayerId = layers[i].id;
               break;
             }
           }
 
+          // Ensure buildings source exists
+          if (!map.getSource('buildings')) {
+            map.addSource('buildings', {
+              type: 'vector',
+              tiles: [`${TILE_SERVER}/buildings/{z}/{x}/{y}.pbf`],
+              minzoom: 0,
+              maxzoom: 14,
+              bounds: SWITZERLAND_BOUNDS
+            });
+          }
+
           map.addLayer({
             id: '3d-buildings',
-            source: 'composite',
-            'source-layer': 'building',
-            filter: ['==', 'extrude', 'true'],
+            source: 'buildings',
+            'source-layer': 'buildings',
             type: 'fill-extrusion',
             minzoom: 14,
             paint: {
               'fill-extrusion-color': '#ddd',
-              'fill-extrusion-height': ['get', 'height'],
-              'fill-extrusion-base': ['get', 'min_height'],
+              'fill-extrusion-height': ['coalesce', ['get', 'height'], 10], // Use height if available, else 10m
+              'fill-extrusion-base': 0,
               'fill-extrusion-opacity': 0.7
             }
           }, labelLayerId);
@@ -1829,11 +1828,6 @@
       function remove3DTerrain() {
         // Disable terrain
         map.setTerrain(null);
-
-        // Remove sky layer
-        if (map.getLayer('sky')) {
-          map.removeLayer('sky');
-        }
 
         // Remove 3D buildings layer
         if (map.getLayer('3d-buildings')) {
@@ -1975,7 +1969,7 @@
         `;
         el.style.cssText = 'cursor: pointer; transform: translate(-50%, -100%);';
         
-        searchMarker = new mapboxgl.Marker({ element: el })
+        searchMarker = new maplibregl.Marker({ element: el })
           .setLngLat([lon, lat])
           .addTo(map);
         
