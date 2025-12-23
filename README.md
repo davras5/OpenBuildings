@@ -67,7 +67,22 @@ The project follows an **open-by-default** approach to **data, code, and documen
 | -------------------- | ------------------------------------------------- |
 | **Web App**          | Static frontend for exploration and visualization |
 | **Backend**          | PostgreSQL + PostGIS with REST API (Supabase)     |
-| **Processing Tools** | Python, SQL & FME workers for data enrichment          |
+| **Processing Tools** | Python, SQL & FME workers for data enrichment     |
+
+```mermaid
+flowchart BT
+    FE[GitHub Pages - Frontend] 
+    SUPABASE[Supabase - Postgres & PostGIS & API]
+    EDGE[Supabase Edge Functions - Vector Tiles]
+    TOOLS[Python / SQL / FME Workers]
+    DATASRC[Swiss OGD Data Sources]
+
+    SUPABASE --> FE
+    EDGE --> FE
+    SUPABASE --> EDGE
+    TOOLS <--> SUPABASE
+    DATASRC --> TOOLS
+```
 
 ---
 
@@ -130,12 +145,6 @@ All sources are **Swiss Open Government Data**.
 
 ---
 
-## Methods & Standards
-
-### Coordinate System
-
-* WGS 84 (EPSG:4326)
-
 ## Project Structure
 
 ```
@@ -164,14 +173,6 @@ OpenBuildings/
 ## License
 
 MIT License — see [LICENSE](LICENSE)
-
----
-
-## Links
-
-* Website: [https://openbuildings.ch](https://openbuildings.ch)
-* Demo: [https://davras5.github.io/OpenBuildings/](https://davras5.github.io/OpenBuildings/)
-* GitHub: [https://github.com/davras5/OpenBuildings](https://github.com/davras5/OpenBuildings)
 
 ---
 
