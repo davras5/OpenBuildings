@@ -1077,6 +1077,7 @@ async function init() {
     const metrics = [
       // 1. General / Allgemein - The "What" and "When"
       { label: 'Allgemein', isCategory: true },
+      { label: 'EGID', value: building.egid || '–' },
       { label: 'Status', value: getEnumLabel(BUILDING_STATUS_LABELS, building.status) },
       { label: 'Kategorie', value: getEnumLabel(BUILDING_CATEGORY_LABELS, building.category) },
       { label: 'Baujahr', value: formatYear(building.construction_year) },
@@ -1096,11 +1097,7 @@ async function init() {
       // 4. Features / Eigenschaften - The "Details"
       { label: 'Eigenschaften', isCategory: true },
       { label: 'Wärmequelle', value: getEnumLabel({}, building.heating_source) },
-      { label: 'Schutzkategorie', value: formatHeritage(building.heritage_category) },
-
-      // 5. System / System - Metadata and IDs
-      { label: 'System', isCategory: true },
-      { label: 'EGID', value: building.egid || '–' }
+      { label: 'Schutzkategorie', value: formatHeritage(building.heritage_category) }
     ];
 
     showPanel({
@@ -1134,6 +1131,7 @@ async function init() {
     const metrics = [
       // 1. General / Allgemein - The "What" and "When"
       { label: 'Allgemein', isCategory: true },
+      { label: 'E-GRID', value: parcel.egrid || '–' },
       { label: 'Status', value: getEnumLabel(PARCEL_STATUS_LABELS, parcel.status) },
       { label: 'Typ', value: getEnumLabel(PARCEL_TYPE_LABELS, parcel.type) },
       { label: 'Parzellennummer', value: parcel.parcel_number || '–' },
@@ -1149,11 +1147,7 @@ async function init() {
 
       // 4. Features / Eigenschaften - The "Details"
       { label: 'Eigenschaften', isCategory: true },
-      { label: 'Zone', value: zoneText },
-
-      // 5. System / System - Metadata and IDs
-      { label: 'System', isCategory: true },
-      { label: 'E-GRID', value: parcel.egrid || '–' }
+      { label: 'Zone', value: zoneText }
     ];
 
     showPanel({
@@ -1172,6 +1166,7 @@ async function init() {
     const metrics = [
       // 1. General / Allgemein - The "What" and "When"
       { label: 'Allgemein', isCategory: true },
+      { label: 'EGID', value: landcover.egid || '–' },
       { label: 'Typ', value: typeLabel },
       { label: 'Status', value: getEnumLabel({}, landcover.status) },
 
@@ -1183,14 +1178,10 @@ async function init() {
       { label: 'Fläche', value: formatWithUnit(landcover.area_m2, 'm²') },
       { label: 'Volumen', value: isBuilding ? formatWithUnit(landcover.volume_total_m3, 'm³') : '–' },
       { label: 'Max. Höhe', value: isBuilding ? formatWithUnit(landcover.height_max_m, 'm', 1) : '–' },
-      { label: 'Mittl. Höhe', value: isBuilding ? formatWithUnit(landcover.height_mean_m, 'm', 1) : '–' },
+      { label: 'Mittl. Höhe', value: isBuilding ? formatWithUnit(landcover.height_mean_m, 'm', 1) : '–' }
 
       // 4. Features / Eigenschaften - The "Details"
       // (Reserved for future material/usage properties)
-
-      // 5. System / System - Metadata and IDs
-      { label: 'System', isCategory: true },
-      { label: 'EGID', value: landcover.egid || '–' }
     ];
 
     const title = landcover.label || (isBuilding && landcover.egid ? `Gebäude ${landcover.egid}` : typeLabel) || `Bodenbedeckung #${landcover.id}`;
