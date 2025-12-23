@@ -156,22 +156,6 @@ All sources are **Swiss Open Government Data**.
 
 * WGS 84 (EPSG:4326)
 
-### Volume Calculation (Simplified)
-
-1. Generate a 1×1 m grid inside each footprint
-2. Sample terrain height (DTM)
-3. Sample surface height (DSM)
-4. Compute volume as:
-   `Σ (surface − terrain) × 1 m²`
-
-### Standards Referenced
-
-* SIA 416
-* GWR Merkmalskatalog 4.2
-* DM.01-AV-CH
-
----
-
 ## Project Structure
 
 ```
