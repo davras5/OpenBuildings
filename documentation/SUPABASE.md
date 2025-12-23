@@ -22,9 +22,10 @@ This document covers the Supabase components that power the vector tile system f
 **Endpoint:** `/tiles/{table}/{z}/{x}/{y}.pbf`
 
 **Supported tables:**
-- `buildings` - Building points
-- `parcels` - Property boundary polygons
-- `landcover` - Land usage zone polygons
+- `buildings` - Building points (columns: `id`, `label`)
+- `parcels` - Property boundary polygons (columns: `id`, `label`, `type`)
+- `landcovers` - Land cover polygons (columns: `id`, `label`, `type`)
+- `projects` - Construction project polygons (columns: `id`, `label`)
 
 **Caching strategy:**
 | Zoom Level | Cache Duration | Use Case |
@@ -37,21 +38,32 @@ This document covers the Supabase components that power the vector tile system f
 
 ### 2. MVT Tile Generator (Database Function)
 
-**Function:** `mvt_tile(table_name, z, x, y)`
+**Function:** `mvt_tile(table_name, z, x, y, columns)`
 
 **Purpose:** Generates Mapbox Vector Tiles from PostGIS geometries.
 
+**Parameters:**
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `table_name` | text | Table to query (buildings, parcels, landcovers, projects) |
+| `z` | integer | Zoom level |
+| `x` | integer | Tile column |
+| `y` | integer | Tile row |
+| `columns` | text[] | Array of column names to include (default: `['id', 'label']`) |
+
 **Features:**
 - Converts geometries to MVT binary format
-- Applies zoom-based polygon simplification for performance
+- Dynamic column selection for minimal tile size
 - Returns base64-encoded data (decoded by edge function)
 
-**Simplification thresholds:**
-| Zoom Level | Tolerance | Detail Level |
-|------------|-----------|--------------|
-| < 10 | 200m | Rough shapes |
-| 10-13 | 50m | Moderate detail |
-| 14+ | 0m | Full detail |
+**Example:**
+```sql
+-- Buildings with default columns
+SELECT mvt_tile('buildings', 14, 8594, 5747);
+
+-- Parcels with type for styling
+SELECT mvt_tile('parcels', 14, 8594, 5747, ARRAY['id', 'label', 'type']);
+```
 
 ---
 
@@ -70,10 +82,11 @@ This document covers the Supabase components that power the vector tile system f
 | buildings | `idx_buildings_geog_gist` | GIST (spatial) |
 | buildings | `idx_buildings_egid` | BTREE |
 | parcels | `idx_parcels_geog_gist` | GIST (spatial) |
-| parcels | `idx_parcels_building_id` | BTREE |
 | parcels | `idx_parcels_egrid` | BTREE |
-| landcover | `idx_landcover_geog_gist` | GIST (spatial) |
-| landcover | `idx_landcover_egid` | BTREE |
+| landcovers | `idx_landcovers_geog_gist` | GIST (spatial) |
+| landcovers | `idx_landcovers_egid` | BTREE |
+| projects | `idx_projects_geog_gist` | GIST (spatial) |
+| projects | `idx_projects_eproid` | BTREE |
 
 **Performance impact:** Reduces query time from ~500-2000ms to ~5-50ms.
 
@@ -84,8 +97,9 @@ This document covers the Supabase components that power the vector tile system f
 Layers are rendered in this order (bottom to top):
 
 1. **Parcels** - Property boundaries (deep blue)
-2. **Landcover** - Land usage zones (purple)
+2. **Landcovers** - Land cover polygons (purple)
 3. **Buildings** - Building points (slate/green when selected)
+4. **Projects** - Construction projects (when enabled)
 
 ---
 
