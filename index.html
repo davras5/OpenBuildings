@@ -1117,6 +1117,7 @@
         });
 
         // Add flat fill layer (extrusion only in 3D mode)
+        // Note: landcover tiles use feature ID, not properties.id, so we use ['id'] expression
         map.addLayer({
           id: 'landcover-fill',
           type: 'fill',
@@ -1126,18 +1127,19 @@
           paint: {
             'fill-color': [
               'case',
-              ['==', ['get', 'id'], selectedLandcover || -1], '#059669', // Green when selected
+              ['==', ['id'], selectedLandcover || -1], '#059669', // Green when selected
               '#8b5cf6' // Purple default for landcover
             ],
             'fill-opacity': [
               'case',
-              ['==', ['get', 'id'], selectedLandcover || -1], 0.4,
+              ['==', ['id'], selectedLandcover || -1], 0.4,
               0.2
             ]
           }
         });
 
         // Add outline layer
+        // Note: landcover tiles use feature ID, not properties.id, so we use ['id'] expression
         map.addLayer({
           id: 'landcover-outline',
           type: 'line',
@@ -1147,12 +1149,12 @@
           paint: {
             'line-color': [
               'case',
-              ['==', ['get', 'id'], selectedLandcover || -1], '#059669',
+              ['==', ['id'], selectedLandcover || -1], '#059669',
               '#7c3aed' // Darker purple for outline
             ],
             'line-width': [
               'case',
-              ['==', ['get', 'id'], selectedLandcover || -1], 3,
+              ['==', ['id'], selectedLandcover || -1], 3,
               1.5
             ]
           }
@@ -1453,15 +1455,16 @@
         // Use appropriate property based on layer type
         const opacityProp = is3DMode ? 'fill-extrusion-opacity' : 'fill-opacity';
 
+        // Note: landcover tiles use feature ID, not properties.id, so we use ['id'] expression
         if (selectedLandcover) {
           map.setPaintProperty('landcover-fill', opacityProp, [
             'case',
-            ['==', ['get', 'id'], selectedLandcover], is3DMode ? 0.6 : 0.4,
+            ['==', ['id'], selectedLandcover], is3DMode ? 0.6 : 0.4,
             is3DMode ? 0.4 : 0.2
           ]);
           map.setPaintProperty('landcover-outline', 'line-width', [
             'case',
-            ['==', ['get', 'id'], selectedLandcover], 3,
+            ['==', ['id'], selectedLandcover], 3,
             1.5
           ]);
         } else {
@@ -1700,8 +1703,9 @@
           const parcelFeatures = map.queryRenderedFeatures(e.point, { layers: ['parcels-fill'] });
 
           // Select based on layer hierarchy: landcover (middle) > parcels (bottom)
+          // Note: landcover uses feature.id, parcels use properties.id
           if (landcoverFeatures.length > 0) {
-            selectLandcover(landcoverFeatures[0].properties.id);
+            selectLandcover(landcoverFeatures[0].id);
           } else if (parcelFeatures.length > 0) {
             selectParcel(parcelFeatures[0].properties.id);
           }
@@ -1797,12 +1801,13 @@
             addBuildingsLayer();
 
             // Re-add unified click handler for parcels and landcover
+            // Note: landcover uses feature.id, parcels use properties.id
             map.on('click', (e) => {
               if (markerClickHandled) return;
               const landcoverFeatures = map.queryRenderedFeatures(e.point, { layers: ['landcover-fill'] });
               const parcelFeatures = map.queryRenderedFeatures(e.point, { layers: ['parcels-fill'] });
               if (landcoverFeatures.length > 0) {
-                selectLandcover(landcoverFeatures[0].properties.id);
+                selectLandcover(landcoverFeatures[0].id);
               } else if (parcelFeatures.length > 0) {
                 selectParcel(parcelFeatures[0].properties.id);
               }
@@ -1857,6 +1862,7 @@
             const beforeLayer = map.getLayer('landcover-outline') ? 'landcover-outline' : undefined;
 
             map.removeLayer('landcover-fill');
+            // Note: landcover tiles use feature ID, not properties.id, so we use ['id'] expression
             map.addLayer({
               id: 'landcover-fill',
               type: 'fill-extrusion',
@@ -1866,7 +1872,7 @@
               paint: {
                 'fill-extrusion-color': [
                   'case',
-                  ['==', ['get', 'id'], selectedLandcover || -1], '#059669',
+                  ['==', ['id'], selectedLandcover || -1], '#059669',
                   '#8b5cf6'
                 ],
                 'fill-extrusion-height': 10,
@@ -1896,6 +1902,7 @@
             const beforeLayer = map.getLayer('landcover-outline') ? 'landcover-outline' : undefined;
 
             map.removeLayer('landcover-fill');
+            // Note: landcover tiles use feature ID, not properties.id, so we use ['id'] expression
             map.addLayer({
               id: 'landcover-fill',
               type: 'fill',
@@ -1905,12 +1912,12 @@
               paint: {
                 'fill-color': [
                   'case',
-                  ['==', ['get', 'id'], selectedLandcover || -1], '#059669',
+                  ['==', ['id'], selectedLandcover || -1], '#059669',
                   '#8b5cf6'
                 ],
                 'fill-opacity': [
                   'case',
-                  ['==', ['get', 'id'], selectedLandcover || -1], 0.4,
+                  ['==', ['id'], selectedLandcover || -1], 0.4,
                   0.2
                 ]
               }
