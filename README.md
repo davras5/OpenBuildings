@@ -14,38 +14,36 @@
 
 ## Overview
 
-OpenBuildings is developed and maintained by the Department for Digital Real Estate at the Federal Office of Buildings and Logistics (FOBL / BBL). While the project primarily supports internal federal needs, it is published openly to enable reuse, transparency, and collaboration beyond organisational boundaries.
+OpenBuildings is developed and maintained by the **Department for Digital Real Estate** at the Federal Office of Buildings and Logistics (FOBL / BBL). While primarily supporting internal federal needs, the project is openly published to enable **reuse, transparency, and collaboration** beyond organizational boundaries.
 
-**Important:** The Federal Office does **not own the underlying data** and cannot guarantee its correctness. We aggregate, harmonise, and link data from official sources. The authoritative data owner for each dataset can be found in our tools and data documentation or at [https://opendata.swiss/de](https://opendata.swiss/de).
+**Important:** The Federal Office **does not own the underlying data** and cannot guarantee its correctness. We aggregate, harmonize, and link data from official sources. For authoritative datasets, see [opendata.swiss](https://opendata.swiss/de) or our documentation.
 
-OpenBuildings brings together publicly available building data from multiple sources and aligns it into a single, consistent reference layer. The goal is not to replace existing registers, but to make building data **usable in practice** across organisational and system boundaries.
+OpenBuildings brings together publicly available building data from multiple sources and aligns it into a single, **consistent reference layer**. The goal is not to replace existing registers but to make building data **usable in practice** across organizational and system boundaries.
 
-Live demo: [https://davras5.github.io/OpenBuildings/](https://davras5.github.io/OpenBuildings/)
-
----
-
-## What It Is
-
-OpenBuildings is an **open building data foundation for Switzerland**.
-
-It provides a harmonised dataset and structure that:
-
-* combines building-related information from multiple public sources
-* aligns schemas, identifiers, and attributes where possible
-* enables comparison, enrichment, and integration across datasets
+**Live demo:** [https://davras5.github.io/OpenBuildings/](https://davras5.github.io/OpenBuildings/)
 
 ---
 
-## What It Is NOT
+## What OpenBuildings Is
+
+OpenBuildings is an **open building data foundation for Switzerland**. It provides a harmonized dataset and structure that:
+
+* Combines building-related information from multiple public sources
+* Aligns schemas, identifiers, and attributes where possible
+* Enables comparison, enrichment, and integration across datasets
+
+---
+
+## What OpenBuildings Is NOT
 
 OpenBuildings is **not**:
 
-* an official or legally authoritative building register
-* a replacement for cantonal or municipal source systems
-* a single “source of truth” for regulatory or legal decisions
-* a closed product or proprietary platform
+* An official or legally authoritative building register
+* A replacement for cantonal or municipal source systems
+* A single “source of truth” for regulatory or legal decisions
+* A closed or proprietary platform
 
-Instead, it **complements existing registers** by improving interoperability and practical reuse, while remaining open, transparent, and extensible.
+Instead, it **complements existing registers** by improving interoperability and practical reuse while remaining open, transparent, and extensible.
 
 ---
 
@@ -53,13 +51,13 @@ Instead, it **complements existing registers** by improving interoperability and
 
 OpenBuildings is built entirely on **publicly available data** from authoritative sources. All original licensing conditions are respected and documented.
 
-Key principles:
+**Key principles:**
 
-* no proprietary source data
-* transparent provenance
-* reproducible processing
+* No proprietary source data
+* Transparent provenance
+* Reproducible processing
 
-The project follows an **open-by-default** approach to data, code, and documentation.
+The project follows an **open-by-default** approach to **data, code, and documentation**.
 
 ---
 
@@ -67,7 +65,7 @@ The project follows an **open-by-default** approach to data, code, and documenta
 
 | Component            | Description                                       |
 | -------------------- | ------------------------------------------------- |
-| **Web App**          | Static frontend for exploration and visualisation |
+| **Web App**          | Static frontend for exploration and visualization |
 | **Backend**          | PostgreSQL + PostGIS with REST API (Supabase)     |
 | **Processing Tools** | Python & FME workers for data enrichment          |
 
@@ -75,16 +73,16 @@ The project follows an **open-by-default** approach to data, code, and documenta
 
 ## Tools
 
-We developed modular tools, see documentation.
+OpenBuildings provides modular tools for data processing.
 
-| Tool                                            | Status         | Purpose                                                           |
-| ----------------------------------------------- | -------------- | ----------------------------------------------------------------- |
-| [**Base Worker**](tools/base-worker/)           | Available      | Aggregates core data like IDs, geometry and messurements     |
-| [**Volume Estimator**](tools/volume-estimator/) | Available      | Calculates building volumes from terrain & surface models          |
-| [**Roof Estimator**](tools/roof-estimator/)     | In development | Derives roof characteristics                                       |
-| **Biodiversity**                                | Idea           | Green roof detection and biodiversity index per parcel            |
-| **Carbon Risks**                                | Idea           | Ready to use location data for carbon risks                       |
-| **Environmental Risks**                         | Idea           | Ready to use location data for environmental risks                |
+| Tool                                            | Status         | Purpose                                                   |
+| ----------------------------------------------- | -------------- | --------------------------------------------------------- |
+| [**Base Worker**](tools/base-worker/)           | Available      | Aggregates core data like IDs, geometry, and measurements |
+| [**Volume Estimator**](tools/volume-estimator/) | Available      | Calculates building volumes from terrain & surface models |
+| [**Roof Estimator**](tools/roof-estimator/)     | In development | Derives roof characteristics                              |
+| **Biodiversity**                                | Idea           | Green roof detection and biodiversity index per parcel    |
+| **Carbon Risks**                                | Idea           | Location data for carbon risk assessment                  |
+| **Environmental Risks**                         | Idea           | Location data for environmental risk assessment           |
 
 ### Example: Volume Estimator
 
@@ -99,7 +97,7 @@ python tools/volume-estimator/python/main.py \
   -g buildings_with_volumes.gpkg
 ```
 
-See the tool-specific README for full details.
+See each tool's README for full details.
 
 ---
 
@@ -107,7 +105,7 @@ See the tool-specific README for full details.
 
 Full schema: [documentation/DATAMODEL.md](documentation/DATAMODEL.md)
 
-The platform aggregates Swiss Open Government Data into four core entities:
+OpenBuildings aggregates Swiss Open Government Data into four core entities:
 
 ```mermaid
 erDiagram
@@ -163,7 +161,7 @@ All sources are **Swiss Open Government Data**.
 1. Generate a 1×1 m grid inside each footprint
 2. Sample terrain height (DTM)
 3. Sample surface height (DSM)
-4. Compute volume as
+4. Compute volume as:
    `Σ (surface − terrain) × 1 m²`
 
 ### Standards Referenced
@@ -201,9 +199,7 @@ OpenBuildings/
 
 ## Contributing
 
-OpenBuildings is a shared foundation.
-
-Use it. Question it. Improve it.
+OpenBuildings is a shared foundation. Use it. Question it. Improve it.
 
 1. Fork the repository
 2. Create a feature branch
@@ -214,7 +210,7 @@ Use it. Question it. Improve it.
 
 ## License
 
-MIT License — see [LICENSE](LICENSE).
+MIT License — see [LICENSE](LICENSE)
 
 ---
 
@@ -226,5 +222,6 @@ MIT License — see [LICENSE](LICENSE).
 
 ---
 
-*Building data is a public good.
-OpenBuildings turns that principle into infrastructure.*
+*Building data is a public good. OpenBuildings turns that principle into infrastructure.*
+
+---
