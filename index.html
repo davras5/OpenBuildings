@@ -713,6 +713,90 @@
     .maplibregl-ctrl-bottom-left .maplibregl-ctrl-scale {
       display: none;
     }
+
+    /* Toast notifications */
+    .toast-container {
+      position: fixed;
+      top: var(--space-lg);
+      right: var(--space-lg);
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-sm);
+      pointer-events: none;
+    }
+
+    .toast {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      padding: var(--space-sm) var(--space-md);
+      background: var(--clr-surface);
+      border-radius: var(--radius-md);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      font-size: 0.875rem;
+      color: var(--clr-text);
+      pointer-events: auto;
+      transform: translateX(120%);
+      opacity: 0;
+      transition: transform 0.3s ease, opacity 0.3s ease;
+    }
+
+    .toast.show {
+      transform: translateX(0);
+      opacity: 1;
+    }
+
+    .toast.toast-error {
+      border-left: 4px solid var(--clr-coral);
+    }
+
+    .toast.toast-success {
+      border-left: 4px solid var(--clr-leaf);
+    }
+
+    .toast.toast-info {
+      border-left: 4px solid var(--clr-ocean);
+    }
+
+    .toast-icon {
+      flex-shrink: 0;
+      width: 18px;
+      height: 18px;
+    }
+
+    .toast-error .toast-icon {
+      color: var(--clr-coral);
+    }
+
+    .toast-success .toast-icon {
+      color: var(--clr-leaf);
+    }
+
+    .toast-info .toast-icon {
+      color: var(--clr-ocean);
+    }
+
+    .toast-message {
+      flex: 1;
+    }
+
+    @media (max-width: 640px) {
+      .toast-container {
+        left: var(--space-sm);
+        right: var(--space-sm);
+        top: auto;
+        bottom: var(--space-lg);
+      }
+
+      .toast {
+        transform: translateY(120%);
+      }
+
+      .toast.show {
+        transform: translateY(0);
+      }
+    }
   </style>
 </head>
 <body>
@@ -825,6 +909,9 @@
     </div>
   </main>
 
+  <!-- Toast notifications container -->
+  <div class="toast-container" id="toastContainer"></div>
+
   <script>
     // ============================================
     // CONFIGURATION
@@ -851,6 +938,36 @@
     document.addEventListener('DOMContentLoaded', init);
     
     async function init() {
+      // ============================================
+      // Toast Notification System
+      // ============================================
+      const toastContainer = document.getElementById('toastContainer');
+
+      function showToast(message, type = 'error', duration = 4000) {
+        const icons = {
+          error: '<svg class="toast-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>',
+          success: '<svg class="toast-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9 12l2 2 4-4"/></svg>',
+          info: '<svg class="toast-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>'
+        };
+
+        const toast = document.createElement('div');
+        toast.className = `toast toast-${type}`;
+        toast.innerHTML = `${icons[type] || icons.info}<span class="toast-message">${message}</span>`;
+
+        toastContainer.appendChild(toast);
+
+        // Trigger animation
+        requestAnimationFrame(() => {
+          toast.classList.add('show');
+        });
+
+        // Auto-remove after duration
+        setTimeout(() => {
+          toast.classList.remove('show');
+          setTimeout(() => toast.remove(), 300);
+        }, duration);
+      }
+
       // ============================================
       // Initialize Supabase
       // ============================================
@@ -1174,6 +1291,7 @@
 
         try {
           const response = await fetch('assets/ch.geojson');
+          if (!response.ok) throw new Error('Failed to fetch border data');
           const geojson = await response.json();
 
           map.addSource('switzerland-border', {
@@ -1193,6 +1311,7 @@
           });
         } catch (err) {
           console.error('Failed to load Switzerland border:', err);
+          // Non-critical feature, no toast needed - border is decorative
         }
       }
 
@@ -1386,6 +1505,7 @@
           }
         } catch (err) {
           console.error('Error fetching building:', err);
+          showToast('Failed to load building details. Please try again.', 'error');
         }
       }
 
@@ -1405,6 +1525,7 @@
           }
         } catch (err) {
           console.error('Error fetching parcel:', err);
+          showToast('Failed to load parcel details. Please try again.', 'error');
         }
       }
 
@@ -1424,6 +1545,7 @@
           }
         } catch (err) {
           console.error('Error fetching landcover:', err);
+          showToast('Failed to load landcover details. Please try again.', 'error');
         }
       }
 
@@ -1636,6 +1758,7 @@
           }
         } catch (err) {
           console.error('Error flying to building:', err);
+          showToast('Failed to navigate to building. Please try again.', 'error');
         }
       }
 
@@ -1796,17 +1919,7 @@
             addLandcoverLayer();
             addBuildingsLayer();
 
-            // Re-add unified click handler for parcels and landcover
-            map.on('click', (e) => {
-              if (markerClickHandled) return;
-              const landcoverFeatures = map.queryRenderedFeatures(e.point, { layers: ['landcover-fill'] });
-              const parcelFeatures = map.queryRenderedFeatures(e.point, { layers: ['parcels-fill'] });
-              if (landcoverFeatures.length > 0) {
-                selectLandcover(landcoverFeatures[0].properties.id);
-              } else if (parcelFeatures.length > 0) {
-                selectParcel(parcelFeatures[0].properties.id);
-              }
-            });
+            // Note: General click handler persists across style changes, no need to re-add
 
             // Re-apply 3D mode if active
             if (is3DMode) {
@@ -1969,23 +2082,47 @@
           closeSearchDropdown();
           return;
         }
-        
+
         try {
           const url = `https://api3.geo.admin.ch/rest/services/ech/SearchServer?searchText=${encodeURIComponent(query)}&type=locations&type=layers&lang=de&sr=4326`;
           const response = await fetch(url);
+          if (!response.ok) throw new Error('Search request failed');
           const data = await response.json();
-          
+
           displaySearchResults(data.results, query);
         } catch (err) {
           console.error('Search error:', err);
+          showToast('Search failed. Please try again.', 'error');
+          closeSearchDropdown();
         }
       }
       
-      // Highlight matching text
+      // Safely extract text from HTML and escape for display
+      function sanitizeAndExtractText(html) {
+        if (!html) return '';
+        // Create a temporary element to decode HTML entities and extract text
+        const temp = document.createElement('div');
+        temp.innerHTML = html;
+        return temp.textContent || temp.innerText || '';
+      }
+
+      // Escape HTML special characters to prevent XSS
+      function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+      }
+
+      // Highlight matching text (safe - only adds <mark> tags to escaped content)
       function highlightMatch(text, query) {
         if (!text) return '';
-        const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
-        return text.replace(regex, '<mark>$1</mark>');
+        // First escape the text to prevent XSS
+        const escapedText = escapeHtml(text);
+        // Escape regex special characters in query
+        const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        // Now safely highlight (the text is already escaped, so <mark> tags are safe to add)
+        const regex = new RegExp(`(${escapedQuery})`, 'gi');
+        return escapedText.replace(regex, '<mark>$1</mark>');
       }
       
       // Display results
@@ -2003,7 +2140,9 @@
           locations.slice(0, 10).forEach(loc => {
             const item = document.createElement('div');
             item.className = 'search-result-item';
-            item.innerHTML = highlightMatch(loc.attrs.label.replace(/<[^>]*>/g, ''), query);
+            // Safely extract text and highlight matches
+            const cleanLabel = sanitizeAndExtractText(loc.attrs.label);
+            item.innerHTML = highlightMatch(cleanLabel, query);
             item.addEventListener('click', () => {
               goToLocation(loc);
             });
@@ -2012,14 +2151,16 @@
         } else {
           locationsSection.classList.remove('has-results');
         }
-        
+
         // Layers (disabled for now)
         if (layers.length > 0) {
           layersSection.classList.add('has-results');
           layers.slice(0, 10).forEach(layer => {
             const item = document.createElement('div');
             item.className = 'search-result-item disabled';
-            item.innerHTML = highlightMatch(layer.attrs.label.replace(/<[^>]*>/g, ''), query);
+            // Safely extract text and highlight matches
+            const cleanLabel = sanitizeAndExtractText(layer.attrs.label);
+            item.innerHTML = highlightMatch(cleanLabel, query);
             layersResults.appendChild(item);
           });
         } else {
