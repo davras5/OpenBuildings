@@ -794,6 +794,16 @@
             color: var(--white);
         }
 
+        .tool-tags span.in-development {
+            background-color: var(--amber);
+            color: var(--white);
+        }
+
+        .tool-tags span.idea {
+            background-color: var(--slate-500);
+            color: var(--white);
+        }
+
         .tools-nav {
             display: flex;
             justify-content: center;
@@ -1597,12 +1607,9 @@
                             <i data-lucide="database" style="width: 32px; height: 32px;"></i>
                         </div>
                         <h3>Base Worker</h3>
-                        <p>Foundational data processing. Ensures ID, geometry, and measurements are up-to-date and correct. Everything else builds on top of it.</p>
+                        <p>Aggregates foundational and structural master data. Keeps primary keys, geometry, and measurements consistent and up-to-date.</p>
                         <div class="tool-tags">
                             <span class="available">Available</span>
-                            <span>EGID</span>
-                            <span>Geometry</span>
-                            <span>Measurements</span>
                         </div>
                     </div>
 
@@ -1611,11 +1618,9 @@
                             <i data-lucide="box" style="width: 32px; height: 32px;"></i>
                         </div>
                         <h3>Volume Estimator</h3>
-                        <p>Calculate building volumes from swissALTI3D and swissSURFACE3D at 1m² resolution. Python CLI and FME Workbench available.</p>
+                        <p>Calculate building volumes from swissALTI3D and swissSURFACE3D at 1m² resolution.</p>
                         <div class="tool-tags">
                             <span class="available">Available</span>
-                            <span>Python</span>
-                            <span>FME</span>
                         </div>
                     </div>
 
@@ -1624,10 +1629,9 @@
                             <i data-lucide="home" style="width: 32px; height: 32px;"></i>
                         </div>
                         <h3>Roof Estimator</h3>
-                        <p>Derive roof form, orientation, slope, and area from elevation data. Essential for solar potential and renovation planning.</p>
+                        <p>Derive roof form, orientation, slope, and area from elevation data.</p>
                         <div class="tool-tags">
-                            <span class="coming-soon">Coming Soon</span>
-                            <span>Python</span>
+                            <span class="in-development">In Development</span>
                         </div>
                     </div>
 
@@ -1636,24 +1640,31 @@
                             <i data-lucide="leaf" style="width: 32px; height: 32px;"></i>
                         </div>
                         <h3>Biodiversity</h3>
-                        <p>Green roof detection and biodiversity index per parcel. Assess urban greening potential and ecological value of building surfaces.</p>
+                        <p>Green roof detection and biodiversity index per parcel. Assess urban greening potential and ecological value.</p>
                         <div class="tool-tags">
-                            <span class="coming-soon">Coming Soon</span>
-                            <span>Green Roofs</span>
-                            <span>Ecology</span>
+                            <span class="idea">Idea</span>
                         </div>
                     </div>
 
                     <div class="tool-card">
                         <div class="tool-icon">
-                            <i data-lucide="cloud" style="width: 32px; height: 32px;"></i>
+                            <i data-lucide="flame" style="width: 32px; height: 32px;"></i>
                         </div>
-                        <h3>Carbon Reporting</h3>
-                        <p>Calculate embodied carbon and operational emissions per building. Support climate risk assessment and decarbonization planning.</p>
+                        <h3>Carbon Risks</h3>
+                        <p>Ready-to-use location data for carbon risks assessment and reporting.</p>
                         <div class="tool-tags">
-                            <span class="coming-soon">Coming Soon</span>
-                            <span>CO₂</span>
-                            <span>Climate Risk</span>
+                            <span class="idea">Idea</span>
+                        </div>
+                    </div>
+
+                    <div class="tool-card">
+                        <div class="tool-icon">
+                            <i data-lucide="alert-triangle" style="width: 32px; height: 32px;"></i>
+                        </div>
+                        <h3>Environmental Risks</h3>
+                        <p>Ready-to-use location data for environmental risks assessment and reporting.</p>
+                        <div class="tool-tags">
+                            <span class="idea">Idea</span>
                         </div>
                     </div>
                 </div>
