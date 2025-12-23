@@ -265,19 +265,35 @@ async function init() {
     searchMarker: null
   };
 
+  /**
+   * Create a search marker element (blue pin with white center)
+   * @returns {HTMLDivElement} The marker element
+   */
+  function createSearchMarkerElement() {
+    const el = document.createElement('div');
+    el.innerHTML = `
+      <svg width="32" height="40" viewBox="0 0 32 40" fill="none">
+        <path d="M16 0C7.163 0 0 7.163 0 16c0 12 16 24 16 24s16-12 16-24c0-8.837-7.163-16-16-16z" fill="#2563eb"/>
+        <circle cx="16" cy="16" r="6" fill="white"/>
+      </svg>
+    `;
+    el.style.cssText = 'cursor: pointer; transform: translate(-50%, -100%);';
+    return el;
+  }
+
   // ============================================
   // Layer Event Handlers (named functions for cleanup)
   // ============================================
+  // Shared cursor handlers to avoid duplication
+  const cursorHandlers = {
+    mouseenter: () => { map.getCanvas().style.cursor = 'pointer'; },
+    mouseleave: () => { map.getCanvas().style.cursor = ''; }
+  };
+
   // Storing handlers allows us to remove them when layers are re-added
   const layerHandlers = {
-    parcels: {
-      mouseenter: () => { map.getCanvas().style.cursor = 'pointer'; },
-      mouseleave: () => { map.getCanvas().style.cursor = ''; }
-    },
-    landcover: {
-      mouseenter: () => { map.getCanvas().style.cursor = 'pointer'; },
-      mouseleave: () => { map.getCanvas().style.cursor = ''; }
-    },
+    parcels: cursorHandlers,
+    landcover: cursorHandlers,
     buildings: {
       click: (e) => {
         state.markerClickHandled = true;
@@ -286,8 +302,7 @@ async function init() {
         selectBuilding(props.id, coords);
         setTimeout(() => { state.markerClickHandled = false; }, UI_TIMING.clickDebounce);
       },
-      mouseenter: () => { map.getCanvas().style.cursor = 'pointer'; },
-      mouseleave: () => { map.getCanvas().style.cursor = ''; }
+      ...cursorHandlers
     }
   };
 
@@ -399,7 +414,7 @@ async function init() {
       outlineColor: '#1e3a5f',
       selectedColor: '#059669',  // Green when selected
       fillOpacity: 0.1,
-      selectedFillOpacity: 0.3,
+      selectedFillOpacity: 0.25,
       getSelectedId: () => state.selectedParcel
     },
     landcover: {
@@ -741,47 +756,48 @@ async function init() {
     }
   }
 
-  function updateParcelStyles() {
-    if (!map.getLayer('parcels-fill')) return;
+  /**
+   * Update polygon layer styles based on selection state
+   * @param {'parcels'|'landcover'} layerName - Name of the layer to update
+   */
+  function updatePolygonStyles(layerName) {
+    if (!map.getLayer(`${layerName}-fill`)) return;
 
-    if (state.selectedParcel) {
-      map.setPaintProperty('parcels-fill', 'fill-opacity', [
+    const config = polygonLayerConfigs[layerName];
+    const selectedId = config.getSelectedId();
+
+    // Landcover in 3D mode uses fill-extrusion-opacity, otherwise fill-opacity
+    const is3DLandcover = layerName === 'landcover' && state.is3DMode;
+    const opacityProp = is3DLandcover ? 'fill-extrusion-opacity' : 'fill-opacity';
+
+    // Adjust opacity values for 3D mode (higher visibility needed)
+    const selectedOpacity = is3DLandcover ? 0.6 : config.selectedFillOpacity;
+    const defaultOpacity = is3DLandcover ? 0.4 : config.fillOpacity;
+
+    if (selectedId) {
+      map.setPaintProperty(`${layerName}-fill`, opacityProp, [
         'case',
-        ['==', ['get', 'id'], state.selectedParcel], 0.25,
-        0.1
+        ['==', ['get', 'id'], selectedId], selectedOpacity,
+        defaultOpacity
       ]);
-      map.setPaintProperty('parcels-outline', 'line-width', [
+      map.setPaintProperty(`${layerName}-outline`, 'line-width', [
         'case',
-        ['==', ['get', 'id'], state.selectedParcel], 3,
+        ['==', ['get', 'id'], selectedId], 3,
         1.5
       ]);
     } else {
-      map.setPaintProperty('parcels-fill', 'fill-opacity', 0.1);
-      map.setPaintProperty('parcels-outline', 'line-width', 1.5);
+      map.setPaintProperty(`${layerName}-fill`, opacityProp, defaultOpacity);
+      map.setPaintProperty(`${layerName}-outline`, 'line-width', 1.5);
     }
   }
 
+  // Convenience wrappers for backward compatibility
+  function updateParcelStyles() {
+    updatePolygonStyles('parcels');
+  }
+
   function updateLandcoverStyles() {
-    if (!map.getLayer('landcover-fill')) return;
-
-    // Use appropriate property based on layer type
-    const opacityProp = state.is3DMode ? 'fill-extrusion-opacity' : 'fill-opacity';
-
-    if (state.selectedLandcover) {
-      map.setPaintProperty('landcover-fill', opacityProp, [
-        'case',
-        ['==', ['get', 'id'], state.selectedLandcover], state.is3DMode ? 0.6 : 0.4,
-        state.is3DMode ? 0.4 : 0.2
-      ]);
-      map.setPaintProperty('landcover-outline', 'line-width', [
-        'case',
-        ['==', ['get', 'id'], state.selectedLandcover], 3,
-        1.5
-      ]);
-    } else {
-      map.setPaintProperty('landcover-fill', opacityProp, state.is3DMode ? 0.4 : 0.2);
-      map.setPaintProperty('landcover-outline', 'line-width', 1.5);
-    }
+    updatePolygonStyles('landcover');
   }
 
   // ============================================
@@ -933,16 +949,7 @@ async function init() {
 
   // Create search marker if marker param is true and coordinates provided
   if (urlParams.marker && urlParams.lon !== null && urlParams.lat !== null) {
-    const el = document.createElement('div');
-    el.innerHTML = `
-      <svg width="32" height="40" viewBox="0 0 32 40" fill="none">
-        <path d="M16 0C7.163 0 0 7.163 0 16c0 12 16 24 16 24s16-12 16-24c0-8.837-7.163-16-16-16z" fill="#2563eb"/>
-        <circle cx="16" cy="16" r="6" fill="white"/>
-      </svg>
-    `;
-    el.style.cssText = 'cursor: pointer; transform: translate(-50%, -100%);';
-
-    state.searchMarker = new maplibregl.Marker({ element: el })
+    state.searchMarker = new maplibregl.Marker({ element: createSearchMarkerElement() })
       .setLngLat([urlParams.lon, urlParams.lat])
       .addTo(map);
   }
@@ -1314,17 +1321,8 @@ async function init() {
       state.searchMarker.remove();
     }
 
-    // Create new search marker (different style from building markers)
-    const el = document.createElement('div');
-    el.innerHTML = `
-      <svg width="32" height="40" viewBox="0 0 32 40" fill="none">
-        <path d="M16 0C7.163 0 0 7.163 0 16c0 12 16 24 16 24s16-12 16-24c0-8.837-7.163-16-16-16z" fill="#2563eb"/>
-        <circle cx="16" cy="16" r="6" fill="white"/>
-      </svg>
-    `;
-    el.style.cssText = 'cursor: pointer; transform: translate(-50%, -100%);';
-
-    state.searchMarker = new maplibregl.Marker({ element: el })
+    // Create new search marker
+    state.searchMarker = new maplibregl.Marker({ element: createSearchMarkerElement() })
       .setLngLat([lon, lat])
       .addTo(map);
 
