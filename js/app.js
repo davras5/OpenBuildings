@@ -68,6 +68,128 @@ function debugWarn(...args) {
 }
 
 // ============================================
+// Formatting Helpers
+// ============================================
+
+/**
+ * Format a numeric value with unit
+ * @param {number|null} value - The value to format
+ * @param {string} unit - The unit (e.g., 'm²', 'm³', 'm')
+ * @param {number} [decimals=0] - Number of decimal places
+ * @returns {string} Formatted value with unit or '–'
+ */
+function formatWithUnit(value, unit, decimals = 0) {
+  if (value == null || isNaN(value)) return '–';
+  const formatted = decimals > 0
+    ? value.toLocaleString('de-CH', { minimumFractionDigits: decimals, maximumFractionDigits: decimals })
+    : Math.round(value).toLocaleString('de-CH');
+  return `${formatted} ${unit}`;
+}
+
+/**
+ * Format a year value
+ * @param {number|null} value - The year value
+ * @returns {string} Formatted year or '–'
+ */
+function formatYear(value) {
+  if (value == null || isNaN(value)) return '–';
+  return value.toString();
+}
+
+/** Building status labels (GSTAT) */
+const BUILDING_STATUS_LABELS = {
+  planned: 'Planned',
+  approved: 'Approved',
+  under_construction: 'Under Construction',
+  existing: 'Existing',
+  unusable: 'Unusable',
+  demolished: 'Demolished',
+  not_realized: 'Not Realized'
+};
+
+/** Building category labels (GKAT) */
+const BUILDING_CATEGORY_LABELS = {
+  provisional: 'Provisional Dwelling',
+  single_family: 'Single-Family House',
+  row_house: 'Row House',
+  multi_family: 'Multi-Family House',
+  residential_mixed: 'Residential (Mixed Use)',
+  residential_commercial: 'Residential/Commercial',
+  commercial_only: 'Commercial Only'
+};
+
+/** Parcel status labels */
+const PARCEL_STATUS_LABELS = {
+  legally_valid: 'Legally Valid',
+  in_progress: 'In Progress',
+  projected: 'Projected'
+};
+
+/** Parcel type labels (LTYP) */
+const PARCEL_TYPE_LABELS = {
+  property: 'Property',
+  sdp_on_parcel: 'Permanent Right',
+  mining_right: 'Mining Right'
+};
+
+/** Landcover type labels (from DM.01-AV-CH) */
+const LANDCOVER_TYPE_LABELS = {
+  building: 'Building',
+  hardened_area: 'Hardened Area',
+  greenhouse: 'Greenhouse',
+  perennial_culture_shelter: 'Perennial Culture Shelter',
+  reservoir: 'Reservoir',
+  other_hardened: 'Other Hardened',
+  railway: 'Railway',
+  road_path: 'Road/Path',
+  field_meadow_pasture: 'Field/Meadow/Pasture',
+  vineyard: 'Vineyard',
+  other_intensive_culture: 'Other Intensive Culture',
+  garden: 'Garden',
+  moor: 'Moor',
+  other_humusised: 'Other Humusised',
+  standing_water: 'Standing Water',
+  flowing_water: 'Flowing Water',
+  reed_belt: 'Reed Belt',
+  closed_forest: 'Closed Forest',
+  dense_wooded_pasture: 'Dense Wooded Pasture',
+  open_wooded_pasture: 'Open Wooded Pasture',
+  other_wooded: 'Other Wooded',
+  rock: 'Rock',
+  glacier_firn: 'Glacier/Firn',
+  gravel_sand: 'Gravel/Sand',
+  quarry_dump: 'Quarry/Dump',
+  other_unvegetated: 'Other Unvegetated'
+};
+
+/**
+ * Get human-readable label for an enum value
+ * @param {Object} labelMap - The label mapping object
+ * @param {string|null} value - The enum value
+ * @returns {string} Human-readable label or formatted value
+ */
+function getEnumLabel(labelMap, value) {
+  if (!value) return '–';
+  return labelMap[value] || value.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+}
+
+/**
+ * Format an address from building data
+ * @param {Object} building - Building data object
+ * @returns {string|null} Formatted address or null if no address data
+ */
+function formatAddress(building) {
+  const parts = [];
+  if (building.street) {
+    parts.push(building.street + (building.street_nr ? ' ' + building.street_nr : ''));
+  }
+  if (building.postal_code || building.city) {
+    parts.push([building.postal_code, building.city].filter(Boolean).join(' '));
+  }
+  return parts.length > 0 ? parts.join(', ') : null;
+}
+
+// ============================================
 // Wait for DOM and scripts to load
 // ============================================
 document.addEventListener('DOMContentLoaded', init);
@@ -774,19 +896,35 @@ async function init() {
   const featureConfigs = {
     building: {
       table: 'buildings',
-      select: 'id, label, egid, geog',
+      select: `id, label, egid, geog,
+        street, street_nr, postal_code, city,
+        status, category,
+        construction_year,
+        floors_above, floors_below,
+        area_footprint_m2, area_floor_total_m2,
+        volume_total_m3,
+        height_mean_m, height_max_m,
+        heating_source,
+        heritage_category`,
       showPanel: showBuildingPanel,
       errorMsg: 'Failed to load building details. Please try again.'
     },
     parcel: {
       table: 'parcels',
-      select: 'id, label, egrid, type, area_m2, area_polygon_m2',
+      select: `id, label, egrid, parcel_number,
+        status, type,
+        area_m2, area_ggf_m2,
+        zone_main, zone_type,
+        municipality_name`,
       showPanel: showParcelPanel,
       errorMsg: 'Failed to load parcel details. Please try again.'
     },
     landcovers: {
       table: 'landcovers',
-      select: 'id, label, type, egid',
+      select: `id, label, type, egid, status,
+        area_m2,
+        volume_total_m3,
+        height_mean_m, height_max_m`,
       showPanel: showLandcoverPanel,
       errorMsg: 'Failed to load landcover details. Please try again.'
     }
@@ -928,18 +1066,72 @@ async function init() {
 
   /** Show building panel with details */
   function showBuildingPanel(building) {
-    const hasCoords = building.lat != null && building.lon != null;
-    const metrics = [
-      { label: 'ID', value: building.id || '–' },
-      { label: 'EGID', value: building.egid || '–' }
-    ];
+    const metrics = [];
 
-    if (hasCoords) {
-      metrics.push({ label: 'Coordinates', value: `${building.lat.toFixed(5)}, ${building.lon.toFixed(5)}` });
+    // Address (formatted)
+    const address = formatAddress(building);
+    if (address) {
+      metrics.push({ label: 'Address', value: address });
+    }
+
+    // Status & Category
+    if (building.status) {
+      metrics.push({ label: 'Status', value: getEnumLabel(BUILDING_STATUS_LABELS, building.status) });
+    }
+    if (building.category) {
+      metrics.push({ label: 'Category', value: getEnumLabel(BUILDING_CATEGORY_LABELS, building.category) });
+    }
+
+    // Construction year
+    if (building.construction_year) {
+      metrics.push({ label: 'Built', value: formatYear(building.construction_year) });
+    }
+
+    // Floors
+    if (building.floors_above != null || building.floors_below != null) {
+      const floorsAbove = building.floors_above || 0;
+      const floorsBelow = building.floors_below || 0;
+      let floorText = `${floorsAbove} above`;
+      if (floorsBelow > 0) floorText += `, ${floorsBelow} below`;
+      metrics.push({ label: 'Floors', value: floorText });
+    }
+
+    // Areas
+    if (building.area_footprint_m2 != null) {
+      metrics.push({ label: 'Footprint', value: formatWithUnit(building.area_footprint_m2, 'm²') });
+    }
+    if (building.area_floor_total_m2 != null) {
+      metrics.push({ label: 'Floor Area', value: formatWithUnit(building.area_floor_total_m2, 'm²') });
+    }
+
+    // Volume
+    if (building.volume_total_m3 != null) {
+      metrics.push({ label: 'Volume', value: formatWithUnit(building.volume_total_m3, 'm³') });
+    }
+
+    // Height
+    if (building.height_max_m != null) {
+      metrics.push({ label: 'Height', value: formatWithUnit(building.height_max_m, 'm', 1) });
+    }
+
+    // Heating
+    if (building.heating_source) {
+      metrics.push({ label: 'Heating', value: getEnumLabel({}, building.heating_source) });
+    }
+
+    // Heritage
+    if (building.heritage_category) {
+      const heritageLabel = building.heritage_category === 'a' ? 'Category A (National)' : 'Category B (Regional)';
+      metrics.push({ label: 'Heritage', value: heritageLabel });
+    }
+
+    // EGID as reference
+    if (building.egid) {
+      metrics.push({ label: 'EGID', value: building.egid });
     }
 
     showPanel({
-      title: building.label || building.egid || `#${building.id}`,
+      title: building.label || (address ? address.split(',')[0] : null) || building.egid || `Building #${building.id}`,
       type: 'Building',
       metrics
     });
@@ -947,25 +1139,49 @@ async function init() {
 
   /** Show parcel panel with details */
   function showParcelPanel(parcel) {
-    const metrics = [
-      { label: 'ID', value: parcel.id || '–' },
-      { label: 'E-GRID', value: parcel.egrid || '–' }
-    ];
+    const metrics = [];
 
+    // Parcel number
+    if (parcel.parcel_number) {
+      metrics.push({ label: 'Parcel Nr.', value: parcel.parcel_number });
+    }
+
+    // E-GRID
+    if (parcel.egrid) {
+      metrics.push({ label: 'E-GRID', value: parcel.egrid });
+    }
+
+    // Status & Type
+    if (parcel.status) {
+      metrics.push({ label: 'Status', value: getEnumLabel(PARCEL_STATUS_LABELS, parcel.status) });
+    }
     if (parcel.type) {
-      metrics.push({ label: 'Type', value: parcel.type });
+      metrics.push({ label: 'Type', value: getEnumLabel(PARCEL_TYPE_LABELS, parcel.type) });
     }
 
+    // Area (official)
     if (parcel.area_m2 != null) {
-      metrics.push({ label: 'Fläche', value: `${parcel.area_m2.toLocaleString()} m²` });
+      metrics.push({ label: 'Area', value: formatWithUnit(parcel.area_m2, 'm²') });
     }
 
-    if (parcel.area_polygon_m2 != null) {
-      metrics.push({ label: 'Polygonfläche', value: `${parcel.area_polygon_m2.toLocaleString()} m²` });
+    // Building footprint area
+    if (parcel.area_ggf_m2 != null) {
+      metrics.push({ label: 'Building Footprint', value: formatWithUnit(parcel.area_ggf_m2, 'm²') });
+    }
+
+    // Zoning
+    if (parcel.zone_main || parcel.zone_type) {
+      const zoneText = [parcel.zone_main, parcel.zone_type].filter(Boolean).join(' – ');
+      metrics.push({ label: 'Zone', value: zoneText });
+    }
+
+    // Municipality
+    if (parcel.municipality_name) {
+      metrics.push({ label: 'Municipality', value: parcel.municipality_name });
     }
 
     showPanel({
-      title: parcel.label || parcel.egrid || `#${parcel.id}`,
+      title: parcel.label || (parcel.parcel_number ? `Parcel ${parcel.parcel_number}` : null) || parcel.egrid || `Parcel #${parcel.id}`,
       type: 'Parcel',
       metrics
     });
@@ -973,20 +1189,48 @@ async function init() {
 
   /** Show landcover panel with details */
   function showLandcoverPanel(landcover) {
-    const metrics = [
-      { label: 'ID', value: landcover.id || '–' }
-    ];
+    const metrics = [];
+    const isBuilding = landcover.type === 'building';
 
+    // Type (with human-readable label)
     if (landcover.type) {
-      metrics.push({ label: 'Type', value: landcover.type });
+      metrics.push({ label: 'Type', value: getEnumLabel(LANDCOVER_TYPE_LABELS, landcover.type) });
     }
 
+    // Status
+    if (landcover.status) {
+      metrics.push({ label: 'Status', value: getEnumLabel({}, landcover.status) });
+    }
+
+    // Area
+    if (landcover.area_m2 != null) {
+      metrics.push({ label: 'Area', value: formatWithUnit(landcover.area_m2, 'm²') });
+    }
+
+    // Volume (only for building type)
+    if (isBuilding && landcover.volume_total_m3 != null) {
+      metrics.push({ label: 'Volume', value: formatWithUnit(landcover.volume_total_m3, 'm³') });
+    }
+
+    // Height (only for building type)
+    if (isBuilding && landcover.height_max_m != null) {
+      metrics.push({ label: 'Max Height', value: formatWithUnit(landcover.height_max_m, 'm', 1) });
+    }
+    if (isBuilding && landcover.height_mean_m != null) {
+      metrics.push({ label: 'Mean Height', value: formatWithUnit(landcover.height_mean_m, 'm', 1) });
+    }
+
+    // EGID (for building footprints)
     if (landcover.egid) {
       metrics.push({ label: 'EGID', value: landcover.egid });
     }
 
+    // Generate title based on type
+    const typeLabel = getEnumLabel(LANDCOVER_TYPE_LABELS, landcover.type);
+    const title = landcover.label || (isBuilding && landcover.egid ? `Building ${landcover.egid}` : typeLabel) || `Landcover #${landcover.id}`;
+
     showPanel({
-      title: landcover.label || landcover.egid || `#${landcover.id}`,
+      title,
       type: 'Landcover',
       metrics
     });
