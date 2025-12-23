@@ -243,7 +243,7 @@ Landcover polygons from cadastral survey. Landcovers can represent building foot
 
 | Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
 |--------|------------|------------|------|-------------|--------|-------------|
-| `area_m2` | Area | Fläche | `numeric` | `CHECK (area_m2 >= 0)` | Derived | Surface area in m² |
+| `area_polygon_m2` | Polygon Area | Polygonfläche | `numeric` | `CHECK (area_polygon_m2 >= 0)` | Derived | 2D projected area calculated from polygon geometry (for validation against official area) |
 | `volume_total_m3` | Volume | Volumen | `numeric` | `CHECK (volume_total_m3 >= 0)` | Derived | Building volume in m³ (for type=building) |
 | `height_mean_m` | Mean Height | Mittlere Höhe | `numeric` | `CHECK (height_mean_m >= 0)` | Derived | Mean height in m (for type=building) |
 | `height_max_m` | Max Height | Maximale Höhe | `numeric` | `CHECK (height_max_m >= 0)` | Derived | Maximum height in m (for type=building) |
