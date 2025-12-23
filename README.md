@@ -116,19 +116,12 @@ erDiagram
     parcels ||--o{ projects : contains
 ```
 
-### Buildings
-
-* Identification: EGID, address, location
-* Classification: status, category, class
-* Geometry & size: footprint, heights, floors, volume, floor area
-* Energy: heating type and source
-* Heritage: KGS protection category
-
-### Parcels
-
-* Identification: E-GRID, parcel number
-* Area metrics: parcel, footprint, sealed area
-* Zoning: main zone and zone type
+| Entity         | Description                                                       | Master System / Source            |
+| -------------- | ----------------------------------------------------------------- | --------------------------------- |
+| **Parcels**    | Land parcels with IDs, area, zoning, footprint                    | Cantonal cadastral registers (AV) |
+| **Buildings**  | Buildings with addresses, geometry, volume, heritage, energy info | AV / GWR (BFS)      |
+| **Landcovers** | Landcover classification and areas per parcel/building            | AV / swissSURFACE3D               |
+| **Projects**   | Building-related projects or initiatives                          | GWR (BFS) / derived              |
 
 ---
 
