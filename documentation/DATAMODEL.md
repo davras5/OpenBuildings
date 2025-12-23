@@ -254,6 +254,7 @@ Landcover polygons from cadastral survey. Landcovers can represent building foot
 | `id` | ID | ID | `bigint` | `PRIMARY KEY, GENERATED ALWAYS AS IDENTITY` | System | System ID |
 | `label` | Label | Bezeichnung | `text` | | Derived | Display label for frontend |
 | `source_fid` | Source Feature ID | Quell-Feature-ID | `text` | `UNIQUE, NOT NULL` | AV | Feature ID from source system. Used for upserts and data synchronization. |
+| `egid` | Building ID | Gebäudeidentifikator | `text` | `CHECK (egid ~ '^[0-9]{1,9}$')` | GWR | Eidgenössischer Gebäudeidentifikator (EGID). Often missing in source data. |
 | `geog` | Geometry | Geometrie | `geography(POLYGON, 4326)` | `NOT NULL` | AV | Landcover polygon |
 | `created_at` | Created | Erstellt | `timestamptz` | `NOT NULL DEFAULT NOW()` | System | Record creation timestamp |
 | `updated_at` | Updated | Aktualisiert | `timestamptz` | `NOT NULL DEFAULT NOW()` | System | Record last update timestamp |
