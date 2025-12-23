@@ -49,6 +49,55 @@ document.addEventListener('DOMContentLoaded', init);
 
 async function init() {
   // ============================================
+  // Fatal Error Handler (for initialization failures)
+  // ============================================
+  const loadingOverlay = document.getElementById('loadingOverlay');
+
+  function showFatalError(message) {
+    if (loadingOverlay) {
+      loadingOverlay.innerHTML = `
+        <div style="text-align: center; padding: 24px; max-width: 400px;">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2" style="margin-bottom: 16px;">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="15" y1="9" x2="9" y2="15"/>
+            <line x1="9" y1="9" x2="15" y2="15"/>
+          </svg>
+          <h2 style="margin: 0 0 8px 0; font-size: 1.25rem; color: #0f172a;">Failed to Load</h2>
+          <p style="margin: 0 0 16px 0; color: #64748b; font-size: 0.875rem;">${message}</p>
+          <button onclick="location.reload()" style="
+            padding: 8px 16px;
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            cursor: pointer;
+          ">Reload Page</button>
+        </div>
+      `;
+    }
+    console.error('Fatal initialization error:', message);
+  }
+
+  // ============================================
+  // Dependency Checks
+  // ============================================
+  if (typeof maplibregl === 'undefined') {
+    showFatalError('Map library failed to load. Please check your internet connection and try again.');
+    return;
+  }
+
+  if (typeof window.supabase === 'undefined') {
+    showFatalError('Database connection failed to load. Please check your internet connection and try again.');
+    return;
+  }
+
+  // ============================================
+  // Main Initialization (wrapped in try-catch)
+  // ============================================
+  try {
+
+  // ============================================
   // Toast Notification System
   // ============================================
   const toastContainer = document.getElementById('toastContainer');
@@ -140,7 +189,7 @@ async function init() {
   // ============================================
   // DOM Elements
   // ============================================
-  const loadingOverlay = document.getElementById('loadingOverlay');
+  // Note: loadingOverlay is declared at the top of init() for error handling
   const buildingPanel = document.getElementById('buildingPanel');
   const panelBuildingName = document.getElementById('panelBuildingName');
   const panelBuildingLocation = document.getElementById('panelBuildingLocation');
@@ -1361,4 +1410,10 @@ async function init() {
       searchInput.blur();
     }
   });
+
+  } catch (err) {
+    // Catch any unexpected errors during initialization
+    console.error('Initialization error:', err);
+    showFatalError('An unexpected error occurred while loading the application. Please try reloading the page.');
+  }
 }
