@@ -1195,15 +1195,14 @@
             data: geojson
           });
 
-          // Add border line
+          // Add border line (solid, dark grey - Mapbox style)
           map.addLayer({
             id: 'switzerland-border-line',
             type: 'line',
             source: 'switzerland-border',
             paint: {
-              'line-color': '#64748b',
-              'line-width': 2,
-              'line-dasharray': [4, 2]
+              'line-color': '#374151',
+              'line-width': 1.5
             }
           });
         } catch (err) {
