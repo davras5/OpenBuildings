@@ -84,21 +84,7 @@ OpenBuildings provides modular tools for data processing.
 | **Carbon Risks**                                | Idea           | Location data for carbon risk assessment                  |
 | **Environmental Risks**                         | Idea           | Location data for environmental risk assessment           |
 
-### Example: Volume Estimator
-
-```bash
-pip install geopandas rasterio numpy pandas shapely fiona
-
-python tools/volume-estimator/python/main.py \
-  data/av_2056.gpkg data/alti3d data/surface3d \
-  --limit 100 \
-  --bbox 2680000 1235000 2681000 1236000 \
-  -o results.csv \
-  -g buildings_with_volumes.gpkg
-```
-
-See each tool's README for full details.
-
+See each tool's README for full details: [tools](documentation/DATAMODEL.md)
 ---
 
 ## Data Model
