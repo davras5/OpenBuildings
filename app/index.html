@@ -7,22 +7,23 @@
   <title>OpenBuildings.ch</title>
 
   <!-- Preconnect to external domains (do this FIRST for faster connections) -->
-  <link rel="preconnect" href="https://api.mapbox.com">
+  <link rel="preconnect" href="https://unpkg.com">
   <link rel="preconnect" href="https://cdn.jsdelivr.net">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://vectortiles.geo.admin.ch">
 
   <!-- Preload critical CSS (starts download immediately) -->
-  <link rel="preload" href="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.css" as="style">
+  <link rel="preload" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" as="style">
 
-  <!-- Mapbox GL CSS -->
-  <link href="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.css" rel="stylesheet">
+  <!-- MapLibre GL CSS -->
+  <link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet">
 
   <!-- Fonts - display=swap already ensures text is visible immediately -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
   <!-- Scripts with defer - downloads in parallel, executes after HTML parsing -->
-  <script defer src="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.js"></script>
+  <script defer src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   
   <style>
@@ -631,8 +632,8 @@
       margin: var(--space-xs) 0;
     }
 
-    /* Hide default Mapbox navigation */
-    .mapboxgl-ctrl-top-right {
+    /* Hide default MapLibre navigation */
+    .maplibregl-ctrl-top-right {
       display: none;
     }
 
@@ -676,8 +677,8 @@
       width: 70px;
     }
 
-    /* Override Mapbox scale control styles */
-    .map-header-scale .mapboxgl-ctrl-scale {
+    /* Override MapLibre scale control styles */
+    .map-header-scale .maplibregl-ctrl-scale {
       background: transparent;
       border: none;
       border-bottom: 2px solid var(--clr-slate-500);
@@ -708,7 +709,7 @@
     }
 
     /* Hide default scale control position */
-    .mapboxgl-ctrl-bottom-left .mapboxgl-ctrl-scale {
+    .maplibregl-ctrl-bottom-left .maplibregl-ctrl-scale {
       display: none;
     }
   </style>
@@ -772,10 +773,10 @@
     <div class="basemap-selector" id="basemapSelector">
       <div class="basemap-toggle light" id="basemapToggle"></div>
       <div class="basemap-options">
-        <div class="basemap-option light active" data-style="light-v11" data-label="Light"></div>
-        <div class="basemap-option streets" data-style="streets-v12" data-label="Streets"></div>
-        <div class="basemap-option outdoors" data-style="outdoors-v12" data-label="Outdoors"></div>
-        <div class="basemap-option satellite" data-style="satellite-streets-v12" data-label="Satellite"></div>
+        <div class="basemap-option light active" data-style="light" data-label="Light"></div>
+        <div class="basemap-option streets" data-style="standard" data-label="Standard"></div>
+        <div class="basemap-option outdoors" data-style="winter" data-label="Winter"></div>
+        <div class="basemap-option satellite" data-style="satellite" data-label="Satellite"></div>
       </div>
     </div>
     <!-- Building Panel -->
@@ -829,8 +830,15 @@
     // ============================================
     const SUPABASE_URL = 'https://awnypgafushbsvqlsjyg.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable_PdbeSmuL6XQEaXyaKqhOYQ_fpzIByJQ';
-    const MAPBOX_TOKEN = 'pk.eyJ1IjoiZGF2aWRyYXNuZXI1IiwiYSI6ImNtMm5yamVkdjA5MDcycXMyZ2I2MHRhamgifQ.m651j7WIX7MyxNh8KIQ1Gg';
     const TILE_SERVER = `${SUPABASE_URL}/functions/v1/tiles`;
+
+    // Swisstopo basemap styles (free for Switzerland, no API key needed)
+    const SWISSTOPO_STYLES = {
+      light: 'https://vectortiles.geo.admin.ch/styles/ch.swisstopo.lightbasemap.vt/style.json',
+      standard: 'https://vectortiles.geo.admin.ch/styles/ch.swisstopo.basemap.vt/style.json',
+      satellite: 'https://vectortiles.geo.admin.ch/styles/ch.swisstopo.imagerybasemap.vt/style.json',
+      winter: 'https://vectortiles.geo.admin.ch/styles/ch.swisstopo.basemap-winter.vt/style.json'
+    };
 
     // Switzerland bounds for initial view
     const SWITZERLAND_BOUNDS = [5.9559, 45.818, 10.4921, 47.8084];
@@ -847,15 +855,14 @@
       const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
       
       // ============================================
-      // Initialize Map
+      // Initialize Map (MapLibre GL JS with Swisstopo basemaps)
       // ============================================
-      mapboxgl.accessToken = MAPBOX_TOKEN;
-      
-      const map = new mapboxgl.Map({
+      const map = new maplibregl.Map({
         container: 'map',
-        style: 'mapbox://styles/mapbox/light-v11',
+        style: SWISSTOPO_STYLES.light,
         center: [8.2275, 46.8182], // Switzerland center
-        zoom: 7
+        zoom: 7,
+        maxBounds: [[5.5, 45.5], [11.0, 48.0]] // Restrict to Switzerland region
       });
       
       // Custom zoom controls
@@ -867,7 +874,7 @@
       });
 
       // Add scale control to custom footer container
-      const scaleControl = new mapboxgl.ScaleControl({ unit: 'metric' });
+      const scaleControl = new maplibregl.ScaleControl({ unit: 'metric' });
       const scaleContainer = document.getElementById('scaleContainer');
 
       // Mount scale control after map loads
@@ -1646,7 +1653,7 @@
           `;
           el.style.cssText = 'cursor: pointer; transform: translate(-50%, -100%);';
 
-          searchMarker = new mapboxgl.Marker({ element: el })
+          searchMarker = new maplibregl.Marker({ element: el })
             .setLngLat([urlParams.lon, urlParams.lat])
             .addTo(map);
         }
@@ -1728,21 +1735,21 @@
       
       basemapOptions.forEach(option => {
         option.addEventListener('click', () => {
-          const style = option.dataset.style;
+          const styleKey = option.dataset.style;
           const styleClass = option.classList[1]; // light, streets, outdoors, satellite
-          
+
           // Update active state
           basemapOptions.forEach(o => o.classList.remove('active'));
           option.classList.add('active');
-          
+
           // Update toggle appearance
           basemapToggle.className = 'basemap-toggle ' + styleClass;
-          
+
           // Collapse selector
           basemapSelector.classList.remove('expanded');
-          
-          // Change map style
-          map.setStyle(`mapbox://styles/mapbox/${style}`);
+
+          // Change map style using Swisstopo styles
+          map.setStyle(SWISSTOPO_STYLES[styleKey]);
         });
       });
       
@@ -1771,18 +1778,20 @@
       const toggle3DButton = document.getElementById('toggle3DBtn');
 
       function setup3DTerrain() {
-        // Add terrain source if not exists
-        if (!map.getSource('mapbox-dem')) {
-          map.addSource('mapbox-dem', {
+        // Add terrain source if not exists (using MapToolkit terrain RGB tiles)
+        if (!map.getSource('terrain-dem')) {
+          map.addSource('terrain-dem', {
             type: 'raster-dem',
-            url: 'mapbox://mapbox.mapbox-terrain-dem-v1',
-            tileSize: 512,
-            maxzoom: 14
+            tiles: ['https://vtc-cdn.maptoolkit.net/terrainrgb/{z}/{x}/{y}.webp'],
+            encoding: 'mapbox',
+            tileSize: 256,
+            maxzoom: 14,
+            minzoom: 4
           });
         }
 
-        // Enable terrain
-        map.setTerrain({ source: 'mapbox-dem', exaggeration: 1.5 });
+        // Enable terrain with moderate exaggeration
+        map.setTerrain({ source: 'terrain-dem', exaggeration: 1.2 });
 
         // Add sky layer for atmosphere
         if (!map.getLayer('sky')) {
@@ -1797,32 +1806,22 @@
           });
         }
 
-        // Add 3D buildings layer
-        if (!map.getLayer('3d-buildings')) {
-          // Find the first symbol layer to insert before it
-          const layers = map.getStyle().layers;
-          let labelLayerId;
-          for (let i = 0; i < layers.length; i++) {
-            if (layers[i].type === 'symbol' && layers[i].layout['text-field']) {
-              labelLayerId = layers[i].id;
-              break;
-            }
-          }
-
+        // Add 3D buildings layer using our own buildings source
+        // Default height of 10m, will be updated with real heights later
+        if (!map.getLayer('3d-buildings') && map.getSource('buildings')) {
           map.addLayer({
             id: '3d-buildings',
-            source: 'composite',
-            'source-layer': 'building',
-            filter: ['==', 'extrude', 'true'],
+            source: 'buildings',
+            'source-layer': 'buildings',
             type: 'fill-extrusion',
             minzoom: 14,
             paint: {
-              'fill-extrusion-color': '#ddd',
-              'fill-extrusion-height': ['get', 'height'],
-              'fill-extrusion-base': ['get', 'min_height'],
-              'fill-extrusion-opacity': 0.7
+              'fill-extrusion-color': '#d1d5db',
+              'fill-extrusion-height': 10, // Default 10m height for now
+              'fill-extrusion-base': 0,
+              'fill-extrusion-opacity': 0.8
             }
-          }, labelLayerId);
+          });
         }
       }
 
@@ -1975,7 +1974,7 @@
         `;
         el.style.cssText = 'cursor: pointer; transform: translate(-50%, -100%);';
         
-        searchMarker = new mapboxgl.Marker({ element: el })
+        searchMarker = new maplibregl.Marker({ element: el })
           .setLngLat([lon, lat])
           .addTo(map);
         
