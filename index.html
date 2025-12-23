@@ -1,2109 +1,2045 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OpenBuildings.ch - Swiss Building Data Infrastructure</title>
-    <meta name="description" content="Swiss building data. Open by default. A shared, authoritative foundation for Swiss building data—open, connected, and maintained.">
-
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-
-    <!-- Lucide Icons -->
-    <script src="https://unpkg.com/lucide@latest"></script>
-
-    <style>
-        /* ===== CSS VARIABLES ===== */
-        :root {
-            /* Primary Colors */
-            --deep-blue: #1e3a5f;
-            --ocean: #2563eb;
-            --sky: #3b82f6;
-
-            /* Accent Colors */
-            --leaf: #059669;
-            --leaf-light: #10b981;
-            --amber: #d97706;
-            --coral: #dc2626;
-
-            /* Neutral Colors */
-            --slate-900: #0f172a;
-            --slate-700: #334155;
-            --slate-500: #64748b;
-            --slate-300: #cbd5e1;
-            --slate-200: #e2e8f0;
-            --slate-100: #f1f5f9;
-            --white: #ffffff;
-
-            /* Spacing */
-            --space-xs: 4px;
-            --space-sm: 8px;
-            --space-md: 16px;
-            --space-lg: 24px;
-            --space-xl: 32px;
-            --space-2xl: 48px;
-            --space-3xl: 64px;
-            --space-4xl: 96px;
-
-            /* Typography */
-            --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-
-            /* Borders & Shadows */
-            --radius-sm: 6px;
-            --radius-md: 8px;
-            --radius-lg: 12px;
-            --shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
-            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
-            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
-        }
-
-        /* ===== RESET & BASE ===== */
-        *, *::before, *::after {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        html {
-            scroll-behavior: smooth;
-        }
-
-        body {
-            font-family: var(--font-family);
-            font-size: 16px;
-            line-height: 1.6;
-            color: var(--slate-700);
-            background-color: var(--white);
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-        }
-
-        img {
-            max-width: 100%;
-            height: auto;
-            display: block;
-        }
-
-        a {
-            color: var(--ocean);
-            text-decoration: none;
-            transition: color 0.2s ease;
-        }
-
-        a:hover {
-            color: var(--deep-blue);
-        }
-
-        /* ===== TYPOGRAPHY ===== */
-        h1, h2, h3, h4, h5, h6 {
-            color: var(--slate-900);
-            font-weight: 700;
-            line-height: 1.2;
-        }
-
-        h1 {
-            font-size: clamp(2.25rem, 5vw, 3rem);
-            letter-spacing: -0.02em;
-        }
-
-        h2 {
-            font-size: clamp(1.75rem, 4vw, 2.25rem);
-            letter-spacing: -0.01em;
-        }
-
-        h3 {
-            font-size: 1.375rem;
-            font-weight: 600;
-        }
-
-        h4 {
-            font-size: 1.125rem;
-            font-weight: 600;
-        }
-
-        p {
-            margin-bottom: 1rem;
-        }
-
-        .text-large {
-            font-size: 1.25rem;
-            line-height: 1.7;
-        }
-
-        .text-small {
-            font-size: 0.875rem;
-        }
-
-        .text-muted {
-            color: var(--slate-500);
-        }
-
-        /* ===== LAYOUT ===== */
-        .container {
-            max-width: 1280px;
-            margin: 0 auto;
-            padding: 0 var(--space-md);
-        }
-
-        @media (min-width: 768px) {
-            .container {
-                padding: 0 var(--space-lg);
-            }
-        }
-
-        @media (min-width: 1024px) {
-            .container {
-                padding: 0 var(--space-2xl);
-            }
-        }
-
-        section {
-            padding: var(--space-3xl) 0;
-        }
-
-        @media (min-width: 768px) {
-            section {
-                padding: var(--space-4xl) 0;
-            }
-        }
-
-        /* ===== BUTTONS ===== */
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: var(--space-sm);
-            padding: 12px 24px;
-            font-family: var(--font-family);
-            font-size: 1rem;
-            font-weight: 500;
-            border-radius: var(--radius-sm);
-            border: none;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            text-decoration: none;
-        }
-
-        .btn-primary {
-            background-color: var(--ocean);
-            color: var(--white);
-        }
-
-        .btn-primary:hover {
-            background-color: var(--sky);
-            color: var(--white);
-        }
-
-        .btn-secondary {
-            background-color: var(--white);
-            color: var(--slate-900);
-            border: 1px solid var(--slate-300);
-        }
-
-        .btn-secondary:hover {
-            background-color: var(--slate-100);
-            color: var(--slate-900);
-        }
-
-        .btn-large {
-            padding: 16px 32px;
-            font-size: 1.125rem;
-        }
-
-        /* ===== HEADER ===== */
-        .header {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 100;
-            background-color: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(8px);
-            border-bottom: 1px solid var(--slate-200);
-        }
-
-        .header-inner {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            height: 64px;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: var(--space-sm);
-            font-size: 1.25rem;
-            font-weight: 700;
-            color: var(--deep-blue);
-        }
-
-        .logo:hover {
-            color: var(--deep-blue);
-        }
-
-        .logo-icon {
-            width: 32px;
-            height: 32px;
-            background: linear-gradient(135deg, var(--ocean), var(--leaf));
-            border-radius: var(--radius-sm);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-        }
-
-        .nav {
-            display: none;
-            gap: var(--space-xl);
-        }
-
-        @media (min-width: 768px) {
-            .nav {
-                display: flex;
-            }
-        }
-
-        .nav a {
-            color: var(--slate-700);
-            font-weight: 500;
-        }
-
-        .nav a:hover {
-            color: var(--ocean);
-        }
-
-        .header-cta {
-            display: none;
-        }
-
-        @media (min-width: 640px) {
-            .header-cta {
-                display: flex;
-            }
-        }
-
-        .header-actions {
-            display: flex;
-            align-items: center;
-            gap: var(--space-md);
-        }
-
-        /* ===== HERO ===== */
-        .hero {
-            padding-top: calc(64px + var(--space-3xl));
-            padding-bottom: var(--space-3xl);
-            background: linear-gradient(180deg, var(--slate-100) 0%, var(--white) 100%);
-        }
-
-        @media (min-width: 768px) {
-            .hero {
-                padding-top: calc(64px + var(--space-4xl));
-                padding-bottom: var(--space-4xl);
-            }
-        }
-
-        .hero-content {
-            text-align: center;
-            max-width: 800px;
-            margin: 0 auto;
-        }
-
-        .hero-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: var(--space-sm);
-            padding: var(--space-xs) var(--space-md);
-            background-color: var(--white);
-            border: 1px solid var(--slate-200);
-            border-radius: 999px;
-            font-size: 0.875rem;
-            font-weight: 500;
-            color: var(--slate-700);
-            margin-bottom: var(--space-lg);
-        }
-
-        .hero-badge-dot {
-            width: 8px;
-            height: 8px;
-            background-color: var(--leaf);
-            border-radius: 50%;
-        }
-
-        .hero h1 {
-            margin-bottom: var(--space-lg);
-        }
-
-        .hero h1 span {
-            color: var(--ocean);
-        }
-
-        .hero-subtitle {
-            font-size: clamp(1.125rem, 2.5vw, 1.375rem);
-            color: var(--slate-500);
-            margin-bottom: var(--space-xl);
-            max-width: 640px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        .hero-image {
-            position: relative;
-            max-width: 1100px;
-            margin: 0 auto;
-            border-radius: var(--radius-lg);
-            overflow: hidden;
-            box-shadow: var(--shadow-lg), 0 25px 50px -12px rgba(0,0,0,0.15);
-        }
-
-        .hero-image img {
-            width: 100%;
-        }
-
-        .hero-stats {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: var(--space-lg);
-            flex-wrap: wrap;
-            margin-bottom: var(--space-3xl);
-        }
-
-        .hero-stat {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: var(--space-xs);
-        }
-
-        .hero-stat-number {
-            font-size: 1.75rem;
-            font-weight: 700;
-            color: var(--deep-blue);
-        }
-
-        .hero-stat-label {
-            font-size: 0.875rem;
-            color: var(--slate-500);
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        .hero-stat-divider {
-            width: 1px;
-            height: 40px;
-            background-color: var(--slate-300);
-        }
-
-        @media (max-width: 640px) {
-            .hero-stats {
-                gap: var(--space-md);
-            }
-
-            .hero-stat-divider {
-                display: none;
-            }
-
-            .hero-stat {
-                min-width: 45%;
-            }
-        }
-
-        .hero-search {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 90%;
-            max-width: 500px;
-            z-index: 10;
-        }
-
-        .hero-search-wrapper {
-            position: relative;
-        }
-
-        .hero-search-icon {
-            position: absolute;
-            left: 16px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--slate-500);
-            pointer-events: none;
-        }
-
-        .hero-search-input {
-            width: 100%;
-            padding: 16px 16px 16px 48px;
-            font-size: 1rem;
-            font-family: var(--font-family);
-            border: none;
-            border-radius: var(--radius-lg);
-            background-color: var(--white);
-            color: var(--slate-900);
-            transition: all 0.2s ease;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-        }
-
-        .hero-search-input:focus {
-            outline: none;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.2), 0 0 0 4px rgba(37, 99, 235, 0.2);
-        }
-
-        .hero-search-input::placeholder {
-            color: var(--slate-400);
-        }
-
-        .hero-search-hint {
-            display: block;
-            margin-top: var(--space-sm);
-            font-size: 0.875rem;
-            color: var(--white);
-            text-align: center;
-            text-shadow: 0 1px 3px rgba(0,0,0,0.5);
-        }
-
-        .hero-partners {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: var(--space-md);
-            flex-wrap: wrap;
-            padding: var(--space-md) var(--space-lg);
-            background: linear-gradient(to top, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0) 100%);
-            border-radius: 0 0 var(--radius-lg) var(--radius-lg);
-        }
-
-        .hero-partners-label {
-            font-size: 0.75rem;
-            color: rgba(255,255,255,0.7);
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            font-weight: 500;
-        }
-
-        .hero-partners-list {
-            display: flex;
-            align-items: center;
-            gap: var(--space-md);
-            flex-wrap: wrap;
-        }
-
-        .hero-partners-list span {
-            font-size: 0.85rem;
-            color: var(--white);
-            font-weight: 500;
-        }
-
-        .hero-partners-divider {
-            width: 1px;
-            height: 14px;
-            background-color: rgba(255,255,255,0.4);
-        }
-
-        @media (max-width: 640px) {
-            .hero-partners {
-                flex-direction: column;
-                gap: var(--space-xs);
-                padding: var(--space-sm) var(--space-md);
-            }
-
-            .hero-partners-divider {
-                display: none;
-            }
-
-            .hero-partners-list {
-                justify-content: center;
-            }
-        }
-
-        .hero-search-results {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            right: 0;
-            margin-top: 4px;
-            background-color: var(--white);
-            border: 1px solid var(--slate-200);
-            border-radius: var(--radius-md);
-            box-shadow: var(--shadow-lg);
-            max-height: 300px;
-            overflow-y: auto;
-            display: none;
-            z-index: 50;
-            text-align: left;
-        }
-
-        .hero-search-results.active {
-            display: block;
-        }
-
-        .hero-search-result {
-            padding: 12px 16px;
-            cursor: pointer;
-            border-bottom: 1px solid var(--slate-100);
-            transition: background-color 0.15s ease;
-        }
-
-        .hero-search-result:last-child {
-            border-bottom: none;
-        }
-
-        .hero-search-result:hover {
-            background-color: var(--slate-100);
-        }
-
-        .hero-search-result-title {
-            font-weight: 500;
-            color: var(--slate-900);
-            font-size: 0.9rem;
-        }
-
-        .hero-search-result-subtitle {
-            font-size: 0.75rem;
-            color: var(--slate-500);
-            margin-top: 2px;
-        }
-
-        /* ===== PROBLEM SECTION ===== */
-        .problem {
-            background-color: var(--deep-blue);
-            color: var(--white);
-        }
-
-        .problem h2 {
-            color: var(--white);
-            text-align: center;
-            margin-bottom: var(--space-2xl);
-        }
-
-        .problem-grid {
-            display: grid;
-            gap: var(--space-xl);
-        }
-
-        @media (min-width: 768px) {
-            .problem-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-
-        .problem-card {
-            padding: var(--space-xl);
-            background-color: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: var(--radius-md);
-        }
-
-        .problem-card h3 {
-            color: var(--white);
-            margin-bottom: var(--space-md);
-            display: flex;
-            align-items: center;
-            gap: var(--space-sm);
-        }
-
-        .problem-card p {
-            color: rgba(255, 255, 255, 0.8);
-            margin-bottom: 0;
-        }
-
-        .stat-highlight {
-            text-align: center;
-            padding: var(--space-2xl);
-            margin-bottom: var(--space-2xl);
-            background-color: rgba(255, 255, 255, 0.1);
-            border-radius: var(--radius-lg);
-        }
-
-        .stat-number {
-            font-size: clamp(3rem, 8vw, 4.5rem);
-            font-weight: 700;
-            color: var(--leaf-light);
-            line-height: 1;
-            margin-bottom: var(--space-sm);
-        }
-
-        .stat-label {
-            font-size: 1.25rem;
-            color: rgba(255, 255, 255, 0.9);
-        }
-
-        /* ===== SOLUTION SECTION ===== */
-        .solution {
-            background-color: var(--white);
-        }
-
-        .solution-header {
-            text-align: center;
-            max-width: 700px;
-            margin: 0 auto var(--space-3xl);
-        }
-
-        .solution-header h2 {
-            margin-bottom: var(--space-md);
-        }
-
-        .solution-header p {
-            font-size: 1.125rem;
-            color: var(--slate-500);
-        }
-
-        .features-grid {
-            display: grid;
-            gap: var(--space-xl);
-        }
-
-        @media (min-width: 768px) {
-            .features-grid {
-                grid-template-columns: repeat(3, 1fr);
-            }
-        }
-
-        .feature-card {
-            padding: var(--space-lg) 0;
-            text-align: center;
-        }
-
-        .feature-icon {
-            width: 48px;
-            height: 48px;
-            margin: 0 auto var(--space-md);
-            background-color: var(--slate-100);
-            border-radius: var(--radius-sm);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--ocean);
-        }
-
-        .feature-card h3 {
-            margin-bottom: var(--space-sm);
-        }
-
-        .feature-card p {
-            color: var(--slate-500);
-            margin-bottom: 0;
-        }
-
-        /* ===== TOOLS SECTION (CAROUSEL) ===== */
-        .tools {
-            background-color: var(--slate-100);
-        }
-
-        .tools-header {
-            text-align: center;
-            max-width: 700px;
-            margin: 0 auto var(--space-2xl);
-        }
-
-        .tools-header h2 {
-            margin-bottom: var(--space-md);
-        }
-
-        .tools-header p {
-            font-size: 1.125rem;
-            color: var(--slate-500);
-        }
-
-        .tools-carousel-wrapper {
-            position: relative;
-            max-width: 1100px;
-            margin: 0 auto;
-            overflow: hidden;
-        }
-
-        .tools-carousel {
-            display: flex;
-            gap: var(--space-lg);
-            padding: var(--space-sm) 0 var(--space-lg);
-            transition: transform 0.3s ease;
-        }
-
-        .tool-card {
-            flex: 0 0 280px;
-            min-width: 280px;
-            padding: var(--space-xl);
-            background-color: var(--white);
-            border-radius: var(--radius-md);
-            box-shadow: var(--shadow-sm);
-            transition: all 0.2s ease;
-        }
-
-        .tool-card:hover {
-            box-shadow: var(--shadow-md);
-            transform: translateY(-2px);
-        }
-
-        @media (min-width: 768px) {
-            .tool-card {
-                flex: 0 0 320px;
-            }
-        }
-
-        .tool-icon {
-            width: 56px;
-            height: 56px;
-            background-color: var(--slate-100);
-            border-radius: var(--radius-sm);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--ocean);
-            margin-bottom: var(--space-md);
-        }
-
-        .tool-card h3 {
-            margin-bottom: var(--space-sm);
-        }
-
-        .tool-card p {
-            color: var(--slate-500);
-            margin-bottom: var(--space-md);
-            font-size: 0.9rem;
-            line-height: 1.5;
-        }
-
-        .tool-tags {
-            display: flex;
-            flex-wrap: wrap;
-            gap: var(--space-xs);
-        }
-
-        .tool-tags span {
-            padding: 4px 10px;
-            background-color: var(--slate-100);
-            border-radius: var(--radius-sm);
-            font-size: 0.75rem;
-            color: var(--slate-600);
-        }
-
-        .tool-tags span.available {
-            background-color: var(--leaf);
-            color: var(--white);
-        }
-
-        .tool-tags span.coming-soon {
-            background-color: var(--amber);
-            color: var(--white);
-        }
-
-        .tools-nav {
-            display: flex;
-            justify-content: center;
-            gap: var(--space-sm);
-            margin-top: var(--space-lg);
-        }
-
-        .tools-nav-btn {
-            width: 40px;
-            height: 40px;
-            border: 1px solid var(--slate-300);
-            background-color: var(--white);
-            border-radius: var(--radius-sm);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--slate-700);
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .tools-nav-btn:hover {
-            background-color: var(--slate-100);
-            border-color: var(--slate-400);
-        }
-
-        .tools-nav-btn:disabled {
-            opacity: 0.4;
-            cursor: not-allowed;
-        }
-
-        .tools-cta {
-            text-align: center;
-            margin-top: var(--space-2xl);
-        }
-
-        /* ===== SHOWCASE SECTION ===== */
-        .showcase {
-            background-color: var(--white);
-        }
-
-        .showcase-header {
-            text-align: center;
-            max-width: 700px;
-            margin: 0 auto var(--space-3xl);
-        }
-
-        .showcase-header h2 {
-            margin-bottom: var(--space-md);
-        }
-
-        .showcase-content {
-            display: grid;
-            gap: var(--space-2xl);
-            align-items: center;
-        }
-
-        @media (min-width: 1024px) {
-            .showcase-content {
-                grid-template-columns: 1fr 1fr;
-            }
-        }
-
-        .showcase-image {
-            border-radius: var(--radius-lg);
-            overflow: hidden;
-            box-shadow: var(--shadow-lg);
-        }
-
-        .showcase-features {
-            display: flex;
-            flex-direction: column;
-            gap: var(--space-lg);
-        }
-
-        .showcase-feature {
-            display: flex;
-            gap: var(--space-md);
-        }
-
-        .showcase-feature-icon {
-            flex-shrink: 0;
-            width: 40px;
-            height: 40px;
-            background-color: var(--ocean);
-            border-radius: var(--radius-sm);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--white);
-        }
-
-        .showcase-feature h4 {
-            margin-bottom: var(--space-xs);
-        }
-
-        .showcase-feature p {
-            color: var(--slate-500);
-            margin-bottom: 0;
-        }
-
-        .showcase-actions {
-            margin-top: var(--space-3xl);
-            text-align: center;
-        }
-
-        .showcase-search {
-            max-width: 500px;
-            margin: 0 auto var(--space-xl);
-        }
-
-        .showcase-search-wrapper {
-            position: relative;
-        }
-
-        .showcase-search-icon {
-            position: absolute;
-            left: 16px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--slate-400);
-            pointer-events: none;
-        }
-
-        .showcase-search-input {
-            width: 100%;
-            padding: 16px 16px 16px 48px;
-            font-size: 1rem;
-            font-family: var(--font-family);
-            border: 2px solid var(--slate-300);
-            border-radius: var(--radius-lg);
-            background-color: var(--white);
-            color: var(--slate-900);
-            transition: all 0.2s ease;
-        }
-
-        .showcase-search-input:focus {
-            outline: none;
-            border-color: var(--ocean);
-            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
-        }
-
-        .showcase-search-input::placeholder {
-            color: var(--slate-400);
-        }
-
-        .showcase-search-hint {
-            display: block;
-            margin-top: var(--space-sm);
-            font-size: 0.875rem;
-            color: var(--slate-400);
-        }
-
-        .showcase-search-results {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            right: 0;
-            margin-top: 4px;
-            background-color: var(--white);
-            border: 1px solid var(--slate-200);
-            border-radius: var(--radius-md);
-            box-shadow: var(--shadow-lg);
-            max-height: 300px;
-            overflow-y: auto;
-            display: none;
-            z-index: 50;
-            text-align: left;
-        }
-
-        .showcase-search-results.active {
-            display: block;
-        }
-
-        .showcase-search-result {
-            padding: 12px 16px;
-            cursor: pointer;
-            border-bottom: 1px solid var(--slate-100);
-            transition: background-color 0.15s ease;
-        }
-
-        .showcase-search-result:last-child {
-            border-bottom: none;
-        }
-
-        .showcase-search-result:hover {
-            background-color: var(--slate-100);
-        }
-
-        .showcase-search-result-title {
-            font-weight: 500;
-            color: var(--slate-900);
-            font-size: 0.9rem;
-        }
-
-        .showcase-search-result-subtitle {
-            font-size: 0.75rem;
-            color: var(--slate-500);
-            margin-top: 2px;
-        }
-
-        .showcase-search-loading {
-            padding: 16px;
-            text-align: center;
-            color: var(--slate-500);
-        }
-
-        /* ===== FOR WHO SECTION ===== */
-        .audience {
-            background-color: var(--slate-100);
-        }
-
-        .audience-header {
-            text-align: center;
-            max-width: 700px;
-            margin: 0 auto var(--space-3xl);
-        }
-
-        .audience-header h2 {
-            margin-bottom: var(--space-md);
-        }
-
-        .audience-grid {
-            display: grid;
-            gap: var(--space-lg);
-        }
-
-        @media (min-width: 640px) {
-            .audience-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-
-        @media (min-width: 1024px) {
-            .audience-grid {
-                grid-template-columns: repeat(4, 1fr);
-            }
-        }
-
-        .audience-card {
-            padding: var(--space-lg);
-            background-color: var(--slate-100);
-            border-radius: var(--radius-md);
-            text-align: center;
-        }
-
-        .audience-card-icon {
-            width: 56px;
-            height: 56px;
-            margin: 0 auto var(--space-md);
-            background-color: var(--white);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--deep-blue);
-        }
-
-        .audience-card h4 {
-            margin-bottom: var(--space-sm);
-        }
-
-        .audience-card p {
-            color: var(--slate-500);
-            font-size: 0.875rem;
-            margin-bottom: 0;
-        }
-
-        /* ===== PRINCIPLES SECTION ===== */
-        .principles {
-            background-color: var(--white);
-        }
-
-        .principles-header {
-            text-align: center;
-            max-width: 700px;
-            margin: 0 auto var(--space-3xl);
-        }
-
-        .principles-header h2 {
-            margin-bottom: var(--space-md);
-        }
-
-        .principles-header p {
-            font-size: 1.125rem;
-            color: var(--slate-500);
-        }
-
-        .principles-grid {
-            display: grid;
-            gap: var(--space-md);
-            max-width: 900px;
-            margin: 0 auto;
-        }
-
-        @media (min-width: 768px) {
-            .principles-grid {
-                grid-template-columns: repeat(3, 1fr);
-            }
-        }
-
-        .principle-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-            gap: var(--space-md);
-            padding: var(--space-xl);
-            background-color: var(--white);
-            border: 1px solid var(--slate-200);
-            border-radius: var(--radius-md);
-            box-shadow: var(--shadow-sm);
-            transition: all 0.2s ease;
-        }
-
-        .principle-item:hover {
-            box-shadow: var(--shadow-md);
-            transform: translateY(-2px);
-        }
-
-        .principle-item i {
-            color: var(--ocean);
-            flex-shrink: 0;
-        }
-
-        .principle-item strong {
-            display: block;
-            color: var(--slate-900);
-            margin-bottom: var(--space-xs);
-        }
-
-        .principle-item span {
-            color: var(--slate-500);
-            font-size: 0.9rem;
-        }
-
-        /* ===== ABOUT SECTION ===== */
-        .about {
-            background-color: var(--slate-100);
-        }
-
-        .about-content {
-            display: grid;
-            gap: var(--space-3xl);
-        }
-
-        @media (min-width: 768px) {
-            .about-content {
-                grid-template-columns: 2fr 1fr;
-            }
-        }
-
-        .about-text h2 {
-            margin-bottom: var(--space-lg);
-        }
-
-        .about-lead {
-            font-size: 1.125rem;
-            color: var(--slate-700);
-            margin-bottom: var(--space-lg);
-        }
-
-        .about-text p {
-            color: var(--slate-500);
-        }
-
-        .about-contact {
-            padding: var(--space-xl);
-            background-color: var(--slate-100);
-            border-radius: var(--radius-md);
-            height: fit-content;
-        }
-
-        .about-contact h3 {
-            margin-bottom: var(--space-lg);
-        }
-
-        .contact-items {
-            display: flex;
-            flex-direction: column;
-            gap: var(--space-md);
-            margin-bottom: var(--space-lg);
-        }
-
-        .contact-item {
-            display: flex;
-            align-items: center;
-            gap: var(--space-sm);
-            color: var(--slate-700);
-            text-decoration: none;
-            transition: color 0.2s ease;
-        }
-
-        .contact-item:hover {
-            color: var(--ocean);
-        }
-
-        .contact-item i {
-            color: var(--ocean);
-        }
-
-        .about-location {
-            color: var(--slate-400);
-            font-size: 0.875rem;
-            margin-bottom: 0;
-        }
-
-        /* ===== CTA SECTION ===== */
-        .cta {
-            background: linear-gradient(135deg, var(--deep-blue) 0%, var(--ocean) 100%);
-            color: var(--white);
-            text-align: center;
-        }
-
-        .cta h2 {
-            color: var(--white);
-            margin-bottom: var(--space-md);
-        }
-
-        .cta > .container > p {
-            font-size: 1.125rem;
-            color: rgba(255, 255, 255, 0.9);
-            max-width: 600px;
-            margin: 0 auto var(--space-2xl);
-        }
-
-        .cta-cards {
-            display: grid;
-            gap: var(--space-xl);
-        }
-
-        @media (min-width: 768px) {
-            .cta-cards {
-                grid-template-columns: repeat(3, 1fr);
-            }
-        }
-
-        .cta-card {
-            padding: var(--space-xl);
-            background-color: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: var(--radius-md);
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .cta-badge {
-            padding: 4px 12px;
-            border-radius: 999px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            margin-bottom: var(--space-md);
-        }
-
-        .cta-badge.free {
-            background-color: var(--leaf);
-            color: var(--white);
-        }
-
-        .cta-badge.contact {
-            background-color: var(--ocean);
-            color: var(--white);
-        }
-
-        .cta-card h3 {
-            color: var(--white);
-            margin-bottom: var(--space-sm);
-        }
-
-        .cta-card p {
-            color: rgba(255, 255, 255, 0.8);
-            margin-bottom: var(--space-lg);
-            flex-grow: 1;
-        }
-
-        .cta-card .btn {
-            width: 100%;
-        }
-
-        .cta-card .btn-primary {
-            background-color: var(--ocean);
-            color: var(--white);
-        }
-
-        .cta-card .btn-primary:hover {
-            background-color: var(--deep-blue);
-        }
-
-        .cta-card .btn-secondary {
-            background-color: var(--white);
-            border-color: var(--slate-300);
-            color: var(--slate-700);
-        }
-
-        .cta-card .btn-secondary:hover {
-            background-color: var(--slate-100);
-            border-color: var(--slate-400);
-        }
-
-        /* ===== FOOTER ===== */
-        .footer {
-            background-color: var(--slate-900);
-            color: var(--slate-300);
-            padding: var(--space-3xl) 0 var(--space-xl);
-        }
-
-        .footer-content {
-            display: grid;
-            gap: var(--space-2xl);
-            margin-bottom: var(--space-2xl);
-        }
-
-        @media (min-width: 768px) {
-            .footer-content {
-                grid-template-columns: 2fr 1fr;
-            }
-        }
-
-        .footer-brand h3 {
-            color: var(--white);
-            margin-bottom: var(--space-md);
-        }
-
-        .footer-brand p {
-            color: var(--slate-400);
-            margin-bottom: 0;
-        }
-
-        .footer-links h4 {
-            color: var(--white);
-            font-size: 0.875rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            margin-bottom: var(--space-md);
-        }
-
-        .footer-links ul {
-            list-style: none;
-            display: flex;
-            flex-direction: column;
-            gap: var(--space-sm);
-        }
-
-        .footer-links a {
-            color: var(--slate-400);
-        }
-
-        .footer-links a:hover {
-            color: var(--white);
-        }
-
-        .footer-bottom {
-            padding-top: var(--space-xl);
-            border-top: 1px solid var(--slate-700);
-            display: flex;
-            flex-direction: column;
-            gap: var(--space-md);
-            align-items: center;
-            text-align: center;
-        }
-
-        @media (min-width: 640px) {
-            .footer-bottom {
-                flex-direction: row;
-                justify-content: space-between;
-            }
-        }
-
-        .footer-bottom p {
-            margin-bottom: 0;
-            color: var(--slate-500);
-            font-size: 0.875rem;
-        }
-
-        .footer-social {
-            display: flex;
-            gap: var(--space-md);
-        }
-
-        .footer-social a {
-            color: var(--slate-400);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 40px;
-            height: 40px;
-            border-radius: var(--radius-sm);
-            transition: all 0.2s ease;
-        }
-
-        .footer-social a:hover {
-            color: var(--white);
-            background-color: var(--slate-800);
-        }
-
-        /* ===== UTILITIES ===== */
-        .sr-only {
-            position: absolute;
-            width: 1px;
-            height: 1px;
-            padding: 0;
-            margin: -1px;
-            overflow: hidden;
-            clip: rect(0, 0, 0, 0);
-            white-space: nowrap;
-            border: 0;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Explore Swiss building data. Open, accessible, and designed for everyone.">
+  <title>OpenBuildings.ch</title>
+
+  <!-- Preconnect to external domains (do this FIRST for faster connections) -->
+  <link rel="preconnect" href="https://api.mapbox.com">
+  <link rel="preconnect" href="https://cdn.jsdelivr.net">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <!-- Preload critical CSS (starts download immediately) -->
+  <link rel="preload" href="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.css" as="style">
+
+  <!-- Mapbox GL CSS -->
+  <link href="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.css" rel="stylesheet">
+
+  <!-- Fonts - display=swap already ensures text is visible immediately -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Scripts with defer - downloads in parallel, executes after HTML parsing -->
+  <script defer src="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      height: 100%;
+      overflow: hidden;
+    }
+
+    :root {
+      /* Primary Colors */
+      --clr-deep-blue: #1e3a5f;
+      --clr-ocean: #2563eb;
+      --clr-sky: #3b82f6;
+
+      /* Accent Colors */
+      --clr-leaf: #059669;
+      --clr-amber: #d97706;
+      --clr-coral: #dc2626;
+
+      /* Neutral Colors (Slate scale) */
+      --clr-slate-900: #0f172a;
+      --clr-slate-700: #334155;
+      --clr-slate-500: #64748b;
+      --clr-slate-300: #cbd5e1;
+      --clr-slate-200: #e2e8f0;
+      --clr-slate-100: #f1f5f9;
+      --clr-white: #ffffff;
+
+      /* Semantic mappings */
+      --clr-bg: var(--clr-slate-100);
+      --clr-surface: var(--clr-white);
+      --clr-text: var(--clr-slate-900);
+      --clr-text-secondary: var(--clr-slate-700);
+      --clr-text-muted: var(--clr-slate-500);
+      --clr-border: var(--clr-slate-300);
+      --clr-accent: var(--clr-ocean);
+      --clr-accent-hover: var(--clr-sky);
+      --clr-success: var(--clr-leaf);
+
+      /* Spacing scale (base 4px) */
+      --space-xs: 4px;
+      --space-sm: 8px;
+      --space-md: 16px;
+      --space-lg: 24px;
+      --space-xl: 32px;
+      --space-2xl: 48px;
+
+      /* Typography */
+      --font-main: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+      /* Borders */
+      --radius-sm: 4px;
+      --radius-md: 6px;
+      --radius-lg: 8px;
+    }
+    
+    body {
+      font-family: var(--font-main);
+      background: var(--clr-bg);
+      color: var(--clr-text);
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    /* Search - Floating overlay style */
+    .search-container {
+      position: absolute;
+      top: var(--space-lg);
+      left: var(--space-md);
+      z-index: 25;
+      width: calc(360px - var(--space-md) * 2);
+      max-width: calc(100% - var(--space-md) * 2);
+    }
+
+    @media (max-width: 640px) {
+      .search-container {
+        left: var(--space-sm);
+        right: var(--space-sm);
+        max-width: calc(100% - var(--space-md));
+      }
+    }
+
+    .search-input-wrapper {
+      display: flex;
+      align-items: center;
+      background: var(--clr-surface);
+      border: 1px solid var(--clr-border);
+      border-radius: var(--radius-md);
+      padding: 0 var(--space-md);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .search-input-wrapper:focus-within {
+      border-color: var(--clr-ocean);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1), 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+
+    .search-icon {
+      color: var(--clr-text-muted);
+      flex-shrink: 0;
+    }
+
+    #searchInput {
+      flex: 1;
+      border: none;
+      background: transparent;
+      padding: 0.75rem 0.5rem;
+      font-size: 1rem;
+      font-family: inherit;
+      outline: none;
+      color: var(--clr-text);
+    }
+
+    #searchInput::placeholder {
+      color: var(--clr-text-muted);
+    }
+
+    .search-clear {
+      display: none;
+      background: none;
+      border: none;
+      font-size: 1.25rem;
+      color: var(--clr-text-muted);
+      cursor: pointer;
+      padding: 0 var(--space-xs);
+      line-height: 1;
+      transition: color 0.15s ease;
+    }
+
+    .search-clear:hover {
+      color: var(--clr-text);
+    }
+
+    .search-input-wrapper.has-value .search-clear {
+      display: block;
+    }
+
+    .search-dropdown {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      margin-top: var(--space-xs);
+      background: var(--clr-surface);
+      border: 1px solid var(--clr-slate-200);
+      border-radius: var(--radius-lg);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+      max-height: 400px;
+      overflow-y: auto;
+      display: none;
+      z-index: 100;
+    }
+
+    .search-dropdown.open {
+      display: block;
+    }
+
+    .search-section {
+      display: none;
+    }
+
+    .search-section.has-results {
+      display: block;
+    }
+
+    .search-section-header {
+      padding: var(--space-sm) var(--space-md);
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--clr-text-muted);
+      background: var(--clr-slate-100);
+      border-bottom: 1px solid var(--clr-slate-200);
+    }
+
+    .search-results {
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    .search-result-item {
+      padding: var(--space-sm) var(--space-md);
+      cursor: pointer;
+      font-size: 0.875rem;
+      color: var(--clr-text-secondary);
+      border-bottom: 1px solid var(--clr-slate-100);
+      transition: background 0.1s ease;
+    }
+
+    .search-result-item:last-child {
+      border-bottom: none;
+    }
+
+    .search-result-item:hover {
+      background: var(--clr-slate-100);
+      color: var(--clr-text);
+    }
+
+    .search-result-item.disabled {
+      cursor: default;
+      opacity: 0.6;
+    }
+
+    .search-result-item.disabled:hover {
+      background: transparent;
+    }
+
+    .search-result-item mark {
+      background: rgba(37, 99, 235, 0.15);
+      color: var(--clr-ocean);
+      padding: 0 2px;
+      border-radius: 2px;
+    }
+
+    .search-no-results {
+      padding: var(--space-md);
+      color: var(--clr-text-muted);
+      font-size: 0.875rem;
+      text-align: center;
+    }
+
+    main {
+      flex: 1;
+      display: flex;
+      position: relative;
+    }
+    
+    #map {
+      flex: 1;
+    }
+    
+    /* Building Panel - Slide-in from left (Google Maps style) */
+    .building-panel {
+      position: absolute;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      width: 360px;
+      max-width: 100%;
+      background: var(--clr-surface);
+      box-shadow: 4px 0 24px rgba(0,0,0,0.12);
+      z-index: 20;
+      transform: translateX(-100%);
+      transition: transform 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      padding-top: 72px;
+    }
+
+    .building-panel.open {
+      transform: translateX(0);
+    }
+
+    .building-panel-header {
+      padding: var(--space-lg);
+      border-bottom: 1px solid var(--clr-slate-200);
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: var(--space-md);
+    }
+
+    .building-panel-title {
+      flex: 1;
+    }
+
+    .building-panel-title h2 {
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: var(--clr-text);
+      margin: 0 0 var(--space-xs) 0;
+      line-height: 1.3;
+    }
+
+    .building-panel-title .location {
+      font-size: 0.875rem;
+      color: var(--clr-text-muted);
+    }
+
+    .building-panel-close {
+      background: none;
+      border: none;
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--clr-text-muted);
+      transition: background 0.15s ease, color 0.15s ease;
+      flex-shrink: 0;
+    }
+
+    .building-panel-close:hover {
+      background: var(--clr-slate-100);
+      color: var(--clr-text);
+    }
+
+    .building-panel-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: var(--space-lg);
+    }
+
+    .building-panel-metrics {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-md);
+    }
+
+    .metric-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding: var(--space-sm) 0;
+      border-bottom: 1px solid var(--clr-slate-100);
+    }
+
+    .metric-row:last-child {
+      border-bottom: none;
+    }
+
+    .metric-label {
+      font-size: 0.875rem;
+      color: var(--clr-text-muted);
+    }
+
+    .metric-value {
+      font-size: 0.9375rem;
+      font-weight: 500;
+      color: var(--clr-text);
+      text-align: right;
+    }
+
+    .building-panel-footer {
+      padding: var(--space-lg);
+      border-top: 1px solid var(--clr-slate-200);
+    }
+
+    .btn-primary {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-sm);
+      width: 100%;
+      padding: 12px var(--space-lg);
+      background: var(--clr-ocean);
+      color: var(--clr-white);
+      border: none;
+      border-radius: var(--radius-md);
+      font-size: 0.9375rem;
+      font-weight: 500;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background 0.15s ease;
+    }
+
+    .btn-primary:hover {
+      background: var(--clr-sky);
+    }
+
+    .btn-primary:focus {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.3);
+    }
+
+    .btn-primary svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    /* Mobile: Panel slides from bottom */
+    @media (max-width: 640px) {
+      .building-panel {
+        top: auto;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        width: 100%;
+        max-height: 60vh;
+        border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+        transform: translateY(100%);
+        box-shadow: 0 -4px 24px rgba(0,0,0,0.12);
+      }
+
+      .building-panel.open {
+        transform: translateY(0);
+      }
+    }
+
+    .loading-overlay {
+      position: absolute;
+      inset: 0;
+      background: var(--clr-slate-100);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      opacity: 1;
+      transition: opacity 0.3s ease;
+    }
+    
+    .loading-overlay.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+    
+    .loading-spinner {
+      width: 36px;
+      height: 36px;
+      border: 3px solid var(--clr-slate-200);
+      border-top-color: var(--clr-ocean);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    /* Basemap selector */
+    .basemap-selector {
+      position: absolute;
+      bottom: var(--space-xl);
+      right: var(--space-lg);
+      display: flex;
+      flex-direction: row-reverse;
+      gap: var(--space-sm);
+      z-index: 10;
+    }
+
+    .basemap-toggle {
+      width: 96px;
+      height: 96px;
+      border-radius: var(--radius-lg);
+      border: 3px solid var(--clr-white);
+      box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+      cursor: pointer;
+      overflow: hidden;
+      position: relative;
+      background-size: cover;
+      background-position: center;
+      flex-shrink: 0;
+      transition: box-shadow 0.15s ease;
+    }
+
+    .basemap-toggle:hover {
+      box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+    }
+
+    .basemap-toggle::after {
+      content: 'Basemap';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(0,0,0,0.6);
+      color: white;
+      font-size: 0.75rem;
+      padding: 4px 6px;
+      text-align: center;
+      font-weight: 500;
+    }
+
+    .basemap-options {
+      display: flex;
+      gap: var(--space-sm);
+      overflow: hidden;
+      max-width: 0;
+      opacity: 0;
+      transition: max-width 0.3s ease, opacity 0.2s ease;
+    }
+
+    .basemap-selector.expanded .basemap-options {
+      max-width: 500px;
+      opacity: 1;
+    }
+
+    .basemap-option {
+      width: 96px;
+      height: 96px;
+      border-radius: var(--radius-lg);
+      border: 3px solid var(--clr-white);
+      box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+      cursor: pointer;
+      overflow: hidden;
+      position: relative;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      background-size: cover;
+      background-position: center;
+      flex-shrink: 0;
+    }
+
+    .basemap-option:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+    }
+
+    .basemap-option.active {
+      border-color: var(--clr-ocean);
+      box-shadow: 0 0 0 3px var(--clr-ocean), 0 2px 12px rgba(0,0,0,0.2);
+    }
+
+    .basemap-option::after {
+      content: attr(data-label);
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(0,0,0,0.6);
+      color: white;
+      font-size: 0.75rem;
+      padding: 4px 6px;
+      text-align: center;
+      font-weight: 500;
+    }
+    
+    .basemap-option.light, .basemap-toggle.light {
+      background: linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%);
+    }
+    
+    .basemap-option.streets, .basemap-toggle.streets {
+      background: linear-gradient(135deg, #e8f4e5 0%, #ffefd5 50%, #f5f5f5 100%);
+    }
+    
+    .basemap-option.outdoors, .basemap-toggle.outdoors {
+      background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 50%, #b8daff 100%);
+    }
+    
+    .basemap-option.satellite, .basemap-toggle.satellite {
+      background: linear-gradient(135deg, #2d4a3e 0%, #1a3a2a 50%, #3d5a4e 100%);
+    }
+    
+    /* Custom Map Navigation */
+    .map-nav {
+      position: absolute;
+      top: 50%;
+      right: var(--space-lg);
+      transform: translateY(-50%);
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-xs);
+      background: var(--clr-surface);
+      border-radius: var(--radius-md);
+      padding: var(--space-xs);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+
+    .map-nav-btn {
+      width: 32px;
+      height: 32px;
+      background: var(--clr-surface);
+      border: none;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-main);
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--clr-slate-700);
+      transition: background 0.15s ease, color 0.15s ease;
+    }
+
+    .map-nav-btn:hover {
+      background: var(--clr-slate-100);
+    }
+
+    .map-nav-btn:focus {
+      outline: none;
+      box-shadow: 0 0 0 2px var(--clr-ocean);
+    }
+
+    .map-nav-btn svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    /* Compass rotation */
+    .map-nav-btn#compassBtn svg {
+      transition: transform 0.1s ease;
+    }
+
+    .map-nav-btn.active {
+      background: var(--clr-ocean);
+      color: var(--clr-white);
+    }
+
+    .map-nav-divider {
+      height: 1px;
+      background: var(--clr-slate-200);
+      margin: var(--space-xs) 0;
+    }
+
+    /* Hide default Mapbox navigation */
+    .mapboxgl-ctrl-top-right {
+      display: none;
+    }
+
+    /* Cluster count label */
+    .cluster-count {
+      color: white;
+      font-weight: 600;
+      font-size: 12px;
+      font-family: var(--font-main);
+    }
+
+    /* Map Header - Mini header with coords, scale, links */
+    .map-header {
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(4px);
+      padding: var(--space-xs) var(--space-sm);
+      border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+      font-size: 0.75rem;
+      color: var(--clr-text-muted);
+      box-shadow: 0 -1px 3px rgba(0,0,0,0.1);
+    }
+
+    .map-header-coords {
+      font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+      font-size: 0.6875rem;
+      letter-spacing: -0.02em;
+      min-width: 100px;
+    }
+
+    .map-header-scale {
+      display: flex;
+      align-items: center;
+      width: 70px;
+    }
+
+    /* Override Mapbox scale control styles */
+    .map-header-scale .mapboxgl-ctrl-scale {
+      background: transparent;
+      border: none;
+      border-bottom: 2px solid var(--clr-slate-500);
+      font-size: 0.6875rem;
+      color: var(--clr-text-muted);
+      padding: 0;
+      margin: 0;
+      line-height: 1;
+    }
+
+    .map-header-links {
+      display: flex;
+      gap: var(--space-sm);
+    }
+
+    .map-header-links a {
+      color: var(--clr-text-muted);
+      text-decoration: none;
+      transition: color 0.15s ease;
+    }
+
+    .map-header-links a:hover {
+      color: var(--clr-ocean);
+    }
+
+    .map-header-divider {
+      color: var(--clr-slate-300);
+    }
+
+    /* Hide default scale control position */
+    .mapboxgl-ctrl-bottom-left .mapboxgl-ctrl-scale {
+      display: none;
+    }
+  </style>
 </head>
 <body>
-    <!-- Header -->
-    <header class="header">
-        <div class="container header-inner">
-            <a href="#" class="logo">
-                <div class="logo-icon">
-                    <i data-lucide="building-2" style="width: 18px; height: 18px;"></i>
-                </div>
-                OpenBuildings.ch
-            </a>
+  <main>
+    <div id="map"></div>
 
-            <nav class="nav">
-                <a href="#challenge">Challenge</a>
-                <a href="#features">Solution</a>
-                <a href="#principles">Values</a>
-                <a href="#contact">About</a>
-                <a href="mailto:info@openbuildings.ch">For Institutions</a>
-                <a href="https://github.com/davras5/OpenBuildings" target="_blank">GitHub</a>
-            </nav>
-
-            <div class="header-actions">
-                <a href="app/" class="btn btn-primary header-cta">
-                    <i data-lucide="map" style="width: 16px; height: 16px;"></i>
-                    Explore the map
-                </a>
-            </div>
+    <!-- Search overlay -->
+    <div class="search-container">
+      <div class="search-input-wrapper">
+        <svg class="search-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"></circle>
+          <path d="m21 21-4.35-4.35"></path>
+        </svg>
+        <input type="text" id="searchInput" placeholder="Search by address, EGID, or place..." autocomplete="off">
+        <button class="search-clear" id="searchClear" type="button" aria-label="Clear search">×</button>
+      </div>
+      <div class="search-dropdown" id="searchDropdown">
+        <div class="search-section" id="locationsSection">
+          <div class="search-section-header">Locations</div>
+          <div class="search-results" id="locationsResults"></div>
         </div>
-    </header>
-
-    <!-- Hero Section -->
-    <section class="hero">
-        <div class="container">
-            <div class="hero-content">
-                <div class="hero-badge">
-                    <span class="hero-badge-dot"></span>
-                    Swiss Open Government Data
-                </div>
-
-                <h1>Swiss building data.<br><span>Open by default.</span></h1>
-
-                <p class="hero-subtitle">
-                    Unified, open building data for Swiss planning, climate action, and institutional reporting.
-                </p>
-
-                <div class="hero-stats">
-                    <div class="hero-stat">
-                        <span class="hero-stat-number">2M+</span>
-                        <span class="hero-stat-label">Buildings</span>
-                    </div>
-                    <div class="hero-stat-divider"></div>
-                    <div class="hero-stat">
-                        <span class="hero-stat-number">60+</span>
-                        <span class="hero-stat-label">Attributes</span>
-                    </div>
-                    <div class="hero-stat-divider"></div>
-                    <div class="hero-stat">
-                        <span class="hero-stat-number">3</span>
-                        <span class="hero-stat-label">Federal Partners</span>
-                    </div>
-                    <div class="hero-stat-divider"></div>
-                    <div class="hero-stat">
-                        <span class="hero-stat-number">Daily</span>
-                        <span class="hero-stat-label">Updates</span>
-                    </div>
-                </div>
-
-            </div>
-
-            <div class="hero-image">
-                <img src="images/style/1.jpg" alt="OpenBuildings.ch - Swiss building data visualization showing transition from traditional architecture to digital data infrastructure">
-                <div class="hero-search">
-                    <div class="hero-search-wrapper">
-                        <i data-lucide="search" class="hero-search-icon" style="width: 20px; height: 20px;"></i>
-                        <input type="text" id="heroSearch" class="hero-search-input" placeholder="Search any address in Switzerland..." autocomplete="off">
-                        <div class="hero-search-results" id="heroSearchResults"></div>
-                    </div>
-                    <span class="hero-search-hint">e.g. Bundesplatz 3, Bern</span>
-                </div>
-                <div class="hero-partners">
-                    <span class="hero-partners-label">Supported by</span>
-                    <div class="hero-partners-list">
-                        <span>BBL</span>
-                        <div class="hero-partners-divider"></div>
-                        <span>KBOB</span>
-                        <div class="hero-partners-divider"></div>
-                        <span>swisstopo</span>
-                    </div>
-                </div>
-            </div>
+        <div class="search-section" id="layersSection">
+          <div class="search-section-header">Layers</div>
+          <div class="search-results" id="layersResults"></div>
         </div>
-    </section>
+      </div>
+    </div>
 
-    <!-- Problem Section -->
-    <section class="problem" id="challenge">
-        <div class="container">
-            <h2>The challenge we're solving</h2>
-
-            <div class="stat-highlight">
-                <div class="stat-number">~40%</div>
-                <div class="stat-label">of Switzerland's CO₂ emissions come from buildings</div>
-            </div>
-
-            <div class="problem-grid">
-                <div class="problem-card">
-                    <h3>
-                        <i data-lucide="layers" style="width: 24px; height: 24px; color: #f59e0b;"></i>
-                        Fragmented data
-                    </h3>
-                    <p>Data scattered across sources. Same work redone by municipalities, cantons, and agencies—with public money—without a shared baseline.</p>
-                </div>
-
-                <div class="problem-card">
-                    <h3>
-                        <i data-lucide="repeat" style="width: 24px; height: 24px; color: #f59e0b;"></i>
-                        Duplicated effort
-                    </h3>
-                    <p>Institutions build datasets internally and repeatedly. Results stay siloed and eventually become obsolete.</p>
-                </div>
-
-                <div class="problem-card">
-                    <h3>
-                        <i data-lucide="eye-off" style="width: 24px; height: 24px; color: #f59e0b;"></i>
-                        Missing transparency
-                    </h3>
-                    <p>You cannot decarbonize what you cannot measure, coordinate what you cannot compare, or govern what you cannot reproduce.</p>
-                </div>
-
-                <div class="problem-card">
-                    <h3>
-                        <i data-lucide="scale" style="width: 24px; height: 24px; color: #f59e0b;"></i>
-                        Inconsistent results
-                    </h3>
-                    <p>Without standardized methods, comparing results across regions and portfolios is impossible—hindering effective policy.</p>
-                </div>
-            </div>
+    <!-- Custom Map Navigation -->
+    <div class="map-nav">
+      <button class="map-nav-btn" id="zoomInBtn" title="Zoom in" aria-label="Zoom in">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="12" y1="5" x2="12" y2="19"></line>
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
+      </button>
+      <button class="map-nav-btn" id="zoomOutBtn" title="Zoom out" aria-label="Zoom out">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
+      </button>
+      <div class="map-nav-divider"></div>
+      <button class="map-nav-btn" id="compassBtn" title="Reset north" aria-label="Reset north">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="12,2 15,10 12,8 9,10" fill="currentColor" stroke="none"></polygon>
+          <polygon points="12,22 9,14 12,16 15,14" fill="none"></polygon>
+        </svg>
+      </button>
+      <button class="map-nav-btn" id="homeBtn" title="Reset view" aria-label="Reset view">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+          <polyline points="9 22 9 12 15 12 15 22"></polyline>
+        </svg>
+      </button>
+      <button class="map-nav-btn" id="toggle3DBtn" title="Toggle 3D view" aria-label="Toggle 3D view">
+        3D
+      </button>
+    </div>
+    <div class="basemap-selector" id="basemapSelector">
+      <div class="basemap-toggle light" id="basemapToggle"></div>
+      <div class="basemap-options">
+        <div class="basemap-option light active" data-style="light-v11" data-label="Light"></div>
+        <div class="basemap-option streets" data-style="streets-v12" data-label="Streets"></div>
+        <div class="basemap-option outdoors" data-style="outdoors-v12" data-label="Outdoors"></div>
+        <div class="basemap-option satellite" data-style="satellite-streets-v12" data-label="Satellite"></div>
+      </div>
+    </div>
+    <!-- Building Panel -->
+    <aside class="building-panel" id="buildingPanel">
+      <div class="building-panel-header">
+        <div class="building-panel-title">
+          <h2 id="panelBuildingName">Building Name</h2>
+          <div class="location" id="panelBuildingLocation">Location</div>
         </div>
-    </section>
-
-    <!-- Solution Section -->
-    <section class="solution" id="features">
-        <div class="container">
-            <div class="solution-header">
-                <h2>One foundation. Many applications.</h2>
-                <p>OpenBuildings consolidates Switzerland's most relevant public building datasets into a consistent, reproducible reference layer.</p>
-                <p class="text-muted" style="margin-top: var(--space-sm);">GWR, swisstopo, and cantonal data are powerful—but scattered. We've done the integration, enrichment, and quality control so you don't have to.</p>
-            </div>
-
-            <div class="features-grid">
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <i data-lucide="map-pin" style="width: 24px; height: 24px;"></i>
-                    </div>
-                    <h3>Explore</h3>
-                    <p>Interactive 2D/3D web map with terrain visualization. Search any address or EGID with autocomplete powered by swisstopo.</p>
-                </div>
-
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <i data-lucide="bar-chart-2" style="width: 24px; height: 24px;"></i>
-                    </div>
-                    <h3>Analyze</h3>
-                    <p>Calculate volumes from swissALTI3D at 0.5m resolution. Get floor area, wall area, and energy reference area per SIA 380.</p>
-                </div>
-
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <i data-lucide="code-2" style="width: 24px; height: 24px;"></i>
-                    </div>
-                    <h3>Build on top</h3>
-                    <p>Query via API or download bulk data. Run our Python tools locally, or extend them. MIT licensed and fully open source.</p>
-                </div>
-            </div>
+        <button class="building-panel-close" id="closePanelBtn" aria-label="Close panel">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 6L6 18M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+      <div class="building-panel-content">
+        <div class="building-panel-metrics" id="panelMetrics">
+          <!-- Metrics will be populated dynamically -->
         </div>
-    </section>
+      </div>
+      <div class="building-panel-footer">
+        <button class="btn-primary" id="downloadReportBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"></path>
+          </svg>
+          Download Report
+        </button>
+      </div>
+    </aside>
 
-    <!-- Tools Section (Carousel) -->
-    <section class="tools" id="data">
-        <div class="container">
-            <div class="tools-header">
-                <h2>Processing Tools</h2>
-                <p>Open-source tools to process, enrich, and analyze Swiss building data.</p>
-            </div>
+    <!-- Map Header - scale, coords, links -->
+    <div class="map-header" id="mapHeader">
+      <div class="map-header-scale" id="scaleContainer"></div>
+      <div class="map-header-coords" id="mouseCoords">–</div>
+      <div class="map-header-links">
+        <a href="about.html">About</a>
+        <span class="map-header-divider">·</span>
+        <a href="https://github.com/davras5/OpenBuildings" target="_blank" rel="noopener">GitHub</a>
+        <span class="map-header-divider">·</span>
+        <a href="https://awnypgafushbsvqlsjyg.supabase.co" target="_blank" rel="noopener">API</a>
+        <span class="map-header-divider">·</span>
+        <a href="documentation/DATAMODEL.md" target="_blank" rel="noopener">Docs</a>
+      </div>
+    </div>
 
-            <div class="tools-carousel-wrapper">
-                <div class="tools-carousel" id="toolsCarousel">
-                    <div class="tool-card">
-                        <div class="tool-icon">
-                            <i data-lucide="database" style="width: 32px; height: 32px;"></i>
-                        </div>
-                        <h3>Base Worker</h3>
-                        <p>Foundational data processing. Ensures ID, geometry, and measurements are up-to-date and correct. Everything else builds on top of it.</p>
-                        <div class="tool-tags">
-                            <span class="available">Available</span>
-                            <span>EGID</span>
-                            <span>Geometry</span>
-                            <span>Measurements</span>
-                        </div>
-                    </div>
+    <div class="loading-overlay" id="loadingOverlay">
+      <div class="loading-spinner"></div>
+      <span style="margin-top: 12px; color: #64748b; font-size: 14px;">Loading map...</span>
+    </div>
+  </main>
 
-                    <div class="tool-card">
-                        <div class="tool-icon">
-                            <i data-lucide="box" style="width: 32px; height: 32px;"></i>
-                        </div>
-                        <h3>Volume Estimator</h3>
-                        <p>Calculate building volumes from swissALTI3D and swissSURFACE3D at 1m² resolution. Python CLI and FME Workbench available.</p>
-                        <div class="tool-tags">
-                            <span class="available">Available</span>
-                            <span>Python</span>
-                            <span>FME</span>
-                        </div>
-                    </div>
+  <script>
+    // ============================================
+    // CONFIGURATION
+    // ============================================
+    const SUPABASE_URL = 'https://awnypgafushbsvqlsjyg.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_PdbeSmuL6XQEaXyaKqhOYQ_fpzIByJQ';
+    const MAPBOX_TOKEN = 'pk.eyJ1IjoiZGF2aWRyYXNuZXI1IiwiYSI6ImNtMm5yamVkdjA5MDcycXMyZ2I2MHRhamgifQ.m651j7WIX7MyxNh8KIQ1Gg';
+    const TILE_SERVER = `${SUPABASE_URL}/functions/v1/tiles`;
 
-                    <div class="tool-card">
-                        <div class="tool-icon">
-                            <i data-lucide="home" style="width: 32px; height: 32px;"></i>
-                        </div>
-                        <h3>Roof Estimator</h3>
-                        <p>Derive roof form, orientation, slope, and area from elevation data. Essential for solar potential and renovation planning.</p>
-                        <div class="tool-tags">
-                            <span class="coming-soon">Coming Soon</span>
-                            <span>Python</span>
-                        </div>
-                    </div>
+    // Switzerland bounds for initial view
+    const SWITZERLAND_BOUNDS = [5.9559, 45.818, 10.4921, 47.8084];
+    
+    // ============================================
+    // Wait for DOM and scripts to load
+    // ============================================
+    document.addEventListener('DOMContentLoaded', init);
+    
+    async function init() {
+      // ============================================
+      // Initialize Supabase
+      // ============================================
+      const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      
+      // ============================================
+      // Initialize Map
+      // ============================================
+      mapboxgl.accessToken = MAPBOX_TOKEN;
+      
+      const map = new mapboxgl.Map({
+        container: 'map',
+        style: 'mapbox://styles/mapbox/light-v11',
+        center: [8.2275, 46.8182], // Switzerland center
+        zoom: 7
+      });
+      
+      // Custom zoom controls
+      document.getElementById('zoomInBtn').addEventListener('click', () => {
+        map.zoomIn({ duration: 300 });
+      });
+      document.getElementById('zoomOutBtn').addEventListener('click', () => {
+        map.zoomOut({ duration: 300 });
+      });
 
-                    <div class="tool-card">
-                        <div class="tool-icon">
-                            <i data-lucide="leaf" style="width: 32px; height: 32px;"></i>
-                        </div>
-                        <h3>Biodiversity</h3>
-                        <p>Green roof detection and biodiversity index per parcel. Assess urban greening potential and ecological value of building surfaces.</p>
-                        <div class="tool-tags">
-                            <span class="coming-soon">Coming Soon</span>
-                            <span>Green Roofs</span>
-                            <span>Ecology</span>
-                        </div>
-                    </div>
+      // Add scale control to custom footer container
+      const scaleControl = new mapboxgl.ScaleControl({ unit: 'metric' });
+      const scaleContainer = document.getElementById('scaleContainer');
 
-                    <div class="tool-card">
-                        <div class="tool-icon">
-                            <i data-lucide="cloud" style="width: 32px; height: 32px;"></i>
-                        </div>
-                        <h3>Carbon Reporting</h3>
-                        <p>Calculate embodied carbon and operational emissions per building. Support climate risk assessment and decarbonization planning.</p>
-                        <div class="tool-tags">
-                            <span class="coming-soon">Coming Soon</span>
-                            <span>CO₂</span>
-                            <span>Climate Risk</span>
-                        </div>
-                    </div>
-                </div>
+      // Mount scale control after map loads
+      map.on('load', () => {
+        scaleControl.onAdd(map);
+        scaleContainer.appendChild(scaleControl._container);
+      });
 
-                <div class="tools-nav">
-                    <button class="tools-nav-btn" id="toolsPrev" aria-label="Previous tools">
-                        <i data-lucide="chevron-left" style="width: 20px; height: 20px;"></i>
-                    </button>
-                    <button class="tools-nav-btn" id="toolsNext" aria-label="Next tools">
-                        <i data-lucide="chevron-right" style="width: 20px; height: 20px;"></i>
-                    </button>
-                </div>
-            </div>
+      // Mouse coordinates display
+      const mouseCoordsDisplay = document.getElementById('mouseCoords');
 
-            <div class="tools-cta">
-                <a href="https://github.com/davras5/OpenBuildings/tree/main/tools" target="_blank" class="btn btn-primary">
-                    <i data-lucide="wrench" style="width: 18px; height: 18px;"></i>
-                    Explore All Tools
-                </a>
-            </div>
-        </div>
-    </section>
+      map.on('mousemove', (e) => {
+        const lng = e.lngLat.lng.toFixed(5);
+        const lat = e.lngLat.lat.toFixed(5);
+        mouseCoordsDisplay.textContent = `${lng}, ${lat}`;
+      });
 
-    <!-- Showcase Section -->
-    <section class="showcase">
-        <div class="container">
-            <div class="showcase-header">
-                <h2>See it in action</h2>
-            </div>
+      map.on('mouseout', () => {
+        mouseCoordsDisplay.textContent = '–';
+      });
 
-            <div class="showcase-content">
-                <div class="showcase-image">
-                    <img src="images/Preview1.jpg" alt="OpenBuildings.ch interactive map interface showing building details and data panel">
-                </div>
+      // ============================================
+      // State (selection only - data now served via vector tiles)
+      // ============================================
 
-                <div class="showcase-features">
-                    <div class="showcase-feature">
-                        <div class="showcase-feature-icon">
-                            <i data-lucide="box" style="width: 20px; height: 20px;"></i>
-                        </div>
-                        <div>
-                            <h4>3D terrain visualization</h4>
-                            <p>Explore buildings in context with accurate terrain models and elevation data from swisstopo.</p>
-                        </div>
-                    </div>
+      // ============================================
+      // DOM Elements
+      // ============================================
+      const loadingOverlay = document.getElementById('loadingOverlay');
+      const buildingPanel = document.getElementById('buildingPanel');
+      const panelBuildingName = document.getElementById('panelBuildingName');
+      const panelBuildingLocation = document.getElementById('panelBuildingLocation');
+      const panelMetrics = document.getElementById('panelMetrics');
+      const closePanelBtn = document.getElementById('closePanelBtn');
+      
+      // ============================================
+      // URL Parameters
+      // ============================================
+      function getUrlParams() {
+        const params = new URLSearchParams(window.location.search);
+        return {
+          zoom: params.get('zoom') ? parseFloat(params.get('zoom')) : null,
+          lon: params.get('lon') ? parseFloat(params.get('lon')) : null,
+          lat: params.get('lat') ? parseFloat(params.get('lat')) : null,
+          building: params.get('building') ? parseInt(params.get('building')) : null,
+          parcel: params.get('parcel') ? parseInt(params.get('parcel')) : null,
+          is3D: params.get('3d') === 'true',
+          marker: params.get('marker') === 'true'
+        };
+      }
+      
+      function updateUrlParams() {
+        const params = new URLSearchParams();
+        const center = map.getCenter();
+        const zoom = map.getZoom();
 
-                    <div class="showcase-feature">
-                        <div class="showcase-feature-icon">
-                            <i data-lucide="search" style="width: 20px; height: 20px;"></i>
-                        </div>
-                        <div>
-                            <h4>Smart address search</h4>
-                            <p>Find any building by address, EGID, or place name with autocomplete powered by swisstopo.</p>
-                        </div>
-                    </div>
+        params.set('zoom', zoom.toFixed(2));
+        params.set('lon', center.lng.toFixed(5));
+        params.set('lat', center.lat.toFixed(5));
 
-                    <div class="showcase-feature">
-                        <div class="showcase-feature-icon">
-                            <i data-lucide="database" style="width: 20px; height: 20px;"></i>
-                        </div>
-                        <div>
-                            <h4>Rich building attributes</h4>
-                            <p>Access volumes, floor counts, heating types, heritage status, and more for every building.</p>
-                        </div>
-                    </div>
+        if (selectedBuilding) params.set('building', selectedBuilding);
+        if (selectedParcel) params.set('parcel', selectedParcel);
+        if (is3DMode) params.set('3d', 'true');
 
-                    <div class="showcase-feature">
-                        <div class="showcase-feature-icon">
-                            <i data-lucide="download" style="width: 20px; height: 20px;"></i>
-                        </div>
-                        <div>
-                            <h4>Export detailed reports</h4>
-                            <p>Download comprehensive building data in standard formats for your planning workflows.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        window.history.replaceState({}, '', `?${params.toString()}`);
+      }
+      
+      // Selection state
+      let selectedBuilding = null;
+      let selectedParcel = null;
+      let selectedLandcover = null;
+      let markerClickHandled = false;
+      let is3DMode = false;
+      let searchMarker = null;
+      
+      // ============================================
+      // Functions
+      // ============================================
+      
+      // Simple EWKB parser for Point and Polygon
+      function wkbToGeoJSON(hex) {
+        try {
+          let pos = 0;
+          
+          // Helper to read bytes as little-endian double
+          function readDouble() {
+            const bytes = [];
+            for (let i = 0; i < 8; i++) {
+              bytes.push(parseInt(hex.substr(pos + i * 2, 2), 16));
+            }
+            pos += 16;
+            const buffer = new ArrayBuffer(8);
+            const view = new DataView(buffer);
+            bytes.forEach((b, i) => view.setUint8(i, b));
+            return view.getFloat64(0, true);
+          }
+          
+          // Helper to read uint32 little-endian
+          function readUInt32() {
+            const bytes = [];
+            for (let i = 0; i < 4; i++) {
+              bytes.push(parseInt(hex.substr(pos + i * 2, 2), 16));
+            }
+            pos += 8;
+            return bytes[0] | (bytes[1] << 8) | (bytes[2] << 16) | (bytes[3] << 24);
+          }
+          
+          // Skip byte order (1 byte)
+          pos += 2;
+          
+          // Read type (4 bytes) - includes SRID flag
+          const type = readUInt32();
+          const geomType = type & 0xFF;
+          const hasSRID = (type & 0x20000000) !== 0;
+          
+          // Skip SRID if present (4 bytes)
+          if (hasSRID) {
+            pos += 8;
+          }
+          
+          // Point (type 1)
+          if (geomType === 1) {
+            const x = readDouble();
+            const y = readDouble();
+            return { type: 'Point', coordinates: [x, y] };
+          }
+          
+          // Polygon (type 3)
+          if (geomType === 3) {
+            const numRings = readUInt32();
+            const rings = [];
+            
+            for (let r = 0; r < numRings; r++) {
+              const numPoints = readUInt32();
+              const ring = [];
+              
+              for (let p = 0; p < numPoints; p++) {
+                const x = readDouble();
+                const y = readDouble();
+                ring.push([x, y]);
+              }
+              rings.push(ring);
+            }
+            
+            return { type: 'Polygon', coordinates: rings };
+          }
+          
+          console.warn('Unsupported geometry type:', geomType);
+          return null;
+          
+        } catch (err) {
+          console.error('WKB decode error:', err);
+          return null;
+        }
+      }
+      
+      // NOTE: fetchBuildings() and fetchParcels() removed - data now served via vector tiles
 
-            <div class="showcase-actions">
-                <a href="app/" class="btn btn-primary btn-large">
-                    <i data-lucide="map" style="width: 20px; height: 20px;"></i>
-                    Try it now
-                </a>
-            </div>
-        </div>
-    </section>
+      function addParcelsLayer() {
+        // Skip if source already exists
+        if (map.getSource('parcels')) return;
 
-    <!-- Audience Section -->
-    <section class="audience">
-        <div class="container">
-            <div class="audience-header">
-                <h2>Built for those who shape our cities</h2>
-                <p>If building data is essential—but not your core mandate—this is for you.</p>
-            </div>
+        // Add vector tile source for parcels
+        map.addSource('parcels', {
+          type: 'vector',
+          tiles: [`${TILE_SERVER}/parcels/{z}/{x}/{y}.pbf`],
+          minzoom: 10,
+          maxzoom: 14,
+          bounds: SWITZERLAND_BOUNDS
+        });
 
-            <div class="audience-grid">
-                <div class="audience-card">
-                    <div class="audience-card-icon">
-                        <i data-lucide="landmark" style="width: 28px; height: 28px;"></i>
-                    </div>
-                    <h4>Municipalities & cantons</h4>
-                    <p>Build energy cadastres in days, not months. Plan district heating with complete coverage. Meet cantonal reporting requirements.</p>
-                </div>
+        // Add fill layer
+        map.addLayer({
+          id: 'parcels-fill',
+          type: 'fill',
+          source: 'parcels',
+          'source-layer': 'parcels',
+          minzoom: 12,
+          paint: {
+            'fill-color': [
+              'case',
+              ['==', ['get', 'id'], selectedParcel || -1], '#059669', // Green when selected
+              '#1e3a5f' // Deep Blue default
+            ],
+            'fill-opacity': [
+              'case',
+              ['==', ['get', 'id'], selectedParcel || -1], 0.3,
+              0.1
+            ]
+          }
+        });
 
-                <div class="audience-card">
-                    <div class="audience-card-icon">
-                        <i data-lucide="building" style="width: 28px; height: 28px;"></i>
-                    </div>
-                    <h4>Federal agencies</h4>
-                    <p>Run nationwide analyses with consistent methodology. Compare cantons on the same baseline. Track building stock evolution.</p>
-                </div>
+        // Add outline layer
+        map.addLayer({
+          id: 'parcels-outline',
+          type: 'line',
+          source: 'parcels',
+          'source-layer': 'parcels',
+          minzoom: 12,
+          paint: {
+            'line-color': [
+              'case',
+              ['==', ['get', 'id'], selectedParcel || -1], '#059669',
+              '#1e3a5f'
+            ],
+            'line-width': [
+              'case',
+              ['==', ['get', 'id'], selectedParcel || -1], 3,
+              1.5
+            ]
+          }
+        });
 
-                <div class="audience-card">
-                    <div class="audience-card-icon">
-                        <i data-lucide="briefcase" style="width: 28px; height: 28px;"></i>
-                    </div>
-                    <h4>Portfolio owners</h4>
-                    <p>Score every building in your portfolio instantly. Identify renovation priorities. Model Net Zero pathways with real data.</p>
-                </div>
+        // Add hover effect
+        map.on('mouseenter', 'parcels-fill', () => {
+          map.getCanvas().style.cursor = 'pointer';
+        });
 
-                <div class="audience-card">
-                    <div class="audience-card-icon">
-                        <i data-lucide="microscope" style="width: 28px; height: 28px;"></i>
-                    </div>
-                    <h4>Researchers</h4>
-                    <p>Download reproducible datasets with full documentation. Cite sources, not pipelines. Focus on analysis, not data wrangling.</p>
-                </div>
-            </div>
-        </div>
-    </section>
+        map.on('mouseleave', 'parcels-fill', () => {
+          map.getCanvas().style.cursor = '';
+        });
 
-    <!-- Principles Section -->
-    <section class="principles" id="principles">
-        <div class="container">
-            <div class="principles-header">
-                <h2>Our Principles</h2>
-                <p>Built for long-term institutional use.</p>
-            </div>
+        // Add click handler for parcels
+        map.on('click', 'parcels-fill', (e) => {
+          // Skip if a marker was just clicked
+          if (markerClickHandled) return;
 
-            <div class="principles-grid">
-                <div class="principle-item">
-                    <i data-lucide="unlock" style="width: 28px; height: 28px;"></i>
-                    <div>
-                        <strong>Open by default</strong>
-                        <span>Methods, sources, and limitations are documented and public.</span>
-                    </div>
-                </div>
-                <div class="principle-item">
-                    <i data-lucide="check-circle" style="width: 28px; height: 28px;"></i>
-                    <div>
-                        <strong>Institutional quality</strong>
-                        <span>Reproducibility and traceability over novelty.</span>
-                    </div>
-                </div>
-                <div class="principle-item">
-                    <i data-lucide="link" style="width: 28px; height: 28px;"></i>
-                    <div>
-                        <strong>Interoperability</strong>
-                        <span>Data outlives tools. We align with established standards.</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
+          const props = e.features[0].properties;
+          selectParcel(props.id);
+        });
+      }
 
-    <!-- About Section -->
-    <section class="about" id="contact">
-        <div class="container">
-            <div class="about-content">
-                <div class="about-text">
-                    <h2>About OpenBuildings</h2>
-                    <p class="about-lead">OpenBuildings started from a practical need: our team manages a portfolio of 3,000 buildings and needed reliable, unified data for daily operations. We realized the same workflows could serve the entire Swiss building stock—so we built it.</p>
-                    <p>Today, OpenBuildings covers every building in Switzerland, with Germany in development. The project is self-sustaining, not-for-profit, and designed for long-term institutional use. We believe building data is a public good—and should be treated as such.</p>
-                    <p>Our goal is to eliminate redundant data work across institutions and enable better decisions for climate, energy, and urban planning. Open source, transparent in methods, built to last.</p>
-                </div>
+      function addLandcoverLayer() {
+        // Skip if source already exists
+        if (map.getSource('landcover')) return;
 
-                <div class="about-contact">
-                    <h3>Contact</h3>
-                    <div class="contact-items">
-                        <a href="mailto:info@openbuildings.ch" class="contact-item">
-                            <i data-lucide="mail" style="width: 20px; height: 20px;"></i>
-                            <span>info@openbuildings.ch</span>
-                        </a>
-                        <a href="https://github.com/davras5/OpenBuildings/issues" target="_blank" class="contact-item">
-                            <i data-lucide="message-circle" style="width: 20px; height: 20px;"></i>
-                            <span>GitHub Issues (technical)</span>
-                        </a>
-                        <a href="https://github.com/davras5/OpenBuildings" target="_blank" class="contact-item">
-                            <i data-lucide="github" style="width: 20px; height: 20px;"></i>
-                            <span>GitHub Repository</span>
-                        </a>
-                    </div>
-                    <p class="about-location">Based in Switzerland</p>
-                </div>
-            </div>
-        </div>
-    </section>
+        // Add vector tile source for landcover
+        map.addSource('landcover', {
+          type: 'vector',
+          tiles: [`${TILE_SERVER}/landcover/{z}/{x}/{y}.pbf`],
+          minzoom: 10,
+          maxzoom: 14,
+          bounds: SWITZERLAND_BOUNDS
+        });
 
-    <!-- CTA Section -->
-    <section class="cta">
-        <div class="container">
-            <h2>Start using OpenBuildings today</h2>
-            <p>Free for exploration. Open source. No registration required.</p>
+        // Add fill layer with land usage colors
+        map.addLayer({
+          id: 'landcover-fill',
+          type: 'fill',
+          source: 'landcover',
+          'source-layer': 'landcover',
+          minzoom: 12,
+          paint: {
+            'fill-color': [
+              'case',
+              ['==', ['get', 'id'], selectedLandcover || -1], '#059669', // Green when selected
+              '#8b5cf6' // Purple default for landcover
+            ],
+            'fill-opacity': [
+              'case',
+              ['==', ['get', 'id'], selectedLandcover || -1], 0.4,
+              0.2
+            ]
+          }
+        });
 
-            <div class="cta-cards">
-                <div class="cta-card">
-                    <div class="cta-badge free">Free</div>
-                    <h3>Explore</h3>
-                    <p>Interactive map, building search, individual lookups. No registration required.</p>
-                    <a href="app/" class="btn btn-primary">
-                        <i data-lucide="map" style="width: 16px; height: 16px;"></i>
-                        Start exploring
-                    </a>
-                </div>
+        // Add outline layer
+        map.addLayer({
+          id: 'landcover-outline',
+          type: 'line',
+          source: 'landcover',
+          'source-layer': 'landcover',
+          minzoom: 12,
+          paint: {
+            'line-color': [
+              'case',
+              ['==', ['get', 'id'], selectedLandcover || -1], '#059669',
+              '#7c3aed' // Darker purple for outline
+            ],
+            'line-width': [
+              'case',
+              ['==', ['get', 'id'], selectedLandcover || -1], 3,
+              1.5
+            ]
+          }
+        });
 
-                <div class="cta-card">
-                    <div class="cta-badge free">Free</div>
-                    <h3>Download</h3>
-                    <p>Sample datasets, documentation, processing tools. Everything on GitHub.</p>
-                    <a href="https://github.com/davras5/OpenBuildings" target="_blank" class="btn btn-secondary">
-                        <i data-lucide="github" style="width: 16px; height: 16px;"></i>
-                        View on GitHub
-                    </a>
-                </div>
+        // Add hover effect
+        map.on('mouseenter', 'landcover-fill', () => {
+          map.getCanvas().style.cursor = 'pointer';
+        });
 
-                <div class="cta-card">
-                    <div class="cta-badge contact">Contact</div>
-                    <h3>Institutional Access</h3>
-                    <p>Bulk data downloads, API access, custom processing for municipalities, cantons, and federal offices.</p>
-                    <a href="mailto:info@openbuildings.ch" class="btn btn-secondary">
-                        <i data-lucide="mail" style="width: 16px; height: 16px;"></i>
-                        Get in touch
-                    </a>
-                </div>
-            </div>
-        </div>
-    </section>
+        map.on('mouseleave', 'landcover-fill', () => {
+          map.getCanvas().style.cursor = '';
+        });
 
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-brand">
-                    <h3>OpenBuildings.ch</h3>
-                    <p>Building data is a public good.<br>OpenBuildings turns that principle into infrastructure.</p>
-                </div>
+        // Add click handler for landcover
+        map.on('click', 'landcover-fill', (e) => {
+          // Skip if a marker was just clicked
+          if (markerClickHandled) return;
 
-                <div class="footer-links">
-                    <h4>Resources</h4>
-                    <ul>
-                        <li><a href="app/">Interactive Map</a></li>
-                        <li><a href="https://github.com/davras5/OpenBuildings" target="_blank">GitHub</a></li>
-                        <li><a href="https://github.com/davras5/OpenBuildings/blob/main/documentation/DATAMODEL.md" target="_blank">Data Model</a></li>
-                        <li><a href="https://github.com/davras5/OpenBuildings/tree/main/tools" target="_blank">Tools</a></li>
-                    </ul>
-                </div>
+          const props = e.features[0].properties;
+          selectLandcover(props.id);
+        });
+      }
 
-            </div>
+      function addBuildingsLayer() {
+        // Skip if source already exists
+        if (map.getSource('buildings')) return;
 
-            <div class="footer-bottom">
-                <p>© 2025 OpenBuildings.ch · MIT License · Made in Switzerland</p>
+        // Add vector tile source (streams data on-demand)
+        map.addSource('buildings', {
+          type: 'vector',
+          tiles: [`${TILE_SERVER}/buildings/{z}/{x}/{y}.pbf`],
+          minzoom: 0,
+          maxzoom: 14,
+          bounds: SWITZERLAND_BOUNDS
+        });
 
-                <div class="footer-social">
-                    <a href="https://github.com/davras5/OpenBuildings" target="_blank" aria-label="GitHub">
-                        <i data-lucide="github" style="width: 20px; height: 20px;"></i>
-                    </a>
-                    <a href="mailto:info@openbuildings.ch" aria-label="Email">
-                        <i data-lucide="mail" style="width: 20px; height: 20px;"></i>
-                    </a>
-                </div>
-            </div>
-        </div>
-    </footer>
+        // Heatmap layer for low zoom (visual clustering alternative)
+        map.addLayer({
+          id: 'buildings-heat',
+          type: 'heatmap',
+          source: 'buildings',
+          'source-layer': 'buildings',
+          maxzoom: 12,
+          paint: {
+            'heatmap-weight': 1,
+            'heatmap-intensity': ['interpolate', ['linear'], ['zoom'], 0, 0.5, 12, 2],
+            'heatmap-radius': ['interpolate', ['linear'], ['zoom'], 0, 3, 12, 15],
+            'heatmap-opacity': ['interpolate', ['linear'], ['zoom'], 10, 0.8, 12, 0],
+            'heatmap-color': [
+              'interpolate', ['linear'], ['heatmap-density'],
+              0, 'rgba(0,0,0,0)',
+              0.2, '#c7d2fe',  // Light indigo
+              0.4, '#818cf8',  // Indigo
+              0.6, '#4f46e5',  // Darker indigo
+              0.8, '#3730a3',  // Deep indigo
+              1, '#1e3a5f'     // Deep Blue (brand color)
+            ]
+          }
+        });
 
-    <!-- Initialize Lucide Icons and Search -->
-    <script>
-        lucide.createIcons();
+        // Circle layer for individual buildings (visible at zoom 10+)
+        map.addLayer({
+          id: 'unclustered-point',
+          type: 'circle',
+          source: 'buildings',
+          'source-layer': 'buildings',
+          minzoom: 10,
+          paint: {
+            'circle-radius': [
+              'interpolate', ['linear'], ['zoom'],
+              10, 2,
+              14, ['case', ['==', ['get', 'id'], selectedBuilding || -1], 10, 7]
+            ],
+            'circle-color': [
+              'case',
+              ['==', ['get', 'id'], selectedBuilding || -1], '#059669', // Leaf green when selected
+              '#64748b' // Slate-500 default
+            ],
+            'circle-stroke-width': [
+              'interpolate', ['linear'], ['zoom'],
+              10, 0,
+              12, ['case', ['==', ['get', 'id'], selectedBuilding || -1], 3, 2]
+            ],
+            'circle-stroke-color': [
+              'case',
+              ['==', ['get', 'id'], selectedBuilding || -1], '#1e3a5f', // Deep Blue
+              'white'
+            ],
+            'circle-opacity': ['interpolate', ['linear'], ['zoom'], 10, 0.3, 12, 1]
+          }
+        });
 
-        // Hero Search Functionality
-        (function() {
-            const searchInput = document.getElementById('heroSearch');
-            const searchResults = document.getElementById('heroSearchResults');
-            let searchTimeout = null;
+        // Click handler for buildings
+        map.on('click', 'unclustered-point', (e) => {
+          markerClickHandled = true;
+          const props = e.features[0].properties;
+          const coords = e.features[0].geometry.coordinates;
+          selectBuilding(props.id, coords);
+          setTimeout(() => { markerClickHandled = false; }, 100);
+        });
 
-            async function searchLocations(query) {
-                if (query.length < 2) {
-                    searchResults.classList.remove('active');
-                    return;
-                }
+        // Hover effects
+        map.on('mouseenter', 'unclustered-point', () => {
+          map.getCanvas().style.cursor = 'pointer';
+        });
 
-                searchResults.innerHTML = '<div class="hero-search-loading">Searching...</div>';
-                searchResults.classList.add('active');
+        map.on('mouseleave', 'unclustered-point', () => {
+          map.getCanvas().style.cursor = '';
+        });
+      }
 
-                try {
-                    const url = `https://api3.geo.admin.ch/rest/services/ech/SearchServer?searchText=${encodeURIComponent(query)}&type=locations&lang=de&sr=4326`;
-                    const response = await fetch(url);
-                    const data = await response.json();
+      function updateBuildingStyles() {
+        if (!map.getLayer('unclustered-point')) return;
 
-                    const locations = data.results.filter(r =>
-                        r.attrs.origin === 'address' ||
-                        r.attrs.origin === 'zipcode' ||
-                        r.attrs.origin === 'sn25' ||
-                        r.attrs.origin === 'gg25' ||
-                        r.attrs.origin === 'gazetteer'
-                    ).slice(0, 8);
+        map.setPaintProperty('unclustered-point', 'circle-radius', [
+          'case',
+          ['==', ['get', 'id'], selectedBuilding || -1], 10,
+          7
+        ]);
+        map.setPaintProperty('unclustered-point', 'circle-color', [
+          'case',
+          ['==', ['get', 'id'], selectedBuilding || -1], '#059669', // Leaf green when selected
+          '#64748b' // Slate-500 default
+        ]);
+        map.setPaintProperty('unclustered-point', 'circle-stroke-width', [
+          'case',
+          ['==', ['get', 'id'], selectedBuilding || -1], 3,
+          2
+        ]);
+        map.setPaintProperty('unclustered-point', 'circle-stroke-color', [
+          'case',
+          ['==', ['get', 'id'], selectedBuilding || -1], '#1e3a5f', // Deep Blue
+          'white'
+        ]);
+      }
+      
+      async function selectBuilding(id, coords = null) {
+        selectedBuilding = id;
+        selectedParcel = null; // Deselect parcel
+        selectedLandcover = null; // Deselect landcover
 
-                    if (locations.length === 0) {
-                        searchResults.innerHTML = '<div class="hero-search-loading">No results found</div>';
-                        return;
-                    }
+        // Fetch building details from API
+        await fetchAndShowBuilding(id, coords);
 
-                    searchResults.innerHTML = locations.map(loc => {
-                        const label = loc.attrs.label.replace(/<[^>]*>/g, '');
-                        const detail = loc.attrs.detail || '';
-                        return `
-                            <div class="hero-search-result"
-                                 data-lon="${loc.attrs.lon}"
-                                 data-lat="${loc.attrs.lat}"
-                                 data-label="${label}">
-                                <div class="hero-search-result-title">${label}</div>
-                                ${detail ? `<div class="hero-search-result-subtitle">${detail}</div>` : ''}
-                            </div>
-                        `;
-                    }).join('');
+        updateBuildingStyles();
+        updateParcelStyles();
+        updateLandcoverStyles();
+        updateUrlParams();
+      }
 
-                } catch (err) {
-                    searchResults.innerHTML = '<div class="hero-search-loading">Search error. Please try again.</div>';
-                }
+      async function selectParcel(id) {
+        selectedParcel = id;
+        selectedBuilding = null; // Deselect building
+        selectedLandcover = null; // Deselect landcover
+
+        // Fetch parcel details from API
+        await fetchAndShowParcel(id);
+
+        updateBuildingStyles();
+        updateParcelStyles();
+        updateLandcoverStyles();
+        updateUrlParams();
+      }
+
+      async function selectLandcover(id) {
+        selectedLandcover = id;
+        selectedBuilding = null; // Deselect building
+        selectedParcel = null; // Deselect parcel
+
+        // Fetch landcover details from API
+        await fetchAndShowLandcover(id);
+
+        updateBuildingStyles();
+        updateParcelStyles();
+        updateLandcoverStyles();
+        updateUrlParams();
+      }
+
+      // Fetch building from Supabase and show panel
+      async function fetchAndShowBuilding(id, coords = null) {
+        try {
+          const { data, error } = await db
+            .from('buildings')
+            .select('id, name, egid, geog')
+            .eq('id', id)
+            .single();
+
+          if (error) throw error;
+
+          if (data) {
+            // Parse coordinates from geog if available
+            let lon, lat;
+            if (coords) {
+              [lon, lat] = coords;
+            } else if (data.geog) {
+              const geojson = wkbToGeoJSON(data.geog);
+              if (geojson) {
+                lon = geojson.coordinates[0];
+                lat = geojson.coordinates[1];
+              }
             }
 
-            searchInput.addEventListener('input', (e) => {
-                clearTimeout(searchTimeout);
-                searchTimeout = setTimeout(() => {
-                    searchLocations(e.target.value.trim());
-                }, 300);
+            showBuildingPanel({
+              id: data.id,
+              name: data.name,
+              egid: data.egid,
+              lon,
+              lat
             });
+          }
+        } catch (err) {
+          console.error('Error fetching building:', err);
+        }
+      }
 
-            searchInput.addEventListener('focus', () => {
-                if (searchInput.value.trim().length >= 2) {
-                    searchResults.classList.add('active');
-                }
-            });
+      // Fetch parcel from Supabase and show panel
+      async function fetchAndShowParcel(id) {
+        try {
+          const { data, error } = await db
+            .from('parcels')
+            .select('id, name, egrid, building_id')
+            .eq('id', id)
+            .single();
 
-            searchResults.addEventListener('click', (e) => {
-                const result = e.target.closest('.hero-search-result');
-                if (result) {
-                    const lon = result.dataset.lon;
-                    const lat = result.dataset.lat;
+          if (error) throw error;
 
-                    // Navigate to app with coordinates and marker
-                    window.location.href = `app/?zoom=17&lon=${lon}&lat=${lat}&marker=true`;
-                }
-            });
+          if (data) {
+            showParcelPanel(data);
+          }
+        } catch (err) {
+          console.error('Error fetching parcel:', err);
+        }
+      }
 
-            // Close results when clicking outside
-            document.addEventListener('click', (e) => {
-                if (!e.target.closest('.hero-search-wrapper')) {
-                    searchResults.classList.remove('active');
-                }
-            });
+      // Fetch landcover from Supabase and show panel
+      async function fetchAndShowLandcover(id) {
+        try {
+          const { data, error } = await db
+            .from('landcover')
+            .select('id, type, area_m2')
+            .eq('id', id)
+            .single();
 
-            // Handle keyboard navigation
-            searchInput.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter') {
-                    const firstResult = searchResults.querySelector('.hero-search-result');
-                    if (firstResult) {
-                        firstResult.click();
-                    }
-                }
-                if (e.key === 'Escape') {
-                    searchResults.classList.remove('active');
-                    searchInput.blur();
-                }
-            });
-        })();
+          if (error) throw error;
 
-        // Tools Carousel - Seamless Infinite Loop
-        (function() {
-            const carousel = document.getElementById('toolsCarousel');
-            const prevBtn = document.getElementById('toolsPrev');
-            const nextBtn = document.getElementById('toolsNext');
-            const originalCards = Array.from(carousel.querySelectorAll('.tool-card'));
-            const cardCount = originalCards.length;
+          if (data) {
+            showLandcoverPanel(data);
+          }
+        } catch (err) {
+          console.error('Error fetching landcover:', err);
+        }
+      }
 
-            // Clone all cards and append for infinite effect
-            originalCards.forEach(card => {
-                const clone = card.cloneNode(true);
-                carousel.appendChild(clone);
-            });
+      function updateParcelStyles() {
+        if (!map.getLayer('parcels-fill')) return;
 
-            const allCards = carousel.querySelectorAll('.tool-card');
-            let currentIndex = 0;
-            let isTransitioning = false;
+        if (selectedParcel) {
+          map.setPaintProperty('parcels-fill', 'fill-opacity', [
+            'case',
+            ['==', ['get', 'id'], selectedParcel], 0.25,
+            0.1
+          ]);
+          map.setPaintProperty('parcels-outline', 'line-width', [
+            'case',
+            ['==', ['get', 'id'], selectedParcel], 3,
+            1.5
+          ]);
+        } else {
+          map.setPaintProperty('parcels-fill', 'fill-opacity', 0.1);
+          map.setPaintProperty('parcels-outline', 'line-width', 1.5);
+        }
+      }
 
-            function getCardWidth() {
-                return allCards[0].offsetWidth + 24; // card width + gap
+      function updateLandcoverStyles() {
+        if (!map.getLayer('landcover-fill')) return;
+
+        if (selectedLandcover) {
+          map.setPaintProperty('landcover-fill', 'fill-opacity', [
+            'case',
+            ['==', ['get', 'id'], selectedLandcover], 0.4,
+            0.2
+          ]);
+          map.setPaintProperty('landcover-outline', 'line-width', [
+            'case',
+            ['==', ['get', 'id'], selectedLandcover], 3,
+            1.5
+          ]);
+        } else {
+          map.setPaintProperty('landcover-fill', 'fill-opacity', 0.2);
+          map.setPaintProperty('landcover-outline', 'line-width', 1.5);
+        }
+      }
+
+      // Show building panel with details
+      function showBuildingPanel(building) {
+        // Title: name → egid → #id
+        const title = building.name || building.egid || `#${building.id}`;
+        panelBuildingName.textContent = title;
+        panelBuildingLocation.textContent = 'Building';
+
+        const hasCoords = building.lat != null && building.lon != null;
+
+        // Build metrics HTML
+        const metrics = [
+          { label: 'EGID', value: building.egid || '–' }
+        ];
+
+        if (hasCoords) {
+          metrics.push({ label: 'Coordinates', value: `${building.lat.toFixed(5)}, ${building.lon.toFixed(5)}` });
+        }
+
+        panelMetrics.innerHTML = metrics.map(m => `
+          <div class="metric-row">
+            <span class="metric-label">${m.label}</span>
+            <span class="metric-value">${m.value}</span>
+          </div>
+        `).join('');
+
+        buildingPanel.classList.add('open');
+      }
+
+      // Show parcel panel with details
+      function showParcelPanel(parcel) {
+        // Title: egrid → #id
+        const title = parcel.egrid || `#${parcel.id}`;
+        panelBuildingName.textContent = title;
+        panelBuildingLocation.textContent = 'Parcel';
+
+        // Build metrics HTML
+        const metrics = [
+          { label: 'E-GRID', value: parcel.egrid || '–' },
+          { label: 'ID', value: parcel.id || '–' }
+        ];
+
+        // Add building reference if exists
+        if (parcel.building_id) {
+          metrics.push({ label: 'Building ID', value: parcel.building_id });
+        }
+
+        panelMetrics.innerHTML = metrics.map(m => `
+          <div class="metric-row">
+            <span class="metric-label">${m.label}</span>
+            <span class="metric-value">${m.value}</span>
+          </div>
+        `).join('');
+
+        buildingPanel.classList.add('open');
+      }
+
+      // Format landcover type for display (e.g., 'road_path' → 'Road/Path')
+      function formatLandcoverType(type) {
+        if (!type) return 'Unknown';
+
+        const typeLabels = {
+          'building': 'Building',
+          'hardened_area': 'Hardened Area',
+          'greenhouse': 'Greenhouse',
+          'perennial_culture_shelter': 'Perennial Culture Shelter',
+          'reservoir': 'Reservoir',
+          'other_hardened': 'Other Hardened',
+          'railway': 'Railway',
+          'road_path': 'Road/Path',
+          'field_meadow_pasture': 'Field/Meadow/Pasture',
+          'vineyard': 'Vineyard',
+          'other_intensive_culture': 'Other Intensive Culture',
+          'garden': 'Garden',
+          'moor': 'Moor',
+          'other_humusised': 'Other Humusised',
+          'standing_water': 'Standing Water',
+          'flowing_water': 'Flowing Water',
+          'reed_belt': 'Reed Belt',
+          'closed_forest': 'Closed Forest',
+          'dense_wooded_pasture': 'Dense Wooded Pasture',
+          'open_wooded_pasture': 'Open Wooded Pasture',
+          'other_wooded': 'Other Wooded',
+          'rock': 'Rock',
+          'glacier_firn': 'Glacier/Firn',
+          'gravel_sand': 'Gravel/Sand',
+          'quarry_dump': 'Quarry/Dump',
+          'other_unvegetated': 'Other Unvegetated'
+        };
+
+        return typeLabels[type] || type.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+      }
+
+      // Show landcover panel with details
+      function showLandcoverPanel(landcover) {
+        // Title: formatted type → #id
+        const title = formatLandcoverType(landcover.type) || `#${landcover.id}`;
+        panelBuildingName.textContent = title;
+        panelBuildingLocation.textContent = 'Landcover';
+
+        // Build metrics HTML
+        const metrics = [
+          { label: 'ID', value: landcover.id || '–' }
+        ];
+
+        // Add area if available
+        if (landcover.area_m2) {
+          metrics.push({ label: 'Area', value: `${landcover.area_m2.toLocaleString()} m²` });
+        }
+
+        panelMetrics.innerHTML = metrics.map(m => `
+          <div class="metric-row">
+            <span class="metric-label">${m.label}</span>
+            <span class="metric-value">${m.value}</span>
+          </div>
+        `).join('');
+
+        buildingPanel.classList.add('open');
+      }
+
+      // Close panel
+      function closeBuildingPanel() {
+        buildingPanel.classList.remove('open');
+        selectedBuilding = null;
+        selectedParcel = null;
+        selectedLandcover = null;
+        updateBuildingStyles();
+        updateParcelStyles();
+        updateLandcoverStyles();
+        updateUrlParams();
+      }
+
+      // Panel close button
+      closePanelBtn.addEventListener('click', closeBuildingPanel);
+
+      async function flyToBuilding(id) {
+        try {
+          const { data, error } = await db
+            .from('buildings')
+            .select('id, name, egid, geog')
+            .eq('id', id)
+            .single();
+
+          if (error) throw error;
+
+          if (data && data.geog) {
+            const geojson = wkbToGeoJSON(data.geog);
+            if (geojson) {
+              const [lon, lat] = geojson.coordinates;
+
+              map.flyTo({
+                center: [lon, lat],
+                zoom: 14,
+                duration: 1500
+              });
+
+              showBuildingPanel({
+                id: data.id,
+                name: data.name,
+                egid: data.egid,
+                lon,
+                lat
+              });
             }
+          }
+        } catch (err) {
+          console.error('Error flying to building:', err);
+        }
+      }
 
-            function updateCarousel(animate = true) {
-                const cardWidth = getCardWidth();
-                const offset = currentIndex * cardWidth;
-                carousel.style.transition = animate ? 'transform 0.3s ease' : 'none';
-                carousel.style.transform = `translateX(-${offset}px)`;
+      function goHome() {
+        map.fitBounds(SWITZERLAND_BOUNDS, {
+          padding: 40,
+          duration: 1000
+        });
+      }
+      
+      // ============================================
+      // Initialize
+      // ============================================
+      const urlParams = getUrlParams();
+      
+      // Apply URL params for initial selection
+      if (urlParams.building) selectedBuilding = urlParams.building;
+      if (urlParams.parcel) selectedParcel = urlParams.parcel;
+      if (urlParams.is3D) is3DMode = true;
+
+      // Set initial view from URL if provided
+      if (urlParams.zoom && urlParams.lon && urlParams.lat) {
+        map.setCenter([urlParams.lon, urlParams.lat]);
+        map.setZoom(urlParams.zoom);
+
+        // Create search marker if marker param is true
+        if (urlParams.marker) {
+          const el = document.createElement('div');
+          el.innerHTML = `
+            <svg width="32" height="40" viewBox="0 0 32 40" fill="none">
+              <path d="M16 0C7.163 0 0 7.163 0 16c0 12 16 24 16 24s16-12 16-24c0-8.837-7.163-16-16-16z" fill="#2563eb"/>
+              <circle cx="16" cy="16" r="6" fill="white"/>
+            </svg>
+          `;
+          el.style.cssText = 'cursor: pointer; transform: translate(-50%, -100%);';
+
+          searchMarker = new mapboxgl.Marker({ element: el })
+            .setLngLat([urlParams.lon, urlParams.lat])
+            .addTo(map);
+        }
+      }
+      
+      map.on('load', async () => {
+        // Add vector tile layers (no data fetching needed!)
+        // Layer order: parcels (bottom) -> landcover (middle) -> buildings (top)
+        addParcelsLayer();
+        addLandcoverLayer();
+        addBuildingsLayer();
+
+        // If no URL params, fit to Switzerland
+        if (!urlParams.zoom) {
+          map.fitBounds(SWITZERLAND_BOUNDS, { padding: 40, duration: 1000 });
+        }
+
+        // Load selected building/parcel from URL params
+        if (selectedBuilding) {
+          await fetchAndShowBuilding(selectedBuilding);
+        }
+        if (selectedParcel) {
+          await fetchAndShowParcel(selectedParcel);
+        }
+        updateBuildingStyles();
+        updateParcelStyles();
+
+        // Apply 3D mode from URL params
+        if (is3DMode) {
+          setup3DTerrain();
+          map.setPitch(60);
+          toggle3DButton.textContent = '2D';
+        }
+
+        loadingOverlay.classList.add('hidden');
+      });
+      
+      // Update URL on map move
+      map.on('moveend', updateUrlParams);
+      
+      // ============================================
+      // Home Button
+      // ============================================
+      const homeButton = document.getElementById('homeBtn');
+      homeButton.addEventListener('click', goHome);
+
+      // Compass button - reset north
+      const compassBtn = document.getElementById('compassBtn');
+      const compassSvg = compassBtn.querySelector('svg');
+
+      compassBtn.addEventListener('click', () => {
+        map.easeTo({ bearing: 0, pitch: 0, duration: 500 });
+      });
+
+      // Rotate compass with map bearing
+      map.on('rotate', () => {
+        const bearing = map.getBearing();
+        compassSvg.style.transform = `rotate(${-bearing}deg)`;
+      });
+      
+      // ============================================
+      // Basemap Selector
+      // ============================================
+      const basemapSelector = document.getElementById('basemapSelector');
+      const basemapToggle = document.getElementById('basemapToggle');
+      const basemapOptions = document.querySelectorAll('.basemap-option');
+      
+      // Toggle expand/collapse
+      basemapToggle.addEventListener('click', () => {
+        basemapSelector.classList.toggle('expanded');
+      });
+      
+      // Close when clicking outside
+      document.addEventListener('click', (e) => {
+        if (!basemapSelector.contains(e.target)) {
+          basemapSelector.classList.remove('expanded');
+        }
+      });
+      
+      basemapOptions.forEach(option => {
+        option.addEventListener('click', () => {
+          const style = option.dataset.style;
+          const styleClass = option.classList[1]; // light, streets, outdoors, satellite
+          
+          // Update active state
+          basemapOptions.forEach(o => o.classList.remove('active'));
+          option.classList.add('active');
+          
+          // Update toggle appearance
+          basemapToggle.className = 'basemap-toggle ' + styleClass;
+          
+          // Collapse selector
+          basemapSelector.classList.remove('expanded');
+          
+          // Change map style
+          map.setStyle(`mapbox://styles/mapbox/${style}`);
+        });
+      });
+      
+      // Re-add layers after style change
+      map.on('style.load', () => {
+        // Re-add vector tile layers in correct order
+        // Layer order: parcels (bottom) -> landcover (middle) -> buildings (top)
+        if (!map.getSource('parcels')) {
+          addParcelsLayer();
+        }
+        if (!map.getSource('landcover')) {
+          addLandcoverLayer();
+        }
+        if (!map.getSource('buildings')) {
+          addBuildingsLayer();
+        }
+        // Re-apply 3D mode if active
+        if (is3DMode) {
+          setup3DTerrain();
+        }
+      });
+
+      // ============================================
+      // 3D Toggle
+      // ============================================
+      const toggle3DButton = document.getElementById('toggle3DBtn');
+
+      function setup3DTerrain() {
+        // Add terrain source if not exists
+        if (!map.getSource('mapbox-dem')) {
+          map.addSource('mapbox-dem', {
+            type: 'raster-dem',
+            url: 'mapbox://mapbox.mapbox-terrain-dem-v1',
+            tileSize: 512,
+            maxzoom: 14
+          });
+        }
+
+        // Enable terrain
+        map.setTerrain({ source: 'mapbox-dem', exaggeration: 1.5 });
+
+        // Add sky layer for atmosphere
+        if (!map.getLayer('sky')) {
+          map.addLayer({
+            id: 'sky',
+            type: 'sky',
+            paint: {
+              'sky-type': 'atmosphere',
+              'sky-atmosphere-sun': [0.0, 90.0],
+              'sky-atmosphere-sun-intensity': 15
             }
+          });
+        }
 
-            function handleTransitionEnd() {
-                isTransitioning = false;
-                // If we've scrolled into the cloned section, jump back seamlessly
-                if (currentIndex >= cardCount) {
-                    currentIndex = currentIndex - cardCount;
-                    updateCarousel(false);
-                }
-                // If we've scrolled before the start, jump to the end seamlessly
-                if (currentIndex < 0) {
-                    currentIndex = currentIndex + cardCount;
-                    updateCarousel(false);
-                }
+        // Add 3D buildings layer
+        if (!map.getLayer('3d-buildings')) {
+          // Find the first symbol layer to insert before it
+          const layers = map.getStyle().layers;
+          let labelLayerId;
+          for (let i = 0; i < layers.length; i++) {
+            if (layers[i].type === 'symbol' && layers[i].layout['text-field']) {
+              labelLayerId = layers[i].id;
+              break;
             }
+          }
 
-            carousel.addEventListener('transitionend', handleTransitionEnd);
+          map.addLayer({
+            id: '3d-buildings',
+            source: 'composite',
+            'source-layer': 'building',
+            filter: ['==', 'extrude', 'true'],
+            type: 'fill-extrusion',
+            minzoom: 14,
+            paint: {
+              'fill-extrusion-color': '#ddd',
+              'fill-extrusion-height': ['get', 'height'],
+              'fill-extrusion-base': ['get', 'min_height'],
+              'fill-extrusion-opacity': 0.7
+            }
+          }, labelLayerId);
+        }
+      }
 
-            prevBtn.addEventListener('click', () => {
-                if (isTransitioning) return;
-                isTransitioning = true;
-                if (currentIndex === 0) {
-                    // Jump to cloned section (no animation), then animate back
-                    currentIndex = cardCount;
-                    updateCarousel(false);
-                    // Force reflow then animate
-                    carousel.offsetHeight;
-                }
-                currentIndex--;
-                updateCarousel(true);
+      function remove3DTerrain() {
+        // Disable terrain
+        map.setTerrain(null);
+
+        // Remove sky layer
+        if (map.getLayer('sky')) {
+          map.removeLayer('sky');
+        }
+
+        // Remove 3D buildings layer
+        if (map.getLayer('3d-buildings')) {
+          map.removeLayer('3d-buildings');
+        }
+      }
+
+      function toggle3D() {
+        is3DMode = !is3DMode;
+
+        if (is3DMode) {
+          setup3DTerrain();
+          // Pitch camera for 3D perspective
+          map.easeTo({ pitch: 60, duration: 1000 });
+          toggle3DButton.textContent = '2D';
+        } else {
+          remove3DTerrain();
+          // Reset camera to flat view
+          map.easeTo({ pitch: 0, duration: 1000 });
+          toggle3DButton.textContent = '3D';
+        }
+
+        updateUrlParams();
+      }
+
+      toggle3DButton.addEventListener('click', toggle3D);
+
+      // ============================================
+      // Swisstopo Search
+      // ============================================
+      const searchInput = document.getElementById('searchInput');
+      const searchClear = document.getElementById('searchClear');
+      const searchDropdown = document.getElementById('searchDropdown');
+      const locationsSection = document.getElementById('locationsSection');
+      const locationsResults = document.getElementById('locationsResults');
+      const layersSection = document.getElementById('layersSection');
+      const layersResults = document.getElementById('layersResults');
+      const searchInputWrapper = searchInput.parentElement;
+
+      let searchDebounceTimer = null;
+      
+      // Debounced search
+      function debounce(fn, delay) {
+        return (...args) => {
+          clearTimeout(searchDebounceTimer);
+          searchDebounceTimer = setTimeout(() => fn(...args), delay);
+        };
+      }
+      
+      // Search API call
+      async function searchSwisstopo(query) {
+        if (!query || query.length < 2) {
+          closeSearchDropdown();
+          return;
+        }
+        
+        try {
+          const url = `https://api3.geo.admin.ch/rest/services/ech/SearchServer?searchText=${encodeURIComponent(query)}&type=locations&type=layers&lang=de&sr=4326`;
+          const response = await fetch(url);
+          const data = await response.json();
+          
+          displaySearchResults(data.results, query);
+        } catch (err) {
+          console.error('Search error:', err);
+        }
+      }
+      
+      // Highlight matching text
+      function highlightMatch(text, query) {
+        if (!text) return '';
+        const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+        return text.replace(regex, '<mark>$1</mark>');
+      }
+      
+      // Display results
+      function displaySearchResults(results, query) {
+        const locations = results.filter(r => r.attrs.origin === 'address' || r.attrs.origin === 'zipcode' || r.attrs.origin === 'sn25' || r.attrs.origin === 'gg25' || r.attrs.origin === 'district' || r.attrs.origin === 'canton' || r.attrs.origin === 'gazetteer');
+        const layers = results.filter(r => r.attrs.origin === 'layer');
+        
+        // Clear previous results
+        locationsResults.innerHTML = '';
+        layersResults.innerHTML = '';
+        
+        // Locations
+        if (locations.length > 0) {
+          locationsSection.classList.add('has-results');
+          locations.slice(0, 10).forEach(loc => {
+            const item = document.createElement('div');
+            item.className = 'search-result-item';
+            item.innerHTML = highlightMatch(loc.attrs.label.replace(/<[^>]*>/g, ''), query);
+            item.addEventListener('click', () => {
+              goToLocation(loc);
             });
-
-            nextBtn.addEventListener('click', () => {
-                if (isTransitioning) return;
-                isTransitioning = true;
-                currentIndex++;
-                updateCarousel(true);
-            });
-
-            // Initial setup
-            updateCarousel(false);
-
-            // Re-initialize Lucide icons for cloned cards
-            if (window.lucide) {
-                lucide.createIcons();
-            }
-        })();
-    </script>
+            locationsResults.appendChild(item);
+          });
+        } else {
+          locationsSection.classList.remove('has-results');
+        }
+        
+        // Layers (disabled for now)
+        if (layers.length > 0) {
+          layersSection.classList.add('has-results');
+          layers.slice(0, 10).forEach(layer => {
+            const item = document.createElement('div');
+            item.className = 'search-result-item disabled';
+            item.innerHTML = highlightMatch(layer.attrs.label.replace(/<[^>]*>/g, ''), query);
+            layersResults.appendChild(item);
+          });
+        } else {
+          layersSection.classList.remove('has-results');
+        }
+        
+        // Show dropdown if we have results
+        if (locations.length > 0 || layers.length > 0) {
+          searchDropdown.classList.add('open');
+        } else {
+          closeSearchDropdown();
+        }
+      }
+      
+      // Go to location
+      function goToLocation(loc) {
+        // With sr=4326, y=lat, x=lon in WGS84
+        const lon = loc.attrs.x;
+        const lat = loc.attrs.y;
+        
+        // Remove existing search marker
+        if (searchMarker) {
+          searchMarker.remove();
+        }
+        
+        // Create new search marker (different style from building markers)
+        const el = document.createElement('div');
+        el.innerHTML = `
+          <svg width="32" height="40" viewBox="0 0 32 40" fill="none">
+            <path d="M16 0C7.163 0 0 7.163 0 16c0 12 16 24 16 24s16-12 16-24c0-8.837-7.163-16-16-16z" fill="#2563eb"/>
+            <circle cx="16" cy="16" r="6" fill="white"/>
+          </svg>
+        `;
+        el.style.cssText = 'cursor: pointer; transform: translate(-50%, -100%);';
+        
+        searchMarker = new mapboxgl.Marker({ element: el })
+          .setLngLat([lon, lat])
+          .addTo(map);
+        
+        // Fly to location
+        map.flyTo({
+          center: [lon, lat],
+          zoom: 17,
+          duration: 1500
+        });
+        
+        closeSearchDropdown();
+      }
+      
+      function closeSearchDropdown() {
+        searchDropdown.classList.remove('open');
+      }
+      
+      // Input handlers
+      const debouncedSearch = debounce(searchSwisstopo, 300);
+      
+      searchInput.addEventListener('input', (e) => {
+        const value = e.target.value.trim();
+        
+        if (value) {
+          searchInputWrapper.classList.add('has-value');
+        } else {
+          searchInputWrapper.classList.remove('has-value');
+        }
+        
+        debouncedSearch(value);
+      });
+      
+      searchInput.addEventListener('focus', () => {
+        if (searchInput.value.trim().length >= 2) {
+          debouncedSearch(searchInput.value.trim());
+        }
+      });
+      
+      searchClear.addEventListener('click', () => {
+        searchInput.value = '';
+        searchInputWrapper.classList.remove('has-value');
+        closeSearchDropdown();
+        searchInput.focus();
+      });
+      
+      // Close dropdown on outside click
+      document.addEventListener('click', (e) => {
+        if (!e.target.closest('.search-container')) {
+          closeSearchDropdown();
+        }
+      });
+      
+      // Close on escape
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          closeSearchDropdown();
+          searchInput.blur();
+        }
+      });
+    }
+  </script>
 </body>
 </html>
