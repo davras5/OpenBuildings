@@ -14,7 +14,7 @@
 
 ## Overview
 
-OpenBuildings is developed and maintained by the **Department for Digital Real Estate at the Federal Office of Buildings and Logistics (FOBL / BBL)**. While the project primarily supports internal federal needs, it is published openly to enable reuse, transparency, and collaboration beyond organisational boundaries.
+OpenBuildings is developed and maintained by the Department for Digital Real Estate at the Federal Office of Buildings and Logistics (FOBL / BBL). While the project primarily supports internal federal needs, it is published openly to enable reuse, transparency, and collaboration beyond organisational boundaries.
 
 **Important:** The Federal Office does **not own the underlying data** and cannot guarantee its correctness. We aggregate, harmonise, and link data from official sources. The authoritative data owner for each dataset can be found in our tools and data documentation or at [https://opendata.swiss/de](https://opendata.swiss/de).
 
