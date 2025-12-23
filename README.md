@@ -131,7 +131,7 @@ Primary access via the **Federal Spatial Data Infrastructure (FSDI)** / geo.admi
 | Source           | Provider  | Content                         |
 | ---------------- | --------- | ------------------------------- |
 | GWR              | BFS       | Building attributes & addresses |
-| AV               | Cantons   | Parcels, footprints, landcover  |
+| Geodienste.ch / AV | Cantons   | Parcels, footprints, landcover  |
 | swissALTI3D      | swisstopo | Terrain model (DTM)             |
 | swissSURFACE3D   | swisstopo | Surface model (DSM)             |
 | swissBUILDINGS3D | swisstopo | 3D building models              |
