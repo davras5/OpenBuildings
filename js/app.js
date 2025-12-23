@@ -265,19 +265,35 @@ async function init() {
     searchMarker: null
   };
 
+  /**
+   * Create a search marker element (blue pin with white center)
+   * @returns {HTMLDivElement} The marker element
+   */
+  function createSearchMarkerElement() {
+    const el = document.createElement('div');
+    el.innerHTML = `
+      <svg width="32" height="40" viewBox="0 0 32 40" fill="none">
+        <path d="M16 0C7.163 0 0 7.163 0 16c0 12 16 24 16 24s16-12 16-24c0-8.837-7.163-16-16-16z" fill="#2563eb"/>
+        <circle cx="16" cy="16" r="6" fill="white"/>
+      </svg>
+    `;
+    el.style.cssText = 'cursor: pointer; transform: translate(-50%, -100%);';
+    return el;
+  }
+
   // ============================================
   // Layer Event Handlers (named functions for cleanup)
   // ============================================
+  // Shared cursor handlers to avoid duplication
+  const cursorHandlers = {
+    mouseenter: () => { map.getCanvas().style.cursor = 'pointer'; },
+    mouseleave: () => { map.getCanvas().style.cursor = ''; }
+  };
+
   // Storing handlers allows us to remove them when layers are re-added
   const layerHandlers = {
-    parcels: {
-      mouseenter: () => { map.getCanvas().style.cursor = 'pointer'; },
-      mouseleave: () => { map.getCanvas().style.cursor = ''; }
-    },
-    landcover: {
-      mouseenter: () => { map.getCanvas().style.cursor = 'pointer'; },
-      mouseleave: () => { map.getCanvas().style.cursor = ''; }
-    },
+    parcels: cursorHandlers,
+    landcover: cursorHandlers,
     buildings: {
       click: (e) => {
         state.markerClickHandled = true;
@@ -286,31 +302,25 @@ async function init() {
         selectBuilding(props.id, coords);
         setTimeout(() => { state.markerClickHandled = false; }, UI_TIMING.clickDebounce);
       },
-      mouseenter: () => { map.getCanvas().style.cursor = 'pointer'; },
-      mouseleave: () => { map.getCanvas().style.cursor = ''; }
+      ...cursorHandlers
     }
   };
 
-  /** Remove layer event handlers before re-adding layers */
-  function removeLayerHandlers(layerName, layerId) {
+  /**
+   * Add or remove layer event handlers
+   * @param {'add'|'remove'} action - Whether to add or remove handlers
+   * @param {string} layerName - Name in layerHandlers object (parcels, landcover, buildings)
+   * @param {string} layerId - Map layer ID to attach handlers to
+   */
+  function manageLayerHandlers(action, layerName, layerId) {
     const handlers = layerHandlers[layerName];
     if (!handlers) return;
 
+    const method = action === 'add' ? 'on' : 'off';
     Object.entries(handlers).forEach(([event, handler]) => {
-      map.off(event, layerId, handler);
+      map[method](event, layerId, handler);
     });
-    debugLog(`Removed handlers for ${layerId}`);
-  }
-
-  /** Add layer event handlers */
-  function addLayerHandlers(layerName, layerId) {
-    const handlers = layerHandlers[layerName];
-    if (!handlers) return;
-
-    Object.entries(handlers).forEach(([event, handler]) => {
-      map.on(event, layerId, handler);
-    });
-    debugLog(`Added handlers for ${layerId}`);
+    debugLog(`${action === 'add' ? 'Added' : 'Removed'} handlers for ${layerId}`);
   }
 
   // ============================================
@@ -396,17 +406,48 @@ async function init() {
 
   // NOTE: fetchBuildings() and fetchParcels() removed - data now served via vector tiles
 
-  function addParcelsLayer() {
+  // Layer configurations for polygon layers (parcels, landcover)
+  const polygonLayerConfigs = {
+    parcels: {
+      name: 'parcels',
+      fillColor: '#1e3a5f',      // Deep Blue default
+      outlineColor: '#1e3a5f',
+      selectedColor: '#059669',  // Green when selected
+      fillOpacity: 0.1,
+      selectedFillOpacity: 0.25,
+      getSelectedId: () => state.selectedParcel
+    },
+    landcover: {
+      name: 'landcover',
+      fillColor: '#8b5cf6',      // Purple default
+      outlineColor: '#7c3aed',   // Darker purple for outline
+      selectedColor: '#059669',  // Green when selected
+      fillOpacity: 0.2,
+      selectedFillOpacity: 0.4,
+      getSelectedId: () => state.selectedLandcover
+    }
+  };
+
+  /**
+   * Add a polygon vector tile layer (parcels or landcover)
+   * @param {string} layerName - Name of the layer config to use
+   */
+  function addPolygonLayer(layerName) {
+    const config = polygonLayerConfigs[layerName];
+    if (!config) return;
+
+    const { name, fillColor, outlineColor, selectedColor, fillOpacity, selectedFillOpacity, getSelectedId } = config;
+
     // Skip if source already exists
-    if (map.getSource('parcels')) return;
+    if (map.getSource(name)) return;
 
     // Remove any existing handlers (prevents memory leaks on style change)
-    removeLayerHandlers('parcels', 'parcels-fill');
+    manageLayerHandlers('remove', name, `${name}-fill`);
 
-    // Add vector tile source for parcels
-    map.addSource('parcels', {
+    // Add vector tile source
+    map.addSource(name, {
       type: 'vector',
-      tiles: [`${TILE_SERVER}/parcels/{z}/{x}/{y}.pbf`],
+      tiles: [`${TILE_SERVER}/${name}/{z}/{x}/{y}.pbf`],
       minzoom: 10,
       maxzoom: 14,
       bounds: SWITZERLAND_BOUNDS
@@ -414,110 +455,57 @@ async function init() {
 
     // Add fill layer
     map.addLayer({
-      id: 'parcels-fill',
+      id: `${name}-fill`,
       type: 'fill',
-      source: 'parcels',
-      'source-layer': 'parcels',
+      source: name,
+      'source-layer': name,
       minzoom: 12,
       paint: {
         'fill-color': [
           'case',
-          ['==', ['get', 'id'], state.selectedParcel || -1], '#059669', // Green when selected
-          '#1e3a5f' // Deep Blue default
+          ['==', ['get', 'id'], getSelectedId() || -1], selectedColor,
+          fillColor
         ],
         'fill-opacity': [
           'case',
-          ['==', ['get', 'id'], state.selectedParcel || -1], 0.3,
-          0.1
+          ['==', ['get', 'id'], getSelectedId() || -1], selectedFillOpacity,
+          fillOpacity
         ]
       }
     });
 
     // Add outline layer
     map.addLayer({
-      id: 'parcels-outline',
+      id: `${name}-outline`,
       type: 'line',
-      source: 'parcels',
-      'source-layer': 'parcels',
+      source: name,
+      'source-layer': name,
       minzoom: 12,
       paint: {
         'line-color': [
           'case',
-          ['==', ['get', 'id'], state.selectedParcel || -1], '#059669',
-          '#1e3a5f'
+          ['==', ['get', 'id'], getSelectedId() || -1], selectedColor,
+          outlineColor
         ],
         'line-width': [
           'case',
-          ['==', ['get', 'id'], state.selectedParcel || -1], 3,
+          ['==', ['get', 'id'], getSelectedId() || -1], 3,
           1.5
         ]
       }
     });
 
     // Add hover effect (using named handlers for cleanup)
-    addLayerHandlers('parcels', 'parcels-fill');
+    manageLayerHandlers('add', name, `${name}-fill`);
+  }
+
+  // Convenience wrappers for backward compatibility
+  function addParcelsLayer() {
+    addPolygonLayer('parcels');
   }
 
   function addLandcoverLayer() {
-    // Skip if source already exists
-    if (map.getSource('landcover')) return;
-
-    // Remove any existing handlers (prevents memory leaks on style change)
-    removeLayerHandlers('landcover', 'landcover-fill');
-
-    // Add vector tile source for landcover
-    map.addSource('landcover', {
-      type: 'vector',
-      tiles: [`${TILE_SERVER}/landcover/{z}/{x}/{y}.pbf`],
-      minzoom: 10,
-      maxzoom: 14,
-      bounds: SWITZERLAND_BOUNDS
-    });
-
-    // Add flat fill layer (extrusion only in 3D mode)
-    map.addLayer({
-      id: 'landcover-fill',
-      type: 'fill',
-      source: 'landcover',
-      'source-layer': 'landcover',
-      minzoom: 12,
-      paint: {
-        'fill-color': [
-          'case',
-          ['==', ['get', 'id'], state.selectedLandcover || -1], '#059669', // Green when selected
-          '#8b5cf6' // Purple default for landcover
-        ],
-        'fill-opacity': [
-          'case',
-          ['==', ['get', 'id'], state.selectedLandcover || -1], 0.4,
-          0.2
-        ]
-      }
-    });
-
-    // Add outline layer
-    map.addLayer({
-      id: 'landcover-outline',
-      type: 'line',
-      source: 'landcover',
-      'source-layer': 'landcover',
-      minzoom: 12,
-      paint: {
-        'line-color': [
-          'case',
-          ['==', ['get', 'id'], state.selectedLandcover || -1], '#059669',
-          '#7c3aed' // Darker purple for outline
-        ],
-        'line-width': [
-          'case',
-          ['==', ['get', 'id'], state.selectedLandcover || -1], 3,
-          1.5
-        ]
-      }
-    });
-
-    // Add hover effect (using named handlers for cleanup)
-    addLayerHandlers('landcover', 'landcover-fill');
+    addPolygonLayer('landcover');
   }
 
   async function addSwitzerlandBorder() {
@@ -554,7 +542,7 @@ async function init() {
     if (map.getSource('buildings')) return;
 
     // Remove any existing handlers (prevents memory leaks on style change)
-    removeLayerHandlers('buildings', 'unclustered-point');
+    manageLayerHandlers('remove', 'buildings', 'unclustered-point');
 
     // Add vector tile source (streams data on-demand)
     map.addSource('buildings', {
@@ -622,7 +610,7 @@ async function init() {
     });
 
     // Add click and hover handlers (using named handlers for cleanup)
-    addLayerHandlers('buildings', 'unclustered-point');
+    manageLayerHandlers('add', 'buildings', 'unclustered-point');
   }
 
   function updateBuildingStyles() {
@@ -650,32 +638,42 @@ async function init() {
     ]);
   }
 
-  async function selectBuilding(id, coords = null) {
-    state.selectedBuilding = id;
-    state.selectedParcel = null;
-    state.selectedLandcover = null;
+  /**
+   * Select a feature and update state/UI accordingly
+   * @param {'building'|'parcel'|'landcover'} featureType - Type of feature
+   * @param {number} id - Feature ID
+   * @param {Array} [coords] - Optional coordinates (for buildings from click events)
+   */
+  async function selectFeature(featureType, id, coords = null) {
+    // Clear all selections, then set the selected one
+    state.selectedBuilding = featureType === 'building' ? id : null;
+    state.selectedParcel = featureType === 'parcel' ? id : null;
+    state.selectedLandcover = featureType === 'landcover' ? id : null;
+
     updateUrlParams();
-    // For buildings, pass coords directly since showSelectedPanel doesn't have them
     updateBuildingStyles();
     updateParcelStyles();
     updateLandcoverStyles();
-    await fetchAndShowBuilding(id, coords);
+
+    // For buildings with coords, fetch directly; otherwise use showSelectedPanel
+    if (featureType === 'building' && coords) {
+      await fetchAndShowFeature('building', id, coords);
+    } else {
+      await showSelectedPanel();
+    }
+  }
+
+  // Convenience wrappers for backward compatibility
+  async function selectBuilding(id, coords = null) {
+    await selectFeature('building', id, coords);
   }
 
   async function selectParcel(id) {
-    state.selectedParcel = id;
-    state.selectedBuilding = null;
-    state.selectedLandcover = null;
-    updateUrlParams();
-    await showSelectedPanel();
+    await selectFeature('parcel', id);
   }
 
   async function selectLandcover(id) {
-    state.selectedLandcover = id;
-    state.selectedBuilding = null;
-    state.selectedParcel = null;
-    updateUrlParams();
-    await showSelectedPanel();
+    await selectFeature('landcover', id);
   }
 
   // Single function to show panel based on what's selected (from URL params)
@@ -685,133 +683,121 @@ async function init() {
     updateLandcoverStyles();
 
     if (state.selectedBuilding) {
-      await fetchAndShowBuilding(state.selectedBuilding);
+      await fetchAndShowFeature('building', state.selectedBuilding);
     } else if (state.selectedLandcover) {
-      await fetchAndShowLandcover(state.selectedLandcover);
+      await fetchAndShowFeature('landcover', state.selectedLandcover);
     } else if (state.selectedParcel) {
-      await fetchAndShowParcel(state.selectedParcel);
+      await fetchAndShowFeature('parcel', state.selectedParcel);
     }
   }
 
-  // Fetch building from Supabase and show panel
-  async function fetchAndShowBuilding(id, coords = null) {
+  // Feature fetch configurations
+  const featureConfigs = {
+    building: {
+      table: 'buildings',
+      select: 'id, name, egid, geog',
+      showPanel: showBuildingPanel,
+      errorMsg: 'Failed to load building details. Please try again.'
+    },
+    parcel: {
+      table: 'parcels',
+      select: 'id, name, egrid, building_id',
+      showPanel: showParcelPanel,
+      errorMsg: 'Failed to load parcel details. Please try again.'
+    },
+    landcover: {
+      table: 'landcover',
+      select: 'id, egid, created_at',
+      showPanel: showLandcoverPanel,
+      errorMsg: 'Failed to load landcover details. Please try again.'
+    }
+  };
+
+  /**
+   * Fetch feature from Supabase and show panel
+   * @param {'building'|'parcel'|'landcover'} featureType - Type of feature
+   * @param {number} id - Feature ID
+   * @param {Array} [coords] - Optional coordinates (for buildings from click events)
+   */
+  async function fetchAndShowFeature(featureType, id, coords = null) {
+    const config = featureConfigs[featureType];
+    if (!config) return;
+
     try {
       const { data, error } = await db
-        .from('buildings')
-        .select('id, name, egid, geog')
+        .from(config.table)
+        .select(config.select)
         .eq('id', id)
         .single();
 
       if (error) throw error;
 
       if (data) {
-        // Parse coordinates from geog if available
-        let lon, lat;
-        if (coords) {
-          [lon, lat] = coords;
-        } else if (data.geog) {
-          const geojson = wkbToGeoJSON(data.geog);
-          if (geojson) {
-            lon = geojson.coordinates[0];
-            lat = geojson.coordinates[1];
+        // Special handling for buildings: parse coordinates
+        if (featureType === 'building') {
+          let lon, lat;
+          if (coords) {
+            [lon, lat] = coords;
+          } else if (data.geog) {
+            const geojson = wkbToGeoJSON(data.geog);
+            if (geojson) {
+              lon = geojson.coordinates[0];
+              lat = geojson.coordinates[1];
+            }
           }
+          config.showPanel({ ...data, lon, lat });
+        } else {
+          config.showPanel(data);
         }
-
-        showBuildingPanel({
-          id: data.id,
-          name: data.name,
-          egid: data.egid,
-          lon,
-          lat
-        });
       }
     } catch (err) {
-      console.error('Error fetching building:', err);
-      showToast('Failed to load building details. Please try again.', 'error');
+      console.error(`Error fetching ${featureType}:`, err);
+      showToast(config.errorMsg, 'error');
     }
   }
 
-  // Fetch parcel from Supabase and show panel
-  async function fetchAndShowParcel(id) {
-    try {
-      const { data, error } = await db
-        .from('parcels')
-        .select('id, name, egrid, building_id')
-        .eq('id', id)
-        .single();
+  /**
+   * Update polygon layer styles based on selection state
+   * @param {'parcels'|'landcover'} layerName - Name of the layer to update
+   */
+  function updatePolygonStyles(layerName) {
+    if (!map.getLayer(`${layerName}-fill`)) return;
 
-      if (error) throw error;
+    const config = polygonLayerConfigs[layerName];
+    const selectedId = config.getSelectedId();
 
-      if (data) {
-        showParcelPanel(data);
-      }
-    } catch (err) {
-      console.error('Error fetching parcel:', err);
-      showToast('Failed to load parcel details. Please try again.', 'error');
-    }
-  }
+    // Landcover in 3D mode uses fill-extrusion-opacity, otherwise fill-opacity
+    const is3DLandcover = layerName === 'landcover' && state.is3DMode;
+    const opacityProp = is3DLandcover ? 'fill-extrusion-opacity' : 'fill-opacity';
 
-  // Fetch landcover from Supabase and show panel
-  async function fetchAndShowLandcover(id) {
-    try {
-      const { data, error } = await db
-        .from('landcover')
-        .select('id, egid, created_at')
-        .eq('id', id)
-        .single();
+    // Adjust opacity values for 3D mode (higher visibility needed)
+    const selectedOpacity = is3DLandcover ? 0.6 : config.selectedFillOpacity;
+    const defaultOpacity = is3DLandcover ? 0.4 : config.fillOpacity;
 
-      if (error) throw error;
-
-      if (data) {
-        showLandcoverPanel(data);
-      }
-    } catch (err) {
-      console.error('Error fetching landcover:', err);
-      showToast('Failed to load landcover details. Please try again.', 'error');
-    }
-  }
-
-  function updateParcelStyles() {
-    if (!map.getLayer('parcels-fill')) return;
-
-    if (state.selectedParcel) {
-      map.setPaintProperty('parcels-fill', 'fill-opacity', [
+    if (selectedId) {
+      map.setPaintProperty(`${layerName}-fill`, opacityProp, [
         'case',
-        ['==', ['get', 'id'], state.selectedParcel], 0.25,
-        0.1
+        ['==', ['get', 'id'], selectedId], selectedOpacity,
+        defaultOpacity
       ]);
-      map.setPaintProperty('parcels-outline', 'line-width', [
+      map.setPaintProperty(`${layerName}-outline`, 'line-width', [
         'case',
-        ['==', ['get', 'id'], state.selectedParcel], 3,
+        ['==', ['get', 'id'], selectedId], 3,
         1.5
       ]);
     } else {
-      map.setPaintProperty('parcels-fill', 'fill-opacity', 0.1);
-      map.setPaintProperty('parcels-outline', 'line-width', 1.5);
+      map.setPaintProperty(`${layerName}-fill`, opacityProp, defaultOpacity);
+      map.setPaintProperty(`${layerName}-outline`, 'line-width', 1.5);
     }
+  }
+
+  // Convenience wrappers for backward compatibility
+  function updateParcelStyles() {
+    updatePolygonStyles('parcels');
   }
 
   function updateLandcoverStyles() {
-    if (!map.getLayer('landcover-fill')) return;
-
-    // Use appropriate property based on layer type
-    const opacityProp = state.is3DMode ? 'fill-extrusion-opacity' : 'fill-opacity';
-
-    if (state.selectedLandcover) {
-      map.setPaintProperty('landcover-fill', opacityProp, [
-        'case',
-        ['==', ['get', 'id'], state.selectedLandcover], state.is3DMode ? 0.6 : 0.4,
-        state.is3DMode ? 0.4 : 0.2
-      ]);
-      map.setPaintProperty('landcover-outline', 'line-width', [
-        'case',
-        ['==', ['get', 'id'], state.selectedLandcover], 3,
-        1.5
-      ]);
-    } else {
-      map.setPaintProperty('landcover-fill', opacityProp, state.is3DMode ? 0.4 : 0.2);
-      map.setPaintProperty('landcover-outline', 'line-width', 1.5);
-    }
+    updatePolygonStyles('landcover');
   }
 
   // ============================================
@@ -963,16 +949,7 @@ async function init() {
 
   // Create search marker if marker param is true and coordinates provided
   if (urlParams.marker && urlParams.lon !== null && urlParams.lat !== null) {
-    const el = document.createElement('div');
-    el.innerHTML = `
-      <svg width="32" height="40" viewBox="0 0 32 40" fill="none">
-        <path d="M16 0C7.163 0 0 7.163 0 16c0 12 16 24 16 24s16-12 16-24c0-8.837-7.163-16-16-16z" fill="#2563eb"/>
-        <circle cx="16" cy="16" r="6" fill="white"/>
-      </svg>
-    `;
-    el.style.cssText = 'cursor: pointer; transform: translate(-50%, -100%);';
-
-    state.searchMarker = new maplibregl.Marker({ element: el })
+    state.searchMarker = new maplibregl.Marker({ element: createSearchMarkerElement() })
       .setLngLat([urlParams.lon, urlParams.lat])
       .addTo(map);
   }
@@ -1111,6 +1088,51 @@ async function init() {
   // ============================================
   const toggle3DButton = document.getElementById('toggle3DBtn');
 
+  /**
+   * Convert landcover layer between flat fill and 3D fill-extrusion
+   * @param {boolean} is3D - Whether to use 3D fill-extrusion or flat fill
+   */
+  function setLandcoverLayerType(is3D) {
+    if (!map.getLayer('landcover-fill')) return;
+
+    try {
+      const beforeLayer = map.getLayer('landcover-outline') ? 'landcover-outline' : undefined;
+      const config = polygonLayerConfigs.landcover;
+
+      map.removeLayer('landcover-fill');
+      map.addLayer({
+        id: 'landcover-fill',
+        type: is3D ? 'fill-extrusion' : 'fill',
+        source: 'landcover',
+        'source-layer': 'landcover',
+        minzoom: 12,
+        paint: is3D ? {
+          'fill-extrusion-color': [
+            'case',
+            ['==', ['get', 'id'], state.selectedLandcover || -1], config.selectedColor,
+            config.fillColor
+          ],
+          'fill-extrusion-height': 10,
+          'fill-extrusion-base': 0,
+          'fill-extrusion-opacity': 0.8
+        } : {
+          'fill-color': [
+            'case',
+            ['==', ['get', 'id'], state.selectedLandcover || -1], config.selectedColor,
+            config.fillColor
+          ],
+          'fill-opacity': [
+            'case',
+            ['==', ['get', 'id'], state.selectedLandcover || -1], config.selectedFillOpacity,
+            config.fillOpacity
+          ]
+        }
+      }, beforeLayer);
+    } catch (err) {
+      debugWarn(`Failed to ${is3D ? 'add' : 'restore'} landcover fill:`, err);
+    }
+  }
+
   function setup3DTerrain() {
     // Add AWS Terrarium terrain source if not exists
     if (!map.getSource('terrain-dem')) {
@@ -1135,34 +1157,8 @@ async function init() {
       debugWarn('Failed to enable terrain:', err);
     }
 
-    // Convert landcover (building footprints) to fill-extrusion for 3D view
-    if (map.getLayer('landcover-fill')) {
-      try {
-        // Get the outline layer position if it exists
-        const beforeLayer = map.getLayer('landcover-outline') ? 'landcover-outline' : undefined;
-
-        map.removeLayer('landcover-fill');
-        map.addLayer({
-          id: 'landcover-fill',
-          type: 'fill-extrusion',
-          source: 'landcover',
-          'source-layer': 'landcover',
-          minzoom: 12,
-          paint: {
-            'fill-extrusion-color': [
-              'case',
-              ['==', ['get', 'id'], state.selectedLandcover || -1], '#059669',
-              '#8b5cf6'
-            ],
-            'fill-extrusion-height': 10,
-            'fill-extrusion-base': 0,
-            'fill-extrusion-opacity': 0.8
-          }
-        }, beforeLayer);
-      } catch (err) {
-        debugWarn('Failed to add landcover fill-extrusion:', err);
-      }
-    }
+    // Convert landcover to fill-extrusion for 3D view
+    setLandcoverLayerType(true);
   }
 
   function remove3DTerrain() {
@@ -1170,34 +1166,7 @@ async function init() {
     map.setTerrain(null);
 
     // Convert landcover back to flat fill
-    if (map.getLayer('landcover-fill')) {
-      try {
-        const beforeLayer = map.getLayer('landcover-outline') ? 'landcover-outline' : undefined;
-
-        map.removeLayer('landcover-fill');
-        map.addLayer({
-          id: 'landcover-fill',
-          type: 'fill',
-          source: 'landcover',
-          'source-layer': 'landcover',
-          minzoom: 12,
-          paint: {
-            'fill-color': [
-              'case',
-              ['==', ['get', 'id'], state.selectedLandcover || -1], '#059669',
-              '#8b5cf6'
-            ],
-            'fill-opacity': [
-              'case',
-              ['==', ['get', 'id'], state.selectedLandcover || -1], 0.4,
-              0.2
-            ]
-          }
-        }, beforeLayer);
-      } catch (err) {
-        debugWarn('Failed to restore landcover fill:', err);
-      }
-    }
+    setLandcoverLayerType(false);
   }
 
   function toggle3D() {
@@ -1352,17 +1321,8 @@ async function init() {
       state.searchMarker.remove();
     }
 
-    // Create new search marker (different style from building markers)
-    const el = document.createElement('div');
-    el.innerHTML = `
-      <svg width="32" height="40" viewBox="0 0 32 40" fill="none">
-        <path d="M16 0C7.163 0 0 7.163 0 16c0 12 16 24 16 24s16-12 16-24c0-8.837-7.163-16-16-16z" fill="#2563eb"/>
-        <circle cx="16" cy="16" r="6" fill="white"/>
-      </svg>
-    `;
-    el.style.cssText = 'cursor: pointer; transform: translate(-50%, -100%);';
-
-    state.searchMarker = new maplibregl.Marker({ element: el })
+    // Create new search marker
+    state.searchMarker = new maplibregl.Marker({ element: createSearchMarkerElement() })
       .setLngLat([lon, lat])
       .addTo(map);
 
