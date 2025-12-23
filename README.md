@@ -62,9 +62,9 @@ OpenBuildings is built entirely on **publicly available data** from authoritativ
 
 | Component            | Description                                       |
 | -------------------- | ------------------------------------------------- |
-| **Web App**          | Static frontend for exploration and visualization |
+| **Web App**          | Single page Vanilla JS frontend + MapLibre GL JS and Protomaps to visualize geospatial data |
 | **Backend**          | PostgreSQL + PostGIS with REST API (Supabase)     |
-| **Processing Tools** | Python, SQL & FME workers for data enrichment     |
+| **Data Processing Tools** | Python, SQL & FME workers for data enrichment     |
 
 ```mermaid
 flowchart BT
