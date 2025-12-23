@@ -93,9 +93,9 @@ Public data. Public methods. Public value — multiplied.
 
 | Tool                                            | Status         | Purpose                                                           |
 | ----------------------------------------------- | -------------- | ----------------------------------------------------------------- |
-| [**Base Worker**](tools/base-worker/)           | Available      | Aggregate foundational, structural & master data                  |
-| [**Volume Estimator**](tools/volume-estimator/) | Available      | Calculate building volumes from terrain & surface models          |
-| [**Roof Estimator**](tools/roof-estimator/)     | In development | Derive roof characteristics                                       |
+| [**Base Worker**](tools/base-worker/)           | Available      | Aggregates core data like IDs, geometry and messurements     |
+| [**Volume Estimator**](tools/volume-estimator/) | Available      | Calculates building volumes from terrain & surface models          |
+| [**Roof Estimator**](tools/roof-estimator/)     | In development | Derives roof characteristics                                       |
 | **Biodiversity**                                | Idea           | Green roof detection and biodiversity index per parcel            |
 | **Carbon Risks**                                | Idea           | Ready to use location data for carbon risks                       |
 | **Environmental Risks**                         | Idea           | Ready to use location data for environmental risks                |
