@@ -36,6 +36,7 @@ erDiagram
     parcels {
         bigint id PK
         text egrid UK
+        text egid
         text parcel_number
         geography geog
     }
@@ -186,6 +187,7 @@ Land parcels from cadastral survey.
 |--------|------------|------------|------|-------------|--------|-------------|
 | `id` | ID | ID | `bigint` | `PRIMARY KEY, GENERATED ALWAYS AS IDENTITY` | System | System ID |
 | `egrid` | Parcel ID | Grundstückidentifikator | `text` | `UNIQUE, CHECK (egrid ~ '^CH[0-9]{12}$')` | AV | E-GRID identifier |
+| `egid` | Building ID | Gebäudeidentifikator | `text` | `CHECK (egid ~ '^[0-9]{1,9}$')` | GWR | Eidgenössischer Gebäudeidentifikator (EGID) - for parcels representing building footprints |
 | `parcel_number` | Parcel Number | Parzellennummer | `text` | | AV | Local parcel number (Grundstücksnummer) |
 | `source_fid` | Source Feature ID | Quell-Feature-ID | `text` | | AV | Feature ID from source system |
 | `geog` | Geometry | Geometrie | `geography(POLYGON, 4326)` | `NOT NULL` | AV | Parcel boundary |
