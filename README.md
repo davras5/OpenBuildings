@@ -67,7 +67,7 @@ The project follows an **open-by-default** approach to **data, code, and documen
 | -------------------- | ------------------------------------------------- |
 | **Web App**          | Static frontend for exploration and visualization |
 | **Backend**          | PostgreSQL + PostGIS with REST API (Supabase)     |
-| **Processing Tools** | Python & FME workers for data enrichment          |
+| **Processing Tools** | Python, SQL & FME workers for data enrichment          |
 
 ---
 
