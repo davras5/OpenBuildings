@@ -326,9 +326,9 @@ async function init() {
     if (!mouseAnimationFrame) {
       mouseAnimationFrame = requestAnimationFrame(() => {
         if (pendingMouseCoords) {
-          const lng = pendingMouseCoords.lng.toFixed(5);
           const lat = pendingMouseCoords.lat.toFixed(5);
-          mouseCoordsDisplay.textContent = `${lng}, ${lat}`;
+          const lng = pendingMouseCoords.lng.toFixed(5);
+          mouseCoordsDisplay.textContent = `WGS 84 | Koordinaten: ${lat}, ${lng}`;
         }
         mouseAnimationFrame = null;
       });
@@ -341,7 +341,7 @@ async function init() {
       mouseAnimationFrame = null;
     }
     pendingMouseCoords = null;
-    mouseCoordsDisplay.textContent = '–';
+    mouseCoordsDisplay.textContent = 'WGS 84 | Koordinaten: –';
   });
 
   // ============================================
