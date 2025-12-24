@@ -556,6 +556,10 @@ async function init() {
     buildingColorScheme: 'status'  // 'none' or 'status'
   };
 
+  // Lazy-loaded module references (hoisted for use in event handlers)
+  let mode3DModule = null;
+  let searchModule = null;
+
   /**
    * Create a search marker element (blue pin with white center)
    * @returns {HTMLDivElement} The marker element
@@ -1482,16 +1486,7 @@ async function init() {
     addLandcoverLayer();
     addBuildingsLayer();
 
-    // Always load terrain with exaggeration=0 for smooth 2D/3D transitions
-    // This ensures objects are already positioned on the terrain mesh
-    map.addSource('terrain-dem', {
-      type: 'raster-dem',
-      tiles: ['https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png'],
-      encoding: 'terrarium',
-      tileSize: 256,
-      maxzoom: 15
-    });
-    map.setTerrain({ source: 'terrain-dem', exaggeration: 0 });
+    // NOTE: Terrain is now lazy-loaded by 3d-mode.js when first needed
 
     // Unified click handler for parcels and landcover (respects layer hierarchy)
     // Buildings have their own handler with state.markerClickHandled flag
@@ -1520,8 +1515,24 @@ async function init() {
     await showSelectedPanel();
 
     // Apply 3D mode from URL params (no animation on initial load)
+    // Note: Uses the get3DModule loader which is defined later, but this runs after map 'load' event
     if (state.is3DMode) {
-      await setup3DMode(false);
+      const mode3D = await import('./modules/3d-mode.js');
+      mode3D.init({
+        map,
+        state,
+        config: MAP_CONFIG,
+        colorSchemes: COLOR_SCHEMES,
+        polygonLayerConfigs,
+        buildColorExpression,
+        updateLandcoverStyles,
+        updateUrlParams,
+        debugWarn
+      });
+      await mode3D.setup3DMode(false);
+      document.getElementById('toggle3DBtn').textContent = '2D';
+      // Store reference for later use by toggle button
+      mode3DModule = mode3D;
     }
 
     loadingOverlay.classList.add('hidden');
@@ -1620,9 +1631,10 @@ async function init() {
 
         // Note: General click handler persists across style changes, no need to re-add
 
-        // Re-apply 3D mode if active
+        // Re-apply 3D mode if active (module already loaded if we're in 3D mode)
         if (state.is3DMode) {
-          setup3DTerrain();
+          const mode3D = await import('./modules/3d-mode.js');
+          mode3D.setupTerrainAfterStyleChange();
         }
       });
     });
@@ -1894,386 +1906,82 @@ async function init() {
   updateLandcoversLegend(null);
 
   // ============================================
-  // 3D Toggle
+  // 3D Toggle (lazy-loaded module)
   // ============================================
   const toggle3DButton = document.getElementById('toggle3DBtn');
 
   /**
-   * Convert landcover layer between flat fill and 3D fill-extrusion
-   * @param {boolean} is3D - Whether to use 3D fill-extrusion or flat fill
+   * Get or load the 3D mode module
+   * @returns {Promise<Object>} The 3D mode module
    */
-  function setLandcoverLayerType(is3D) {
-    if (!map.getLayer('landcovers-fill')) return;
-
-    try {
-      const beforeLayer = map.getLayer('landcovers-outline') ? 'landcovers-outline' : undefined;
-      const config = polygonLayerConfigs.landcovers;
-
-      // Get current color scheme expressions
-      const scheme = COLOR_SCHEMES[state.colorScheme];
-      const colorExpression = buildColorExpression(scheme, 'colors');
-      const outlineExpression = buildColorExpression(scheme, 'outlineColors');
-
-      // Higher opacity when color scheme is active
-      const activeOpacity = scheme ? 0.65 : config.fillOpacity;
-
-      map.removeLayer('landcovers-fill');
-      map.addLayer({
-        id: 'landcovers-fill',
-        type: is3D ? 'fill-extrusion' : 'fill',
-        source: 'landcovers',
-        'source-layer': 'landcovers',
-        minzoom: 12,
-        paint: is3D ? {
-          'fill-extrusion-color': colorExpression,
-          'fill-extrusion-height': 10,
-          'fill-extrusion-base': 0,
-          'fill-extrusion-opacity': scheme ? 0.85 : 0.8
-        } : {
-          'fill-color': colorExpression,
-          'fill-opacity': activeOpacity
-        }
-      }, beforeLayer);
-
-      // Update outline color to match
-      if (map.getLayer('landcovers-outline')) {
-        map.setPaintProperty('landcovers-outline', 'line-color', outlineExpression);
-      }
-    } catch (err) {
-      debugWarn(`Failed to ${is3D ? 'add' : 'restore'} landcover fill:`, err);
-    }
-  }
-
-  /**
-   * Animate both terrain exaggeration and camera pitch together
-   * Uses the same easing curve for perfect synchronization
-   * @param {Object} options
-   * @param {number} options.fromExaggeration - Starting exaggeration value
-   * @param {number} options.toExaggeration - Target exaggeration value
-   * @param {number} options.fromPitch - Starting pitch value
-   * @param {number} options.toPitch - Target pitch value
-   * @param {number} options.duration - Animation duration in ms
-   * @returns {Promise} Resolves when animation completes
-   */
-  function animateTerrainAndCamera({ fromExaggeration, toExaggeration, fromPitch, toPitch, duration }) {
-    return new Promise((resolve) => {
-      const startTime = performance.now();
-
-      function animate(currentTime) {
-        const elapsed = currentTime - startTime;
-        const progress = Math.min(elapsed / duration, 1);
-
-        // Ease-out cubic for smooth deceleration
-        const eased = 1 - Math.pow(1 - progress, 3);
-
-        const currentExaggeration = fromExaggeration + (toExaggeration - fromExaggeration) * eased;
-        const currentPitch = fromPitch + (toPitch - fromPitch) * eased;
-
-        try {
-          map.setTerrain({ source: 'terrain-dem', exaggeration: currentExaggeration });
-          map.setPitch(currentPitch);
-        } catch (err) {
-          debugWarn('Failed to animate terrain/camera:', err);
-        }
-
-        if (progress < 1) {
-          requestAnimationFrame(animate);
-        } else {
-          resolve();
-        }
-      }
-
-      requestAnimationFrame(animate);
-    });
-  }
-
-  /**
-   * Setup 3D mode: add sky layer, convert landcover, set exaggeration and pitch
-   * @param {boolean} animate - Whether to animate the transition
-   */
-  async function setup3DMode(animate = true) {
-    // Add sky layer for better 3D visuals
-    if (!map.getLayer('sky')) {
-      map.addLayer({
-        id: 'sky',
-        type: 'sky',
-        paint: {
-          'sky-type': 'atmosphere',
-          'sky-atmosphere-sun': [0.0, 90.0],
-          'sky-atmosphere-sun-intensity': 15
-        }
+  async function get3DModule() {
+    if (!mode3DModule) {
+      mode3DModule = await import('./modules/3d-mode.js');
+      mode3DModule.init({
+        map,
+        state,
+        config: MAP_CONFIG,
+        colorSchemes: COLOR_SCHEMES,
+        polygonLayerConfigs,
+        buildColorExpression,
+        updateLandcoverStyles,
+        updateUrlParams,
+        debugWarn
       });
     }
-
-    // Convert landcover to fill-extrusion for 3D view
-    setLandcoverLayerType(true);
-
-    if (animate) {
-      // Animate terrain and camera together with same easing
-      await animateTerrainAndCamera({
-        fromExaggeration: 0,
-        toExaggeration: MAP_CONFIG.terrainExaggeration,
-        fromPitch: map.getPitch(),
-        toPitch: MAP_CONFIG.pitch3D,
-        duration: MAP_CONFIG.standardDuration
-      });
-    } else {
-      // Instant - for initial page load from URL params
-      map.setTerrain({ source: 'terrain-dem', exaggeration: MAP_CONFIG.terrainExaggeration });
-      map.setPitch(MAP_CONFIG.pitch3D);
-    }
-
-    toggle3DButton.textContent = '2D';
+    return mode3DModule;
   }
 
-  /**
-   * Exit 3D mode: remove sky layer, flatten terrain, reset pitch
-   * @param {boolean} animate - Whether to animate the transition
-   */
-  async function exit3DMode(animate = true) {
-    if (animate) {
-      // Animate terrain and camera together with same easing
-      await animateTerrainAndCamera({
-        fromExaggeration: MAP_CONFIG.terrainExaggeration,
-        toExaggeration: 0,
-        fromPitch: map.getPitch(),
-        toPitch: 0,
-        duration: MAP_CONFIG.standardDuration
-      });
-    } else {
-      map.setTerrain({ source: 'terrain-dem', exaggeration: 0 });
-      map.setPitch(0);
-    }
-
-    // Remove sky layer
-    if (map.getLayer('sky')) {
-      map.removeLayer('sky');
-    }
-
-    // Convert landcover back to flat fill
-    setLandcoverLayerType(false);
-
-    toggle3DButton.textContent = '3D';
-  }
-
-  async function toggle3D() {
-    state.is3DMode = !state.is3DMode;
-
-    // Disable button during transition to prevent double-clicks
-    toggle3DButton.disabled = true;
-    toggle3DButton.textContent = '...';
-
-    if (state.is3DMode) {
-      await setup3DMode(true);
-    } else {
-      await exit3DMode(true);
-    }
-
-    toggle3DButton.disabled = false;
-    updateUrlParams();
-  }
-
-  toggle3DButton.addEventListener('click', toggle3D);
+  toggle3DButton.addEventListener('click', async () => {
+    const mode3D = await get3DModule();
+    await mode3D.toggle3D(toggle3DButton);
+  });
 
   // ============================================
-  // Swisstopo Search
+  // Swisstopo Search (lazy-loaded module)
   // ============================================
   const searchInput = document.getElementById('searchInput');
-  const searchClear = document.getElementById('searchClear');
-  const searchDropdown = document.getElementById('searchDropdown');
-  const locationsSection = document.getElementById('locationsSection');
-  const locationsResults = document.getElementById('locationsResults');
-  const layersSection = document.getElementById('layersSection');
-  const layersResults = document.getElementById('layersResults');
-  const searchInputWrapper = searchInput.parentElement;
 
-  let searchDebounceTimer = null;
-
-  // Debounced search
-  function debounce(fn, delay) {
-    return (...args) => {
-      clearTimeout(searchDebounceTimer);
-      searchDebounceTimer = setTimeout(() => fn(...args), delay);
-    };
-  }
-
-  // Search API call
-  async function searchSwisstopo(query) {
-    if (!query || query.length < 2) {
-      closeSearchDropdown();
-      return;
-    }
-
-    try {
-      const url = `https://api3.geo.admin.ch/rest/services/ech/SearchServer?searchText=${encodeURIComponent(query)}&type=locations&type=layers&lang=de&sr=4326`;
-      const response = await fetch(url);
-      if (!response.ok) throw new Error('Search request failed');
-      const data = await response.json();
-
-      displaySearchResults(data.results, query);
-    } catch (err) {
-      console.error('Search error:', err);
-      showToast('Search failed. Please try again.', 'error');
-      closeSearchDropdown();
-    }
-  }
-
-  // Safely extract text from HTML and escape for display
-  function sanitizeAndExtractText(html) {
-    if (!html) return '';
-    // Create a temporary element to decode HTML entities and extract text
-    const temp = document.createElement('div');
-    temp.innerHTML = html;
-    return temp.textContent || temp.innerText || '';
-  }
-
-  // Escape HTML special characters to prevent XSS
-  function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-  }
-
-  // Highlight matching text (safe - only adds <mark> tags to escaped content)
-  function highlightMatch(text, query) {
-    if (!text) return '';
-    // First escape the text to prevent XSS
-    const escapedText = escapeHtml(text);
-    // Escape regex special characters in query
-    const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    // Now safely highlight (the text is already escaped, so <mark> tags are safe to add)
-    const regex = new RegExp(`(${escapedQuery})`, 'gi');
-    return escapedText.replace(regex, '<mark>$1</mark>');
-  }
-
-  // Display results (using DocumentFragment for batched DOM operations)
-  function displaySearchResults(results, query) {
-    // Single-pass filtering using Set for O(1) lookups
-    const locationOrigins = new Set(['address', 'zipcode', 'sn25', 'gg25', 'district', 'canton', 'gazetteer']);
-    const locations = [];
-    const layers = [];
-
-    for (const r of results) {
-      if (locationOrigins.has(r.attrs.origin)) {
-        locations.push(r);
-      } else if (r.attrs.origin === 'layer') {
-        layers.push(r);
-      }
-    }
-
-    // Clear previous results
-    locationsResults.innerHTML = '';
-    layersResults.innerHTML = '';
-
-    // Locations - batch DOM operations with DocumentFragment
-    if (locations.length > 0) {
-      locationsSection.classList.add('has-results');
-      const fragment = document.createDocumentFragment();
-      locations.slice(0, 10).forEach(loc => {
-        const item = document.createElement('div');
-        item.className = 'search-result-item';
-        // Safely extract text and highlight matches
-        const cleanLabel = sanitizeAndExtractText(loc.attrs.label);
-        item.innerHTML = highlightMatch(cleanLabel, query);
-        item.addEventListener('click', () => {
-          goToLocation(loc);
-        });
-        fragment.appendChild(item);
+  /**
+   * Get or load the search module
+   * @returns {Promise<Object>} The search module
+   */
+  async function getSearchModule() {
+    if (!searchModule) {
+      searchModule = await import('./modules/search.js');
+      searchModule.init({
+        map,
+        state,
+        config: MAP_CONFIG,
+        uiTiming: UI_TIMING,
+        maplibregl,
+        showToast,
+        createSearchMarkerElement
       });
-      locationsResults.appendChild(fragment); // Single DOM write
-    } else {
-      locationsSection.classList.remove('has-results');
     }
-
-    // Layers (disabled for now) - batch DOM operations with DocumentFragment
-    if (layers.length > 0) {
-      layersSection.classList.add('has-results');
-      const fragment = document.createDocumentFragment();
-      layers.slice(0, 10).forEach(layer => {
-        const item = document.createElement('div');
-        item.className = 'search-result-item disabled';
-        // Safely extract text and highlight matches
-        const cleanLabel = sanitizeAndExtractText(layer.attrs.label);
-        item.innerHTML = highlightMatch(cleanLabel, query);
-        fragment.appendChild(item);
-      });
-      layersResults.appendChild(fragment); // Single DOM write
-    } else {
-      layersSection.classList.remove('has-results');
-    }
-
-    // Show dropdown if we have results
-    if (locations.length > 0 || layers.length > 0) {
-      searchDropdown.classList.add('open');
-    } else {
-      closeSearchDropdown();
-    }
+    return searchModule;
   }
 
-  // Go to location
-  function goToLocation(loc) {
-    // With sr=4326, y=lat, x=lon in WGS84
-    const lon = loc.attrs.x;
-    const lat = loc.attrs.y;
+  // Lazy-load search module on first focus
+  searchInput.addEventListener('focus', async () => {
+    await getSearchModule();
+  }, { once: true });
 
-    // Remove existing search marker
-    if (state.searchMarker) {
-      state.searchMarker.remove();
-    }
-
-    // Create new search marker
-    state.searchMarker = new maplibregl.Marker({ element: createSearchMarkerElement() })
-      .setLngLat([lon, lat])
-      .addTo(map);
-
-    // Fly to location
-    map.flyTo({
-      center: [lon, lat],
-      zoom: MAP_CONFIG.searchZoom,
-      duration: MAP_CONFIG.flyDuration
-    });
-
-    closeSearchDropdown();
-  }
-
+  // Close search dropdown helper (used by escape key and outside clicks)
   function closeSearchDropdown() {
-    searchDropdown.classList.remove('open');
+    if (searchModule) {
+      searchModule.closeSearchDropdown();
+    }
   }
-
-  // Input handlers
-  const debouncedSearch = debounce(searchSwisstopo, UI_TIMING.searchDebounce);
-
-  searchInput.addEventListener('input', (e) => {
-    const value = e.target.value.trim();
-
-    if (value) {
-      searchInputWrapper.classList.add('has-value');
-    } else {
-      searchInputWrapper.classList.remove('has-value');
-    }
-
-    debouncedSearch(value);
-  });
-
-  searchInput.addEventListener('focus', () => {
-    if (searchInput.value.trim().length >= 2) {
-      debouncedSearch(searchInput.value.trim());
-    }
-  });
-
-  searchClear.addEventListener('click', () => {
-    searchInput.value = '';
-    searchInputWrapper.classList.remove('has-value');
-    closeSearchDropdown();
-    searchInput.focus();
-  });
 
   // Close on escape
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
       closeSearchDropdown();
       closeContextMenu();
-      searchInput.blur();
+      if (searchModule) {
+        searchModule.blurInput();
+      }
     }
   });
 
