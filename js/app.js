@@ -1615,7 +1615,7 @@ async function init() {
   const legendAccordionHeader = document.getElementById('legendAccordionHeader');
   const buildingsLegendItems = document.getElementById('buildingsLegendItems');
   const landcoversLegendItems = document.getElementById('landcoversLegendItems');
-  const legendColorButtons = document.querySelectorAll('.legend-color-btn');
+  const legendColorButtons = document.querySelectorAll('.legend-color-btn[data-color]');
   const legendLayerToggles = document.querySelectorAll('.legend-layer-toggle');
 
   /**
