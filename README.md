@@ -74,7 +74,7 @@ OpenBuildings is built entirely on **publicly available data** from authoritativ
 
 ```mermaid
 flowchart BT
-    FE[GitHub Pages - Frontend] 
+    FE[GitHub Pages - JS & MapLiebre Frontend] 
     SUPABASE[Supabase - Postgres & PostGIS & API]
     EDGE[Supabase Edge Functions - Vector Tiles]
     TOOLS[Python / SQL / FME Workers]
