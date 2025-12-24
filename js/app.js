@@ -335,23 +335,15 @@ async function init() {
   function showFatalError(message) {
     if (loadingOverlay) {
       loadingOverlay.innerHTML = `
-        <div style="text-align: center; padding: 24px; max-width: 400px;">
-          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2" style="margin-bottom: 16px;">
+        <div class="fatal-error">
+          <svg class="fatal-error-icon" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="12" cy="12" r="10"/>
             <line x1="15" y1="9" x2="9" y2="15"/>
             <line x1="9" y1="9" x2="15" y2="15"/>
           </svg>
-          <h2 style="margin: 0 0 8px 0; font-size: 1.25rem; color: #0f172a;">Failed to Load</h2>
-          <p style="margin: 0 0 16px 0; color: #64748b; font-size: 0.875rem;">${message}</p>
-          <button onclick="location.reload()" style="
-            padding: 8px 16px;
-            background: #2563eb;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            font-size: 0.875rem;
-            cursor: pointer;
-          ">Reload Page</button>
+          <h2>Failed to Load</h2>
+          <p>${message}</p>
+          <button onclick="location.reload()">Reload Page</button>
         </div>
       `;
     }
@@ -493,15 +485,43 @@ async function init() {
   // ============================================
   // URL Parameters
   // ============================================
+
+  /**
+   * Parse and validate a numeric URL parameter within bounds
+   * @param {string|null} value - Raw parameter value
+   * @param {number} min - Minimum allowed value
+   * @param {number} max - Maximum allowed value
+   * @param {boolean} isFloat - Whether to parse as float (true) or int (false)
+   * @returns {number|null} Validated number or null if invalid
+   */
+  function parseNumericParam(value, min, max, isFloat = true) {
+    if (!value) return null;
+    const parsed = isFloat ? parseFloat(value) : parseInt(value, 10);
+    if (isNaN(parsed) || parsed < min || parsed > max) return null;
+    return parsed;
+  }
+
+  /**
+   * Parse and validate a positive integer ID parameter
+   * @param {string|null} value - Raw parameter value
+   * @returns {number|null} Positive integer or null if invalid
+   */
+  function parseIdParam(value) {
+    if (!value) return null;
+    const parsed = parseInt(value, 10);
+    if (isNaN(parsed) || parsed <= 0) return null;
+    return parsed;
+  }
+
   function getUrlParams() {
     const params = new URLSearchParams(window.location.search);
     return {
-      zoom: params.get('zoom') ? parseFloat(params.get('zoom')) : null,
-      lon: params.get('lon') ? parseFloat(params.get('lon')) : null,
-      lat: params.get('lat') ? parseFloat(params.get('lat')) : null,
-      building: params.get('building') ? parseInt(params.get('building')) : null,
-      parcel: params.get('parcel') ? parseInt(params.get('parcel')) : null,
-      landcover: params.get('landcover') ? parseInt(params.get('landcover')) : null,
+      zoom: parseNumericParam(params.get('zoom'), 0, 22),
+      lon: parseNumericParam(params.get('lon'), -180, 180),
+      lat: parseNumericParam(params.get('lat'), -90, 90),
+      building: parseIdParam(params.get('building')),
+      parcel: parseIdParam(params.get('parcel')),
+      landcover: parseIdParam(params.get('landcover')),
       is3D: params.get('3d') === 'true',
       marker: params.get('marker') === 'true'
     };
