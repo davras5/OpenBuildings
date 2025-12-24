@@ -640,41 +640,163 @@ main {
 }
 
 /* ============================================
-   Color Toggle Widget
+   Legend Toggle Button
    ============================================ */
-.color-toggle {
+.legend-toggle-btn {
   position: absolute;
-  top: var(--space-lg);
+  bottom: calc(var(--space-2xl) + var(--space-sm) + 96px + var(--space-sm));
   right: var(--space-lg);
   z-index: 20;
-  display: flex;
-  align-items: center;
-  gap: var(--space-sm);
+  width: 36px;
+  height: 36px;
   background: var(--clr-surface);
-  padding: var(--space-xs) var(--space-sm);
+  border: none;
   border-radius: var(--radius-md);
   box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--clr-text-secondary);
+  transition: all 0.15s ease;
 }
 
-.color-toggle-label {
-  font-size: 12px;
-  font-weight: 500;
+.legend-toggle-btn:hover {
+  background: var(--clr-slate-100);
+  color: var(--clr-text);
+}
+
+.legend-toggle-btn.active {
+  background: var(--clr-deep-blue);
+  color: var(--clr-surface);
+}
+
+/* ============================================
+   Legend Panel
+   ============================================ */
+.legend-panel {
+  position: absolute;
+  bottom: calc(var(--space-2xl) + var(--space-sm) + 96px + var(--space-sm) + 36px + var(--space-sm));
+  right: var(--space-lg);
+  z-index: 19;
+  background: var(--clr-surface);
+  border-radius: var(--radius-md);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  width: 220px;
+  max-height: calc(100vh - 300px);
+  overflow-y: auto;
+  display: none;
+}
+
+.legend-panel.visible {
+  display: block;
+}
+
+.legend-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-sm) var(--space-md);
+  border-bottom: 1px solid var(--clr-border);
+  position: sticky;
+  top: 0;
+  background: var(--clr-surface);
+}
+
+.legend-panel-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--clr-text);
+}
+
+.legend-panel-close {
+  background: none;
+  border: none;
+  padding: var(--space-xs);
+  cursor: pointer;
   color: var(--clr-text-muted);
-  padding-right: var(--space-xs);
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.color-toggle-buttons {
+.legend-panel-close:hover {
+  background: var(--clr-slate-100);
+  color: var(--clr-text);
+}
+
+/* Legend Sections */
+.legend-section {
+  border-bottom: 1px solid var(--clr-slate-100);
+}
+
+.legend-section:last-child {
+  border-bottom: none;
+}
+
+.legend-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-sm) var(--space-md);
+  padding-bottom: var(--space-xs);
+}
+
+.legend-section-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--clr-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Layer Visibility Toggle */
+.legend-layer-toggle {
+  width: 28px;
+  height: 16px;
+  background: var(--clr-slate-300);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  position: relative;
+  transition: background 0.2s ease;
+}
+
+.legend-layer-toggle.active {
+  background: var(--clr-leaf);
+}
+
+.legend-layer-toggle .toggle-dot {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 12px;
+  height: 12px;
+  background: var(--clr-surface);
+  border-radius: 50%;
+  transition: transform 0.2s ease;
+}
+
+.legend-layer-toggle.active .toggle-dot {
+  transform: translateX(12px);
+}
+
+/* Color Toggle within Legend */
+.legend-color-toggle {
   display: flex;
   gap: 2px;
   background: var(--clr-slate-100);
   border-radius: var(--radius-sm);
   padding: 2px;
+  margin: 0 var(--space-md) var(--space-sm);
 }
 
-.color-toggle-btn {
-  padding: var(--space-xs) var(--space-sm);
+.legend-color-btn {
+  flex: 1;
+  padding: 4px 6px;
   font-family: var(--font-main);
-  font-size: 12px;
+  font-size: 10px;
   font-weight: 500;
   color: var(--clr-text-secondary);
   background: transparent;
@@ -685,97 +807,73 @@ main {
   white-space: nowrap;
 }
 
-.color-toggle-btn:hover {
+.legend-color-btn:hover {
   color: var(--clr-text);
   background: var(--clr-slate-200);
 }
 
-.color-toggle-btn.active {
+.legend-color-btn.active {
   color: var(--clr-surface);
   background: var(--clr-deep-blue);
 }
 
-/* ============================================
-   Color Legend
-   ============================================ */
-.color-legend {
-  position: absolute;
-  top: calc(var(--space-lg) + 44px);
-  right: var(--space-lg);
-  z-index: 19;
-  background: var(--clr-surface);
-  border-radius: var(--radius-md);
-  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-  padding: var(--space-sm) var(--space-md);
-  min-width: 160px;
-  max-width: 200px;
-  display: none;
-}
-
-.color-legend.visible {
-  display: block;
-}
-
-.color-legend-title {
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--clr-text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: var(--space-sm);
-  padding-bottom: var(--space-xs);
-  border-bottom: 1px solid var(--clr-border);
-}
-
-.color-legend-items {
+/* Legend Items */
+.legend-section-content {
+  padding: 0 var(--space-md) var(--space-sm);
   display: flex;
   flex-direction: column;
-  gap: var(--space-xs);
+  gap: 3px;
 }
 
-.color-legend-item {
+.legend-item {
   display: flex;
   align-items: center;
   gap: var(--space-sm);
-  font-size: 12px;
+  font-size: 11px;
   color: var(--clr-text-secondary);
 }
 
-.color-legend-swatch {
-  width: 14px;
-  height: 14px;
-  border-radius: 3px;
+.legend-swatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
   flex-shrink: 0;
 }
 
-.color-legend-label {
+.legend-swatch-square {
+  border-radius: 2px;
+}
+
+.legend-swatch-outline {
+  background: transparent;
+  border: 2px solid;
+  border-radius: 2px;
+}
+
+.legend-label {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-/* Mobile: Stack legend below toggle */
+/* Dimmed section when layer is hidden */
+.legend-section.layer-hidden .legend-section-content {
+  opacity: 0.4;
+}
+
+/* Mobile adjustments */
 @media (max-width: 640px) {
-  .color-toggle {
-    top: auto;
-    bottom: calc(var(--space-2xl) + var(--space-xl) + 100px);
+  .legend-toggle-btn {
     right: var(--space-sm);
-    left: var(--space-sm);
-    justify-content: center;
+    bottom: calc(var(--space-2xl) + var(--space-sm) + 80px);
   }
 
-  .color-legend {
-    top: auto;
-    bottom: calc(var(--space-2xl) + var(--space-xl) + 56px);
+  .legend-panel {
     right: var(--space-sm);
     left: var(--space-sm);
-    max-width: none;
-  }
-
-  .color-legend-items {
-    flex-direction: row;
-    flex-wrap: wrap;
-    gap: var(--space-sm);
+    bottom: calc(var(--space-2xl) + var(--space-sm) + 80px + 36px + var(--space-sm));
+    width: auto;
+    max-height: 50vh;
   }
 }
 

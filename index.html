@@ -94,21 +94,74 @@
       </div>
     </div>
 
-    <!-- Color Toggle Widget -->
-    <div class="color-toggle" id="colorToggle">
-      <span class="color-toggle-label">Color</span>
-      <div class="color-toggle-buttons">
-        <button class="color-toggle-btn active" data-color="none">None</button>
-        <button class="color-toggle-btn" data-color="category">Category</button>
-        <button class="color-toggle-btn" data-color="period">Period</button>
-      </div>
-    </div>
+    <!-- Legend Toggle Button -->
+    <button class="legend-toggle-btn" id="legendToggleBtn" title="Toggle legend" aria-label="Toggle legend">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="3" y1="6" x2="21" y2="6"></line>
+        <line x1="3" y1="12" x2="21" y2="12"></line>
+        <line x1="3" y1="18" x2="21" y2="18"></line>
+        <circle cx="7" cy="6" r="2" fill="currentColor"></circle>
+        <circle cx="14" cy="12" r="2" fill="currentColor"></circle>
+        <circle cx="10" cy="18" r="2" fill="currentColor"></circle>
+      </svg>
+    </button>
 
-    <!-- Color Legend -->
-    <div class="color-legend" id="colorLegend">
-      <div class="color-legend-title" id="colorLegendTitle">Legend</div>
-      <div class="color-legend-items" id="colorLegendItems">
-        <!-- Populated dynamically -->
+    <!-- Unified Legend Panel -->
+    <div class="legend-panel" id="legendPanel">
+      <div class="legend-panel-header">
+        <span class="legend-panel-title">Sketches</span>
+        <button class="legend-panel-close" id="legendPanelClose" aria-label="Close legend">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 6L6 18M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Buildings Layer Section -->
+      <div class="legend-section" data-layer="buildings">
+        <div class="legend-section-header">
+          <span class="legend-section-title">Gebäude (Status)</span>
+          <button class="legend-layer-toggle active" data-layer="buildings" title="Toggle layer visibility">
+            <span class="toggle-dot"></span>
+          </button>
+        </div>
+        <div class="legend-section-content" id="buildingsLegendItems">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+
+      <!-- Landcovers Layer Section -->
+      <div class="legend-section" data-layer="landcovers">
+        <div class="legend-section-header">
+          <span class="legend-section-title">Bodenbedeckung</span>
+          <button class="legend-layer-toggle active" data-layer="landcovers" title="Toggle layer visibility">
+            <span class="toggle-dot"></span>
+          </button>
+        </div>
+        <div class="legend-color-toggle">
+          <button class="legend-color-btn active" data-color="none">Keine</button>
+          <button class="legend-color-btn" data-color="category">Kategorie</button>
+          <button class="legend-color-btn" data-color="period">Periode</button>
+        </div>
+        <div class="legend-section-content" id="landcoversLegendItems">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+
+      <!-- Parcels Layer Section -->
+      <div class="legend-section" data-layer="parcels">
+        <div class="legend-section-header">
+          <span class="legend-section-title">Parzellen</span>
+          <button class="legend-layer-toggle active" data-layer="parcels" title="Toggle layer visibility">
+            <span class="toggle-dot"></span>
+          </button>
+        </div>
+        <div class="legend-section-content">
+          <div class="legend-item">
+            <span class="legend-swatch legend-swatch-outline" style="border-color: #1e3a5f"></span>
+            <span class="legend-label">Parzelle</span>
+          </div>
+        </div>
       </div>
     </div>
     <!-- Building Panel -->

@@ -96,15 +96,51 @@ function formatYear(value) {
   return value.toString();
 }
 
-/** Building status labels (GSTAT) */
+/** Building status labels and colors (GSTAT) - using GWR codes */
+const BUILDING_STATUS = {
+  title: 'Gebäude (Status)',
+  property: 'status',  // property name in vector tiles
+  labels: {
+    '1004': 'Bestehend',
+    '1003': 'Im Bau',
+    '1002': 'Bewilligt',
+    '1001': 'Projektiert',
+    '1005': 'Nicht nutzbar',
+    '1007': 'Abgebrochen',
+    '1008': 'Nicht realisiert'
+  },
+  colors: {
+    '1004': '#22c55e',  // existing - green
+    '1003': '#f59e0b',  // under_construction - amber
+    '1002': '#3b82f6',  // approved - blue
+    '1001': '#8b5cf6',  // planned - purple
+    '1005': '#94a3b8',  // unusable - slate
+    '1007': '#ef4444',  // demolished - red
+    '1008': '#64748b'   // not_realized - gray
+  },
+  outlineColors: {
+    '1004': '#16a34a',
+    '1003': '#d97706',
+    '1002': '#2563eb',
+    '1001': '#7c3aed',
+    '1005': '#64748b',
+    '1007': '#dc2626',
+    '1008': '#475569'
+  },
+  defaultColor: '#475569',
+  defaultOutline: '#334155',
+  missingLabel: 'Keine Angaben'
+};
+
+/** Building status labels (GSTAT) - legacy, for panel display */
 const BUILDING_STATUS_LABELS = {
-  planned: 'Planned',
-  approved: 'Approved',
-  under_construction: 'Under Construction',
-  existing: 'Existing',
-  unusable: 'Unusable',
-  demolished: 'Demolished',
-  not_realized: 'Not Realized'
+  planned: 'Projektiert',
+  approved: 'Bewilligt',
+  under_construction: 'Im Bau',
+  existing: 'Bestehend',
+  unusable: 'Nicht nutzbar',
+  demolished: 'Abgebrochen',
+  not_realized: 'Nicht realisiert'
 };
 
 /** Building category labels (GKAT) */
@@ -794,6 +830,24 @@ async function init() {
     }
   }
 
+  /**
+   * Build MapLibre expression for building status colors
+   * @param {string} colorKey - 'colors' or 'outlineColors'
+   * @returns {Array} MapLibre match expression
+   */
+  function buildBuildingStatusColorExpression(colorKey = 'colors') {
+    const colorMap = BUILDING_STATUS[colorKey];
+    const defaultVal = colorKey === 'colors' ? BUILDING_STATUS.defaultColor : BUILDING_STATUS.defaultOutline;
+    const matchExpression = ['match', ['get', BUILDING_STATUS.property]];
+
+    Object.entries(colorMap).forEach(([key, color]) => {
+      matchExpression.push(key, color);
+    });
+
+    matchExpression.push(defaultVal); // fallback for null/missing
+    return matchExpression;
+  }
+
   function addBuildingsLayer() {
     // Skip if source already exists
     if (map.getSource('buildings')) return;
@@ -834,6 +888,10 @@ async function init() {
       }
     });
 
+    // Build status color expression for buildings
+    const buildingColorExpr = buildBuildingStatusColorExpression('colors');
+    const buildingOutlineExpr = buildBuildingStatusColorExpression('outlineColors');
+
     // Circle layer for individual buildings (visible at zoom 10+)
     map.addLayer({
       id: 'unclustered-point',
@@ -850,7 +908,7 @@ async function init() {
         'circle-color': [
           'case',
           ['==', ['get', 'id'], state.selectedBuilding || -1], '#059669', // Leaf green when selected
-          '#64748b' // Slate-500 default
+          buildingColorExpr
         ],
         'circle-stroke-width': [
           'interpolate', ['linear'], ['zoom'],
@@ -860,7 +918,7 @@ async function init() {
         'circle-stroke-color': [
           'case',
           ['==', ['get', 'id'], state.selectedBuilding || -1], '#1e3a5f', // Deep Blue
-          'white'
+          buildingOutlineExpr
         ],
         'circle-opacity': ['interpolate', ['linear'], ['zoom'], 10, 0.3, 12, 1]
       }
@@ -881,6 +939,10 @@ async function init() {
     if (lastRenderedBuildingSelection === currentSelection) return;
     lastRenderedBuildingSelection = currentSelection;
 
+    // Get status-based color expressions
+    const buildingColorExpr = buildBuildingStatusColorExpression('colors');
+    const buildingOutlineExpr = buildBuildingStatusColorExpression('outlineColors');
+
     // Batch all paint property updates (MapLibre batches synchronous calls internally)
     map.setPaintProperty('unclustered-point', 'circle-radius', [
       'case',
@@ -890,7 +952,7 @@ async function init() {
     map.setPaintProperty('unclustered-point', 'circle-color', [
       'case',
       ['==', ['get', 'id'], currentSelection], '#059669', // Leaf green when selected
-      '#64748b' // Slate-500 default
+      buildingColorExpr
     ]);
     map.setPaintProperty('unclustered-point', 'circle-stroke-width', [
       'case',
@@ -900,7 +962,7 @@ async function init() {
     map.setPaintProperty('unclustered-point', 'circle-stroke-color', [
       'case',
       ['==', ['get', 'id'], currentSelection], '#1e3a5f', // Deep Blue
-      'white'
+      buildingOutlineExpr
     ]);
   }
 
@@ -1523,13 +1585,15 @@ async function init() {
   });
 
   // ============================================
-  // Color Toggle Widget
+  // Legend Panel
   // ============================================
-  const colorToggle = document.getElementById('colorToggle');
-  const colorLegend = document.getElementById('colorLegend');
-  const colorLegendTitle = document.getElementById('colorLegendTitle');
-  const colorLegendItems = document.getElementById('colorLegendItems');
-  const colorToggleButtons = document.querySelectorAll('.color-toggle-btn');
+  const legendToggleBtn = document.getElementById('legendToggleBtn');
+  const legendPanel = document.getElementById('legendPanel');
+  const legendPanelClose = document.getElementById('legendPanelClose');
+  const buildingsLegendItems = document.getElementById('buildingsLegendItems');
+  const landcoversLegendItems = document.getElementById('landcoversLegendItems');
+  const legendColorButtons = document.querySelectorAll('.legend-color-btn');
+  const legendLayerToggles = document.querySelectorAll('.legend-layer-toggle');
 
   /**
    * Build MapLibre expression for data-driven fill color
@@ -1590,70 +1654,165 @@ async function init() {
       map.setPaintProperty('landcovers-outline', 'line-color', outlineExpression);
     }
 
-    // Update legend
-    updateColorLegend(scheme);
+    // Update landcovers legend section
+    updateLandcoversLegend(scheme);
   }
 
   /**
-   * Update the color legend UI
-   * @param {Object|null} scheme - Color scheme or null to hide legend
+   * Populate the buildings legend with status colors
    */
-  function updateColorLegend(scheme) {
+  function populateBuildingsLegend() {
+    buildingsLegendItems.innerHTML = '';
+
+    Object.entries(BUILDING_STATUS.colors).forEach(([key, color]) => {
+      const label = BUILDING_STATUS.labels[key] || key;
+      const item = document.createElement('div');
+      item.className = 'legend-item';
+      item.innerHTML = `
+        <span class="legend-swatch" style="background-color: ${color}"></span>
+        <span class="legend-label">${label}</span>
+      `;
+      buildingsLegendItems.appendChild(item);
+    });
+
+    // Add missing values entry
+    if (BUILDING_STATUS.missingLabel) {
+      const missingItem = document.createElement('div');
+      missingItem.className = 'legend-item';
+      missingItem.innerHTML = `
+        <span class="legend-swatch" style="background-color: ${BUILDING_STATUS.defaultColor}"></span>
+        <span class="legend-label">${BUILDING_STATUS.missingLabel}</span>
+      `;
+      buildingsLegendItems.appendChild(missingItem);
+    }
+  }
+
+  /**
+   * Update the landcovers legend section
+   * @param {Object|null} scheme - Color scheme or null for default
+   */
+  function updateLandcoversLegend(scheme) {
+    landcoversLegendItems.innerHTML = '';
+
     if (!scheme) {
-      colorLegend.classList.remove('visible');
+      // Show default single color entry when no scheme selected
+      const item = document.createElement('div');
+      item.className = 'legend-item';
+      item.innerHTML = `
+        <span class="legend-swatch legend-swatch-square" style="background-color: ${polygonLayerConfigs.landcovers.fillColor}"></span>
+        <span class="legend-label">Bodenbedeckung</span>
+      `;
+      landcoversLegendItems.appendChild(item);
       return;
     }
-
-    colorLegendTitle.textContent = scheme.title;
-    colorLegendItems.innerHTML = '';
 
     // Add entries for each defined value
     Object.entries(scheme.colors).forEach(([key, color]) => {
       const label = scheme.labels[key] || key;
       const item = document.createElement('div');
-      item.className = 'color-legend-item';
+      item.className = 'legend-item';
       item.innerHTML = `
-        <span class="color-legend-swatch" style="background-color: ${color}"></span>
-        <span class="color-legend-label">${label}</span>
+        <span class="legend-swatch legend-swatch-square" style="background-color: ${color}"></span>
+        <span class="legend-label">${label}</span>
       `;
-      colorLegendItems.appendChild(item);
+      landcoversLegendItems.appendChild(item);
     });
 
-    // Add "missing values" entry at the end
+    // Add missing values entry
     if (scheme.missingLabel) {
       const missingItem = document.createElement('div');
-      missingItem.className = 'color-legend-item';
+      missingItem.className = 'legend-item';
       missingItem.innerHTML = `
-        <span class="color-legend-swatch" style="background-color: ${scheme.defaultColor}"></span>
-        <span class="color-legend-label">${scheme.missingLabel}</span>
+        <span class="legend-swatch legend-swatch-square" style="background-color: ${scheme.defaultColor}"></span>
+        <span class="legend-label">${scheme.missingLabel}</span>
       `;
-      colorLegendItems.appendChild(missingItem);
+      landcoversLegendItems.appendChild(missingItem);
     }
-
-    colorLegend.classList.add('visible');
   }
 
   /**
-   * Set the active color scheme
+   * Set the active color scheme for landcovers
    * @param {string} schemeName - 'none', 'category', or 'period'
    */
   function setColorScheme(schemeName) {
     state.colorScheme = schemeName;
 
     // Update button states
-    colorToggleButtons.forEach(btn => {
+    legendColorButtons.forEach(btn => {
       btn.classList.toggle('active', btn.dataset.color === schemeName);
     });
 
     applyColorScheme();
   }
 
-  // Event handlers for color toggle buttons
-  colorToggleButtons.forEach(btn => {
+  /**
+   * Toggle layer visibility
+   * @param {string} layerName - 'buildings', 'landcovers', or 'parcels'
+   * @param {boolean} visible - Whether the layer should be visible
+   */
+  function setLayerVisibility(layerName, visible) {
+    const visibility = visible ? 'visible' : 'none';
+
+    if (layerName === 'buildings') {
+      if (map.getLayer('buildings-heat')) {
+        map.setLayoutProperty('buildings-heat', 'visibility', visibility);
+      }
+      if (map.getLayer('unclustered-point')) {
+        map.setLayoutProperty('unclustered-point', 'visibility', visibility);
+      }
+    } else if (layerName === 'landcovers') {
+      if (map.getLayer('landcovers-fill')) {
+        map.setLayoutProperty('landcovers-fill', 'visibility', visibility);
+      }
+      if (map.getLayer('landcovers-outline')) {
+        map.setLayoutProperty('landcovers-outline', 'visibility', visibility);
+      }
+    } else if (layerName === 'parcels') {
+      if (map.getLayer('parcels-fill')) {
+        map.setLayoutProperty('parcels-fill', 'visibility', visibility);
+      }
+      if (map.getLayer('parcels-outline')) {
+        map.setLayoutProperty('parcels-outline', 'visibility', visibility);
+      }
+    }
+
+    // Update section styling
+    const section = document.querySelector(`.legend-section[data-layer="${layerName}"]`);
+    if (section) {
+      section.classList.toggle('layer-hidden', !visible);
+    }
+  }
+
+  // Legend panel toggle
+  legendToggleBtn.addEventListener('click', () => {
+    const isVisible = legendPanel.classList.toggle('visible');
+    legendToggleBtn.classList.toggle('active', isVisible);
+  });
+
+  legendPanelClose.addEventListener('click', () => {
+    legendPanel.classList.remove('visible');
+    legendToggleBtn.classList.remove('active');
+  });
+
+  // Color scheme toggle buttons
+  legendColorButtons.forEach(btn => {
     btn.addEventListener('click', () => {
       setColorScheme(btn.dataset.color);
     });
   });
+
+  // Layer visibility toggles
+  legendLayerToggles.forEach(toggle => {
+    toggle.addEventListener('click', () => {
+      const isActive = toggle.classList.toggle('active');
+      const layerName = toggle.dataset.layer;
+      setLayerVisibility(layerName, isActive);
+    });
+  });
+
+  // Initialize legends on load
+  populateBuildingsLegend();
+  updateLandcoversLegend(null);
 
   // ============================================
   // 3D Toggle
