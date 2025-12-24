@@ -357,7 +357,7 @@ main {
 .building-panel-metrics {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: var(--space-sm) var(--space-sm);
+  gap: 12px var(--space-sm);
 }
 
 .metric-row {
