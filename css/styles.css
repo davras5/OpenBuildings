@@ -640,41 +640,149 @@ main {
 }
 
 /* ============================================
-   Color Toggle Widget
+   Legend Accordion
    ============================================ */
-.color-toggle {
+.legend-accordion {
   position: absolute;
   top: var(--space-lg);
   right: var(--space-lg);
   z-index: 20;
+  background: var(--clr-surface);
+  border-radius: var(--radius-md);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  width: 220px;
+  overflow: hidden;
+}
+
+.legend-accordion-header {
   display: flex;
   align-items: center;
   gap: var(--space-sm);
+  width: 100%;
+  padding: var(--space-sm) var(--space-md);
   background: var(--clr-surface);
-  padding: var(--space-xs) var(--space-sm);
-  border-radius: var(--radius-md);
-  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-main);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--clr-text);
+  transition: background 0.15s ease;
 }
 
-.color-toggle-label {
-  font-size: 12px;
-  font-weight: 500;
+.legend-accordion-header:hover {
+  background: var(--clr-slate-100);
+}
+
+.legend-icon {
   color: var(--clr-text-muted);
-  padding-right: var(--space-xs);
+  flex-shrink: 0;
 }
 
-.color-toggle-buttons {
+.legend-accordion-title {
+  flex: 1;
+  text-align: left;
+}
+
+.legend-chevron {
+  color: var(--clr-text-muted);
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+
+.legend-accordion.expanded .legend-chevron {
+  transform: rotate(180deg);
+}
+
+.legend-accordion-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.25s ease-out;
+  border-top: 1px solid var(--clr-slate-200);
+}
+
+.legend-accordion.expanded .legend-accordion-content {
+  max-height: 500px;
+  overflow-y: auto;
+  padding-top: var(--space-xs);
+}
+
+.legend-accordion:not(.expanded) .legend-accordion-content {
+  border-top: none;
+}
+
+/* Legend Sections */
+.legend-section {
+  border-bottom: 1px solid var(--clr-slate-100);
+}
+
+.legend-section:last-child {
+  border-bottom: none;
+}
+
+.legend-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-md) var(--space-md) var(--space-xs);
+}
+
+.legend-section-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--clr-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Layer Visibility Toggle (Eye Icon) */
+.legend-layer-toggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: var(--radius-sm);
+  color: var(--clr-text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+
+.legend-layer-toggle:hover {
+  background: var(--clr-slate-100);
+  color: var(--clr-text);
+}
+
+.legend-layer-toggle .eye-open,
+.legend-layer-toggle .eye-closed {
+  display: none;
+}
+
+.legend-layer-toggle.active .eye-open {
+  display: block;
+}
+
+.legend-layer-toggle:not(.active) .eye-closed {
+  display: block;
+  opacity: 0.5;
+}
+
+/* Color Toggle within Legend */
+.legend-color-toggle {
   display: flex;
   gap: 2px;
   background: var(--clr-slate-100);
   border-radius: var(--radius-sm);
   padding: 2px;
+  margin: 0 var(--space-md) var(--space-sm);
 }
 
-.color-toggle-btn {
-  padding: var(--space-xs) var(--space-sm);
+.legend-color-btn {
+  flex: 1;
+  padding: 4px 6px;
   font-family: var(--font-main);
-  font-size: 12px;
+  font-size: 10px;
   font-weight: 500;
   color: var(--clr-text-secondary);
   background: transparent;
@@ -685,97 +793,72 @@ main {
   white-space: nowrap;
 }
 
-.color-toggle-btn:hover {
+.legend-color-btn:hover {
   color: var(--clr-text);
   background: var(--clr-slate-200);
 }
 
-.color-toggle-btn.active {
+.legend-color-btn.active {
   color: var(--clr-surface);
   background: var(--clr-deep-blue);
 }
 
-/* ============================================
-   Color Legend
-   ============================================ */
-.color-legend {
-  position: absolute;
-  top: calc(var(--space-lg) + 44px);
-  right: var(--space-lg);
-  z-index: 19;
-  background: var(--clr-surface);
-  border-radius: var(--radius-md);
-  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-  padding: var(--space-sm) var(--space-md);
-  min-width: 160px;
-  max-width: 200px;
-  display: none;
-}
-
-.color-legend.visible {
-  display: block;
-}
-
-.color-legend-title {
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--clr-text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: var(--space-sm);
-  padding-bottom: var(--space-xs);
-  border-bottom: 1px solid var(--clr-border);
-}
-
-.color-legend-items {
+/* Legend Items */
+.legend-section-content {
+  padding: var(--space-xs) var(--space-md) var(--space-md);
   display: flex;
   flex-direction: column;
-  gap: var(--space-xs);
+  gap: 6px;
 }
 
-.color-legend-item {
+.legend-item {
   display: flex;
   align-items: center;
   gap: var(--space-sm);
-  font-size: 12px;
+  font-size: 11px;
   color: var(--clr-text-secondary);
+  line-height: 1.3;
 }
 
-.color-legend-swatch {
-  width: 14px;
-  height: 14px;
-  border-radius: 3px;
+.legend-swatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
   flex-shrink: 0;
 }
 
-.color-legend-label {
+.legend-swatch-square {
+  border-radius: 2px;
+}
+
+.legend-swatch-outline {
+  background: transparent;
+  border: 2px solid;
+  border-radius: 2px;
+}
+
+.legend-label {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-/* Mobile: Stack legend below toggle */
+/* Dimmed section when layer is hidden */
+.legend-section.layer-hidden .legend-section-content {
+  opacity: 0.4;
+}
+
+/* Mobile adjustments */
 @media (max-width: 640px) {
-  .color-toggle {
-    top: auto;
-    bottom: calc(var(--space-2xl) + var(--space-xl) + 100px);
+  .legend-accordion {
+    top: var(--space-lg);
     right: var(--space-sm);
-    left: var(--space-sm);
-    justify-content: center;
+    left: auto;
+    width: 180px;
   }
 
-  .color-legend {
-    top: auto;
-    bottom: calc(var(--space-2xl) + var(--space-xl) + 56px);
-    right: var(--space-sm);
-    left: var(--space-sm);
-    max-width: none;
-  }
-
-  .color-legend-items {
-    flex-direction: row;
-    flex-wrap: wrap;
-    gap: var(--space-sm);
+  .legend-accordion.expanded .legend-accordion-content {
+    max-height: 40vh;
   }
 }
 

@@ -94,21 +94,95 @@
       </div>
     </div>
 
-    <!-- Color Toggle Widget -->
-    <div class="color-toggle" id="colorToggle">
-      <span class="color-toggle-label">Color</span>
-      <div class="color-toggle-buttons">
-        <button class="color-toggle-btn active" data-color="none">None</button>
-        <button class="color-toggle-btn" data-color="category">Category</button>
-        <button class="color-toggle-btn" data-color="period">Period</button>
-      </div>
-    </div>
+    <!-- Legend Accordion -->
+    <div class="legend-accordion expanded" id="legendAccordion">
+      <button class="legend-accordion-header" id="legendAccordionHeader" aria-expanded="true">
+        <svg class="legend-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <line x1="3" y1="12" x2="21" y2="12"></line>
+          <line x1="3" y1="18" x2="21" y2="18"></line>
+          <circle cx="7" cy="6" r="2" fill="currentColor"></circle>
+          <circle cx="14" cy="12" r="2" fill="currentColor"></circle>
+          <circle cx="10" cy="18" r="2" fill="currentColor"></circle>
+        </svg>
+        <span class="legend-accordion-title">Legende</span>
+        <svg class="legend-chevron" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="6 9 12 15 18 9"></polyline>
+        </svg>
+      </button>
+      <div class="legend-accordion-content" id="legendAccordionContent">
 
-    <!-- Color Legend -->
-    <div class="color-legend" id="colorLegend">
-      <div class="color-legend-title" id="colorLegendTitle">Legend</div>
-      <div class="color-legend-items" id="colorLegendItems">
-        <!-- Populated dynamically -->
+      <!-- Buildings Layer Section -->
+      <div class="legend-section" data-layer="buildings">
+        <div class="legend-section-header">
+          <span class="legend-section-title">Gebäude</span>
+          <button class="legend-layer-toggle active" data-layer="buildings" title="Layer ein-/ausblenden">
+            <svg class="eye-open" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+              <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+            <svg class="eye-closed" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+              <line x1="1" y1="1" x2="23" y2="23"></line>
+            </svg>
+          </button>
+        </div>
+        <div class="legend-color-toggle" id="buildingColorToggle">
+          <button class="legend-color-btn" data-building-color="none">Keine</button>
+          <button class="legend-color-btn active" data-building-color="status">Status</button>
+        </div>
+        <div class="legend-section-content" id="buildingsLegendItems">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+
+      <!-- Landcovers Layer Section -->
+      <div class="legend-section" data-layer="landcovers">
+        <div class="legend-section-header">
+          <span class="legend-section-title">Bodenbedeckung</span>
+          <button class="legend-layer-toggle active" data-layer="landcovers" title="Layer ein-/ausblenden">
+            <svg class="eye-open" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+              <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+            <svg class="eye-closed" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+              <line x1="1" y1="1" x2="23" y2="23"></line>
+            </svg>
+          </button>
+        </div>
+        <div class="legend-color-toggle">
+          <button class="legend-color-btn active" data-color="none">Keine</button>
+          <button class="legend-color-btn" data-color="category">Kategorie</button>
+          <button class="legend-color-btn" data-color="period">Periode</button>
+        </div>
+        <div class="legend-section-content" id="landcoversLegendItems">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+
+      <!-- Parcels Layer Section -->
+      <div class="legend-section" data-layer="parcels">
+        <div class="legend-section-header">
+          <span class="legend-section-title">Parzellen</span>
+          <button class="legend-layer-toggle active" data-layer="parcels" title="Layer ein-/ausblenden">
+            <svg class="eye-open" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+              <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+            <svg class="eye-closed" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+              <line x1="1" y1="1" x2="23" y2="23"></line>
+            </svg>
+          </button>
+        </div>
+        <div class="legend-section-content">
+          <div class="legend-item">
+            <span class="legend-swatch legend-swatch-outline" style="border-color: #1e3a5f"></span>
+            <span class="legend-label">Parzelle</span>
+          </div>
+        </div>
+      </div>
       </div>
     </div>
     <!-- Building Panel -->
