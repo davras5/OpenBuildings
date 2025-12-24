@@ -23,9 +23,9 @@ OpenBuildings brings together publicly available building data from multiple sou
 **Live demo:** [https://davras5.github.io/OpenBuildings/](https://davras5.github.io/OpenBuildings/)
 
 <p align="center">
-  <img src="image1.png" width="45%" />
+  <img src="images/Preview1.jpg" width="45%" />
   &nbsp;&nbsp;
-  <img src="image2.png" width="45%" />
+  <img src="images/Preview2.jpg" width="45%" />
 </p>
 
 ---
