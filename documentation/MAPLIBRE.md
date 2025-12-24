@@ -1,8 +1,10 @@
 # MapLibre GL JS Frontend
 
-This document covers the map frontend architecture in `js/app.js`.
+This document covers the map frontend architecture in the OpenBuildings application.
 
 ## Overview
+
+**MapLibre GL JS Version:** 4.7.1
 
 ```
 ┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
@@ -15,6 +17,37 @@ This document covers the map frontend architecture in `js/app.js`.
                         from MVT tile           for Panel Display
 ```
 
+## Module Architecture
+
+The application uses code-splitting for performance:
+
+| Module | Path | Load Strategy |
+|--------|------|---------------|
+| Main App | `js/app.js` | Immediate |
+| 3D Mode | `js/modules/3d-mode.js` | Lazy (dynamic import) |
+| Search | `js/modules/search.js` | Lazy (dynamic import) |
+
+```javascript
+// Example lazy loading pattern
+const { setup3DMode, teardown3DMode } = await import('./modules/3d-mode.js');
+```
+
+---
+
+## Map Initialization
+
+```javascript
+const map = new maplibregl.Map({
+  container: 'map',
+  style: `https://api.protomaps.com/styles/v2/white.json?key=${PROTOMAPS_KEY}`,
+  center: [8.2275, 46.8182], // Switzerland center
+  zoom: 7,
+  maxBounds: [[5.5, 45.5], [11.0, 48.0]] // Restrict to Switzerland
+});
+```
+
+---
+
 ## Layer Architecture
 
 ### Sources
@@ -26,6 +59,8 @@ All data layers use vector tile sources from Supabase Edge Functions:
 | `buildings` | vector | 0-14 | Point |
 | `parcels` | vector | 10-14 | Polygon |
 | `landcovers` | vector | 10-14 | Polygon |
+| `terrain-dem` | raster-dem | 0-15 | Elevation (lazy) |
+| `switzerland-border` | geojson | 0-14 | LineString |
 
 ### Layers (render order, bottom to top)
 
@@ -38,14 +73,39 @@ All data layers use vector tile sources from Supabase Edge Functions:
 | `landcovers-outline` | landcovers | line | zoom ≥ 12 |
 | `buildings-heat` | buildings | heatmap | zoom < 12 |
 | `unclustered-point` | buildings | circle | zoom ≥ 10 |
+| `sky` | none | sky | 3D mode only |
 
 ### Layer Colors
 
 | Layer | Default | Selected | Opacity |
 |-------|---------|----------|---------|
-| Buildings | `#64748b` (slate) | `#059669` (green) | 0.3 → 1.0 by zoom |
+| Buildings | Status-based (see below) | `#059669` (green) | 0.3 → 1.0 by zoom |
 | Parcels | `#1e3a5f` (deep blue) | `#059669` (green) | 0.1 / 0.25 |
 | Landcovers | `#8b5cf6` (purple) | `#059669` (green) | 0.2 / 0.4 |
+
+### Building Status Colors
+
+Buildings are colored by construction status using a match expression:
+
+| Status Code | Label | Color |
+|-------------|-------|-------|
+| `1004` | Bestehend (Existing) | `#059669` (emerald) |
+| `1003` | Im Bau (Under construction) | `#eab308` (yellow) |
+| `1002` | Bewilligt (Approved) | `#0891b2` (cyan) |
+| `1001` | Projektiert (Planned) | `#6366f1` (indigo) |
+| `1005` | Nicht nutzbar (Unusable) | `#9ca3af` (gray) |
+| `1007` | Abgebrochen (Demolished) | `#dc2626` (red) |
+| `1008` | Nicht realisiert (Not realized) | `#6b7280` (dark gray) |
+
+```javascript
+// Color expression builder
+const matchExpression = ['match', ['get', 'status'],
+  '1004', '#059669',
+  '1003', '#eab308',
+  // ... etc
+  '#475569' // fallback
+];
+```
 
 ---
 
@@ -64,6 +124,14 @@ const state = {
 };
 ```
 
+### Selection Tracking (Paint Optimization)
+
+```javascript
+let lastRenderedBuildingSelection = undefined;
+let lastRenderedBuildingColorScheme = undefined;
+const lastRenderedPolygonSelection = { parcels: undefined, landcovers: undefined };
+```
+
 ### URL Parameters (Deep Linking)
 
 | Parameter | Type | Description |
@@ -78,6 +146,46 @@ const state = {
 | `marker` | bool | Show search marker at lon/lat |
 
 **Example:** `?zoom=14.50&lon=8.54170&lat=47.37690&building=123&3d=true`
+
+---
+
+## Event Handlers
+
+### Map Events
+
+| Event | Purpose |
+|-------|---------|
+| `load` | Add layers and set initial view |
+| `mousemove` | Display mouse coordinates (throttled via RAF) |
+| `mouseout` | Clear coordinate display |
+| `click` | Query rendered features (parcels/landcover) |
+| `contextmenu` | Open right-click context menu |
+| `movestart` | Close context menu on map movement |
+| `moveend` | Update URL parameters |
+| `rotate` | Rotate compass indicator (throttled via RAF) |
+| `idle` | Re-add layers after style change |
+
+### Layer Event Management
+
+```javascript
+const layerHandlers = {
+  buildings: {
+    click: (e) => selectBuilding(e.features[0].properties.id, coords),
+    mouseenter: () => { map.getCanvas().style.cursor = 'pointer'; },
+    mouseleave: () => { map.getCanvas().style.cursor = ''; }
+  },
+  parcels: cursorHandlers,
+  landcovers: cursorHandlers
+};
+
+function manageLayerHandlers(action, layerName, layerId) {
+  const handlers = layerHandlers[layerName];
+  const method = action === 'add' ? 'on' : 'off';
+  Object.entries(handlers).forEach(([event, handler]) => {
+    map[method](event, layerId, handler);
+  });
+}
+```
 
 ---
 
@@ -141,6 +249,21 @@ Click Event
 | Search input | Debounce | 300ms |
 | Building click | Timeout flag | 100ms |
 
+### Code Splitting
+
+Modules are loaded on-demand to reduce initial bundle size:
+
+```javascript
+// 3D mode loaded only when user enables it
+if (enable3D) {
+  const { setup3DMode } = await import('./modules/3d-mode.js');
+  await setup3DMode();
+}
+
+// Search module loaded when search panel opens
+const { initSearch } = await import('./modules/search.js');
+```
+
 ### Paint Property Optimization
 
 Selection changes track previous state to skip unnecessary repaints:
@@ -150,9 +273,27 @@ Selection changes track previous state to skip unnecessary repaints:
 if (lastRenderedBuildingSelection === currentSelection) return;
 ```
 
+### Style Change Handling
+
+Uses `idle` event (more reliable than `load`) for re-adding layers:
+
+```javascript
+map.setStyle(newStyleUrl);
+map.once('idle', async () => {
+  await addSwitzerlandBorder();
+  addParcelsLayer();
+  addLandcoverLayer();
+  addBuildingsLayer();
+});
+```
+
 ---
 
 ## 3D Mode
+
+### Module Location
+
+`js/modules/3d-mode.js` - Lazy-loaded on first 3D toggle
 
 ### Terrain Source
 
@@ -176,6 +317,28 @@ In 3D mode, `landcovers-fill` converts from `fill` to `fill-extrusion`:
 | `fill-extrusion-base` | 0m |
 | `fill-extrusion-opacity` | 0.8 (default) / 0.6 (selected) |
 
+### Sky Layer
+
+```javascript
+{
+  id: 'sky',
+  type: 'sky',
+  paint: {
+    'sky-type': 'atmosphere',
+    'sky-atmosphere-sun': [0.0, 90.0],
+    'sky-atmosphere-sun-intensity': 15
+  }
+}
+```
+
+### Camera Animation
+
+```javascript
+// Synchronized terrain and camera animation
+// Easing: ease-out cubic
+const easing = 1 - Math.pow(1 - progress, 3);
+```
+
 ### Camera Settings
 
 | Setting | Value |
@@ -183,6 +346,43 @@ In 3D mode, `landcovers-fill` converts from `fill` to `fill-extrusion`:
 | Pitch (3D) | 60° |
 | Pitch (2D) | 0° |
 | Terrain exaggeration | 1.5x |
+| Animation duration | 1000ms |
+
+---
+
+## Search
+
+### Module Location
+
+`js/modules/search.js` - Lazy-loaded when search panel opens
+
+### API Endpoint (Swisstopo)
+
+```
+https://api3.geo.admin.ch/rest/services/ech/SearchServer
+  ?searchText={query}
+  &type=locations
+  &type=layers
+  &lang=de
+  &sr=4326
+```
+
+### Result Types
+
+| Origin | Action |
+|--------|--------|
+| `address`, `zipcode`, `sn25`, `gg25`, `district`, `canton`, `gazetteer` | Fly to location, add marker |
+| `layer` | Displayed but disabled |
+
+### Search Marker
+
+```javascript
+state.searchMarker = new maplibregl.Marker({
+  element: createSearchMarkerElement()
+})
+  .setLngLat([lon, lat])
+  .addTo(map);
+```
 
 ---
 
@@ -192,11 +392,12 @@ In 3D mode, `landcovers-fill` converts from `fill` to `fill-extrusion`:
 
 [Protomaps](https://protomaps.com/) vector tiles with multiple styles:
 
-| Style | Key |
-|-------|-----|
-| Light (default) | `white` |
-| Streets | `light` |
-| Satellite | `satellite` |
+| Style | Key | Description |
+|-------|-----|-------------|
+| Light (default) | `white` | Clean, minimal |
+| Streets | `light` | Road emphasis |
+| Outdoors | `outdoors` | Terrain-friendly |
+| Satellite | `satellite` | Aerial imagery |
 
 ### Style Change Handling
 
@@ -205,7 +406,8 @@ When basemap changes, layers are re-added in order:
 2. Parcels
 3. Landcovers
 4. Buildings
-5. Re-apply 3D terrain if active
+5. Re-apply color scheme
+6. Re-apply 3D terrain if active
 
 ---
 
@@ -219,7 +421,7 @@ When basemap changes, layers are re-added in order:
 | `detailZoom` | 14 | Zoom for feature selection |
 | `searchZoom` | 17 | Zoom for search results |
 | `quickDuration` | 300ms | Zoom button animation |
-| `standardDuration` | 1000ms | Fit bounds animation |
+| `standardDuration` | 1000ms | Fit bounds / 3D animation |
 | `flyDuration` | 1500ms | Fly-to animation |
 | `pitch3D` | 60° | 3D mode camera pitch |
 | `terrainExaggeration` | 1.5 | Terrain height multiplier |
@@ -242,25 +444,45 @@ const SWITZERLAND_BOUNDS = [5.9559, 45.818, 10.4921, 47.8084];
 
 ---
 
-## Search (Swisstopo)
+## Custom Controls
 
-### API Endpoint
+### Zoom Controls
 
-```
-https://api3.geo.admin.ch/rest/services/ech/SearchServer
-  ?searchText={query}
-  &type=locations
-  &type=layers
-  &lang=de
-  &sr=4326
+```javascript
+document.getElementById('zoomInBtn').addEventListener('click', () => {
+  map.zoomIn({ duration: MAP_CONFIG.quickDuration });
+});
 ```
 
-### Result Types
+### Scale Control
 
-| Origin | Action |
-|--------|--------|
-| `address`, `zipcode`, `sn25`, `gg25`, `district`, `canton`, `gazetteer` | Fly to location, add marker |
-| `layer` | Displayed but disabled |
+```javascript
+const scaleControl = new maplibregl.ScaleControl({ unit: 'metric' });
+map.on('load', () => {
+  scaleControl.onAdd(map);
+  scaleContainer.appendChild(scaleControl._container);
+});
+```
+
+### Compass Control
+
+- Reset north/pitch with `map.easeTo({ bearing: 0, pitch: 0 })`
+- Rotates compass icon with `map.on('rotate')` event
+- Uses `requestAnimationFrame` for throttling
+
+### Home Button
+
+```javascript
+map.fitBounds(SWITZERLAND_BOUNDS, {
+  padding: MAP_CONFIG.boundsPadding,
+  duration: MAP_CONFIG.standardDuration
+});
+```
+
+### Context Menu
+
+- Right-click handler for coordinates, share, print options
+- Custom positioning with viewport bounds checking
 
 ---
 
@@ -271,6 +493,13 @@ https://api3.geo.admin.ch/rest/services/ech/SearchServer
 Displayed in loading overlay:
 - MapLibre GL not loaded
 - Supabase client not loaded
+
+```javascript
+if (typeof maplibregl === 'undefined') {
+  showFatalError('Map library failed to load...');
+  return;
+}
+```
 
 ### Runtime Errors
 
@@ -286,3 +515,15 @@ Displayed as toast notifications:
 | `error` | Red | X circle |
 | `success` | Green | Check circle |
 | `info` | Blue | Info circle |
+
+---
+
+## File Structure
+
+| File | Purpose |
+|------|---------|
+| `index.html` | MapLibre library loading (CDN) |
+| `js/app.js` | Main map initialization, layers, events |
+| `js/modules/3d-mode.js` | 3D terrain and camera management |
+| `js/modules/search.js` | Search and marker placement |
+| `css/styles.css` | Map container and control styling |
