@@ -735,35 +735,37 @@ main {
   letter-spacing: 0.5px;
 }
 
-/* Layer Visibility Toggle */
+/* Layer Visibility Toggle (Eye Icon) */
 .legend-layer-toggle {
-  width: 28px;
-  height: 16px;
-  background: var(--clr-slate-300);
+  background: none;
   border: none;
-  border-radius: 8px;
   cursor: pointer;
-  position: relative;
-  transition: background 0.2s ease;
+  padding: 4px;
+  border-radius: var(--radius-sm);
+  color: var(--clr-text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.15s ease, background 0.15s ease;
 }
 
-.legend-layer-toggle.active {
-  background: var(--clr-leaf);
+.legend-layer-toggle:hover {
+  background: var(--clr-slate-100);
+  color: var(--clr-text);
 }
 
-.legend-layer-toggle .toggle-dot {
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  width: 12px;
-  height: 12px;
-  background: var(--clr-surface);
-  border-radius: 50%;
-  transition: transform 0.2s ease;
+.legend-layer-toggle .eye-open,
+.legend-layer-toggle .eye-closed {
+  display: none;
 }
 
-.legend-layer-toggle.active .toggle-dot {
-  transform: translateX(12px);
+.legend-layer-toggle.active .eye-open {
+  display: block;
+}
+
+.legend-layer-toggle:not(.active) .eye-closed {
+  display: block;
+  opacity: 0.5;
 }
 
 /* Color Toggle within Legend */
