@@ -1309,7 +1309,7 @@ async function init() {
 
     // Apply 3D mode from URL params
     if (state.is3DMode) {
-      setup3DTerrain();
+      await setup3DTerrain();
       map.setPitch(MAP_CONFIG.pitch3D);
       toggle3DButton.textContent = '2D';
     }
@@ -1466,31 +1466,64 @@ async function init() {
   }
 
   function setup3DTerrain() {
-    // Add AWS Terrarium terrain source if not exists
-    if (!map.getSource('terrain-dem')) {
-      map.addSource('terrain-dem', {
-        type: 'raster-dem',
-        tiles: ['https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png'],
-        encoding: 'terrarium',
-        tileSize: 256,
-        maxzoom: 15
-      });
-    }
+    return new Promise((resolve) => {
+      // Add AWS Terrarium terrain source if not exists
+      const sourceExists = !!map.getSource('terrain-dem');
+      if (!sourceExists) {
+        map.addSource('terrain-dem', {
+          type: 'raster-dem',
+          tiles: ['https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png'],
+          encoding: 'terrarium',
+          tileSize: 256,
+          maxzoom: 15
+        });
+      }
 
-    // Enable terrain
-    try {
-      map.setTerrain({ source: 'terrain-dem', exaggeration: MAP_CONFIG.terrainExaggeration });
+      // Wait for terrain source to be loaded before enabling terrain
+      const onSourceLoaded = (e) => {
+        if (e.sourceId === 'terrain-dem' && e.isSourceLoaded) {
+          map.off('sourcedata', onSourceLoaded);
+          enableTerrainAndResolve();
+        }
+      };
 
-      // Force terrain tiles to reload at correct LOD by triggering a tiny zoom adjustment
-      const currentZoom = map.getZoom();
-      map.setZoom(currentZoom - 0.01);
-      requestAnimationFrame(() => map.setZoom(currentZoom));
-    } catch (err) {
-      debugWarn('Failed to enable terrain:', err);
-    }
+      const enableTerrainAndResolve = () => {
+        try {
+          map.setTerrain({ source: 'terrain-dem', exaggeration: MAP_CONFIG.terrainExaggeration });
+        } catch (err) {
+          debugWarn('Failed to enable terrain:', err);
+        }
 
-    // Convert landcover to fill-extrusion for 3D view
-    setLandcoverLayerType(true);
+        // Convert landcover to fill-extrusion for 3D view
+        setLandcoverLayerType(true);
+
+        // Small delay to let the terrain render before camera animation
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => resolve());
+        });
+      };
+
+      // If source already exists and is loaded, enable immediately
+      if (sourceExists && map.isSourceLoaded('terrain-dem')) {
+        enableTerrainAndResolve();
+      } else if (sourceExists) {
+        // Source exists but may not be loaded yet
+        map.on('sourcedata', onSourceLoaded);
+        // Fallback timeout in case event doesn't fire
+        setTimeout(() => {
+          map.off('sourcedata', onSourceLoaded);
+          enableTerrainAndResolve();
+        }, 100);
+      } else {
+        // New source - wait for it to load
+        map.on('sourcedata', onSourceLoaded);
+        // Fallback timeout in case tiles take too long
+        setTimeout(() => {
+          map.off('sourcedata', onSourceLoaded);
+          enableTerrainAndResolve();
+        }, 500);
+      }
+    });
   }
 
   function remove3DTerrain() {
@@ -1501,14 +1534,21 @@ async function init() {
     setLandcoverLayerType(false);
   }
 
-  function toggle3D() {
+  async function toggle3D() {
     state.is3DMode = !state.is3DMode;
 
     if (state.is3DMode) {
-      setup3DTerrain();
+      // Disable button during transition to prevent double-clicks
+      toggle3DButton.disabled = true;
+      toggle3DButton.textContent = '...';
+
+      // Wait for terrain to be ready before animating camera
+      await setup3DTerrain();
+
       // Pitch camera for 3D perspective
       map.easeTo({ pitch: MAP_CONFIG.pitch3D, duration: MAP_CONFIG.standardDuration });
       toggle3DButton.textContent = '2D';
+      toggle3DButton.disabled = false;
     } else {
       remove3DTerrain();
       // Reset camera to flat view
