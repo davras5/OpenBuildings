@@ -118,9 +118,9 @@ const BUILDING_CATEGORY_LABELS = {
   commercial_only: 'Commercial Only'
 };
 
-/** Construction period labels (GBAUP) - using GWR codes */
+/** Construction period labels (GBAUP) - using GWR codes, German */
 const CONSTRUCTION_PERIOD_LABELS = {
-  '8011': 'Before 1919',
+  '8011': 'vor 1919',
   '8012': '1919–1945',
   '8013': '1946–1960',
   '8014': '1961–1970',
@@ -132,7 +132,7 @@ const CONSTRUCTION_PERIOD_LABELS = {
   '8020': '2001–2005',
   '8021': '2006–2010',
   '8022': '2011–2015',
-  '8023': '2016 onwards'
+  '8023': 'ab 2016'
 };
 
 /** Color schemes for landcover visualization - using GWR codes */
@@ -140,15 +140,15 @@ const COLOR_SCHEMES = {
   none: null,
   category: {
     property: 'building_category',
-    title: 'Building Category',
+    title: 'Gebäudekategorie',
     labels: {
-      '1010': 'Provisional Dwelling',
-      '1020': 'Single-Family House',
-      '1025': 'Row House',
-      '1030': 'Multi-Family House',
-      '1040': 'Residential (Mixed Use)',
-      '1060': 'Residential/Commercial',
-      '1080': 'Commercial Only'
+      '1010': 'Provisorische Unterkunft',
+      '1020': 'Einfamilienhaus',
+      '1025': 'Reihenhaus',
+      '1030': 'Mehrfamilienhaus',
+      '1040': 'Wohngebäude mit Nebennutzung',
+      '1060': 'Gebäude mit Wohnnutzung',
+      '1080': 'Gebäude ohne Wohnnutzung'
     },
     colors: {
       '1010': '#94a3b8',  // provisional - slate
@@ -168,12 +168,13 @@ const COLOR_SCHEMES = {
       '1060': '#d97706',  // darker amber
       '1080': '#dc2626'   // darker red
     },
-    defaultColor: '#cbd5e1',
-    defaultOutline: '#94a3b8'
+    defaultColor: '#64748b',
+    defaultOutline: '#475569',
+    missingLabel: 'Keine Angaben'
   },
   period: {
     property: 'building_construction_period',
-    title: 'Construction Period',
+    title: 'Bauperiode',
     labels: CONSTRUCTION_PERIOD_LABELS,
     colors: {
       '8011': '#92400e',  // before 1919
@@ -205,8 +206,9 @@ const COLOR_SCHEMES = {
       '8022': '#8b5cf6',
       '8023': '#a855f7'
     },
-    defaultColor: '#cbd5e1',
-    defaultOutline: '#94a3b8'
+    defaultColor: '#64748b',
+    defaultOutline: '#475569',
+    missingLabel: 'Keine Angaben'
   }
 };
 
@@ -1605,6 +1607,7 @@ async function init() {
     colorLegendTitle.textContent = scheme.title;
     colorLegendItems.innerHTML = '';
 
+    // Add entries for each defined value
     Object.entries(scheme.colors).forEach(([key, color]) => {
       const label = scheme.labels[key] || key;
       const item = document.createElement('div');
@@ -1615,6 +1618,17 @@ async function init() {
       `;
       colorLegendItems.appendChild(item);
     });
+
+    // Add "missing values" entry at the end
+    if (scheme.missingLabel) {
+      const missingItem = document.createElement('div');
+      missingItem.className = 'color-legend-item';
+      missingItem.innerHTML = `
+        <span class="color-legend-swatch" style="background-color: ${scheme.defaultColor}"></span>
+        <span class="color-legend-label">${scheme.missingLabel}</span>
+      `;
+      colorLegendItems.appendChild(missingItem);
+    }
 
     colorLegend.classList.add('visible');
   }
