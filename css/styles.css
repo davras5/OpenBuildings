@@ -499,6 +499,51 @@ main {
   to { transform: rotate(360deg); }
 }
 
+.loading-text {
+  margin-top: var(--space-sm);
+  color: var(--clr-text-muted);
+  font-size: 0.875rem;
+}
+
+/* Fatal Error Overlay */
+.fatal-error {
+  text-align: center;
+  padding: var(--space-lg);
+  max-width: 400px;
+}
+
+.fatal-error-icon {
+  margin-bottom: var(--space-md);
+  color: var(--clr-coral);
+}
+
+.fatal-error h2 {
+  margin: 0 0 var(--space-sm) 0;
+  font-size: 1.25rem;
+  color: var(--clr-text);
+}
+
+.fatal-error p {
+  margin: 0 0 var(--space-md) 0;
+  color: var(--clr-text-muted);
+  font-size: 0.875rem;
+}
+
+.fatal-error button {
+  padding: var(--space-sm) var(--space-md);
+  background: var(--clr-ocean);
+  color: var(--clr-white);
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.fatal-error button:hover {
+  background: var(--clr-sky);
+}
+
 /* ============================================
    Basemap Selector
    ============================================ */
