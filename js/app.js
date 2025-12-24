@@ -1281,6 +1281,17 @@ async function init() {
     addLandcoverLayer();
     addBuildingsLayer();
 
+    // Always load terrain with exaggeration=0 for smooth 2D/3D transitions
+    // This ensures objects are already positioned on the terrain mesh
+    map.addSource('terrain-dem', {
+      type: 'raster-dem',
+      tiles: ['https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png'],
+      encoding: 'terrarium',
+      tileSize: 256,
+      maxzoom: 15
+    });
+    map.setTerrain({ source: 'terrain-dem', exaggeration: 0 });
+
     // Unified click handler for parcels and landcover (respects layer hierarchy)
     // Buildings have their own handler with state.markerClickHandled flag
     map.on('click', (e) => {
@@ -1307,11 +1318,9 @@ async function init() {
     // Show panel for selected item from URL params
     await showSelectedPanel();
 
-    // Apply 3D mode from URL params
+    // Apply 3D mode from URL params (no animation on initial load)
     if (state.is3DMode) {
-      setup3DTerrain();
-      map.setPitch(MAP_CONFIG.pitch3D);
-      toggle3DButton.textContent = '2D';
+      await setup3DMode(false);
     }
 
     loadingOverlay.classList.add('hidden');
@@ -1465,57 +1474,132 @@ async function init() {
     }
   }
 
-  function setup3DTerrain() {
-    // Add AWS Terrarium terrain source if not exists
-    if (!map.getSource('terrain-dem')) {
-      map.addSource('terrain-dem', {
-        type: 'raster-dem',
-        tiles: ['https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png'],
-        encoding: 'terrarium',
-        tileSize: 256,
-        maxzoom: 15
+  /**
+   * Animate both terrain exaggeration and camera pitch together
+   * Uses the same easing curve for perfect synchronization
+   * @param {Object} options
+   * @param {number} options.fromExaggeration - Starting exaggeration value
+   * @param {number} options.toExaggeration - Target exaggeration value
+   * @param {number} options.fromPitch - Starting pitch value
+   * @param {number} options.toPitch - Target pitch value
+   * @param {number} options.duration - Animation duration in ms
+   * @returns {Promise} Resolves when animation completes
+   */
+  function animateTerrainAndCamera({ fromExaggeration, toExaggeration, fromPitch, toPitch, duration }) {
+    return new Promise((resolve) => {
+      const startTime = performance.now();
+
+      function animate(currentTime) {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+
+        // Ease-out cubic for smooth deceleration
+        const eased = 1 - Math.pow(1 - progress, 3);
+
+        const currentExaggeration = fromExaggeration + (toExaggeration - fromExaggeration) * eased;
+        const currentPitch = fromPitch + (toPitch - fromPitch) * eased;
+
+        try {
+          map.setTerrain({ source: 'terrain-dem', exaggeration: currentExaggeration });
+          map.setPitch(currentPitch);
+        } catch (err) {
+          debugWarn('Failed to animate terrain/camera:', err);
+        }
+
+        if (progress < 1) {
+          requestAnimationFrame(animate);
+        } else {
+          resolve();
+        }
+      }
+
+      requestAnimationFrame(animate);
+    });
+  }
+
+  /**
+   * Setup 3D mode: add sky layer, convert landcover, set exaggeration and pitch
+   * @param {boolean} animate - Whether to animate the transition
+   */
+  async function setup3DMode(animate = true) {
+    // Add sky layer for better 3D visuals
+    if (!map.getLayer('sky')) {
+      map.addLayer({
+        id: 'sky',
+        type: 'sky',
+        paint: {
+          'sky-type': 'atmosphere',
+          'sky-atmosphere-sun': [0.0, 90.0],
+          'sky-atmosphere-sun-intensity': 15
+        }
       });
-    }
-
-    // Enable terrain
-    try {
-      map.setTerrain({ source: 'terrain-dem', exaggeration: MAP_CONFIG.terrainExaggeration });
-
-      // Force terrain tiles to reload at correct LOD by triggering a tiny zoom adjustment
-      const currentZoom = map.getZoom();
-      map.setZoom(currentZoom - 0.01);
-      requestAnimationFrame(() => map.setZoom(currentZoom));
-    } catch (err) {
-      debugWarn('Failed to enable terrain:', err);
     }
 
     // Convert landcover to fill-extrusion for 3D view
     setLandcoverLayerType(true);
+
+    if (animate) {
+      // Animate terrain and camera together with same easing
+      await animateTerrainAndCamera({
+        fromExaggeration: 0,
+        toExaggeration: MAP_CONFIG.terrainExaggeration,
+        fromPitch: map.getPitch(),
+        toPitch: MAP_CONFIG.pitch3D,
+        duration: MAP_CONFIG.standardDuration
+      });
+    } else {
+      // Instant - for initial page load from URL params
+      map.setTerrain({ source: 'terrain-dem', exaggeration: MAP_CONFIG.terrainExaggeration });
+      map.setPitch(MAP_CONFIG.pitch3D);
+    }
+
+    toggle3DButton.textContent = '2D';
   }
 
-  function remove3DTerrain() {
-    // Disable terrain
-    map.setTerrain(null);
+  /**
+   * Exit 3D mode: remove sky layer, flatten terrain, reset pitch
+   * @param {boolean} animate - Whether to animate the transition
+   */
+  async function exit3DMode(animate = true) {
+    if (animate) {
+      // Animate terrain and camera together with same easing
+      await animateTerrainAndCamera({
+        fromExaggeration: MAP_CONFIG.terrainExaggeration,
+        toExaggeration: 0,
+        fromPitch: map.getPitch(),
+        toPitch: 0,
+        duration: MAP_CONFIG.standardDuration
+      });
+    } else {
+      map.setTerrain({ source: 'terrain-dem', exaggeration: 0 });
+      map.setPitch(0);
+    }
+
+    // Remove sky layer
+    if (map.getLayer('sky')) {
+      map.removeLayer('sky');
+    }
 
     // Convert landcover back to flat fill
     setLandcoverLayerType(false);
+
+    toggle3DButton.textContent = '3D';
   }
 
-  function toggle3D() {
+  async function toggle3D() {
     state.is3DMode = !state.is3DMode;
 
+    // Disable button during transition to prevent double-clicks
+    toggle3DButton.disabled = true;
+    toggle3DButton.textContent = '...';
+
     if (state.is3DMode) {
-      setup3DTerrain();
-      // Pitch camera for 3D perspective
-      map.easeTo({ pitch: MAP_CONFIG.pitch3D, duration: MAP_CONFIG.standardDuration });
-      toggle3DButton.textContent = '2D';
+      await setup3DMode(true);
     } else {
-      remove3DTerrain();
-      // Reset camera to flat view
-      map.easeTo({ pitch: 0, duration: MAP_CONFIG.standardDuration });
-      toggle3DButton.textContent = '3D';
+      await exit3DMode(true);
     }
 
+    toggle3DButton.disabled = false;
     updateUrlParams();
   }
 
