@@ -97,6 +97,7 @@ Primary entity representing individual buildings.
 | `class` | Class | Klasse | `text` | `CHECK (class ~ '^[0-9]{4}$')` | GWR | Building class code (GKLAS) |
 | `roof_form` | Roof Form | Dachform | `roof_form` | | Derived | Roof form |
 | `construction_year` | Construction Year | Baujahr | `integer` | `CHECK (construction_year BETWEEN 1000 AND 2100)` | GWR | Year of construction (GBAUJ) |
+| `construction_period` | Construction Period | Bauperiode | `text` | | GWR | Period of construction (GBAUP). For buildings up to 1980, follows 2000 Census guidelines. For 1981-2015, expressed in 5-year intervals. Since 2016, deduced from construction year. |
 | `renovation_year` | Renovation Year | Renovationsjahr | `integer` | `CHECK (renovation_year BETWEEN 1000 AND 2100)` | GWR | Year of last renovation |
 
 #### 2. Location / Standort
@@ -393,6 +394,48 @@ CREATE TYPE roof_form AS ENUM (
     'dome',
     'shed',
     'other'
+);
+```
+
+---
+
+### buildings.construction_period (GBAUP) — GWR
+
+From GWR Merkmalskatalog 4.2, Bauperiode.
+
+For buildings constructed up to and including 1980, the subdivision into construction periods follows the guidelines for the Buildings and Dwellings Statistics used in the 2000 Federal Population Census. For buildings constructed from 1981 (and up to 2015 at the latest), the construction period is expressed in five-year intervals. Since 2016, the construction period is deduced based on the year of construction.
+
+| Code | Value | Alias (DE) | Alias (EN) |
+|------|-------|------------|------------|
+| 8011 | `before_1919` | vor 1919 | Period before 1919 |
+| 8012 | `1919_1945` | 1919 bis 1945 | Period from 1919 to 1945 |
+| 8013 | `1946_1960` | 1946 bis 1960 | Period from 1946 to 1960 |
+| 8014 | `1961_1970` | 1961 bis 1970 | Period from 1961 to 1970 |
+| 8015 | `1971_1980` | 1971 bis 1980 | Period from 1971 to 1980 |
+| 8016 | `1981_1985` | 1981 bis 1985 | Period from 1981 to 1985 |
+| 8017 | `1986_1990` | 1986 bis 1990 | Period from 1986 to 1990 |
+| 8018 | `1991_1995` | 1991 bis 1995 | Period from 1991 to 1995 |
+| 8019 | `1996_2000` | 1996 bis 2000 | Period from 1996 to 2000 |
+| 8020 | `2001_2005` | 2001 bis 2005 | Period from 2001 to 2005 |
+| 8021 | `2006_2010` | 2006 bis 2010 | Period from 2006 to 2010 |
+| 8022 | `2011_2015` | 2011 bis 2015 | Period from 2011 to 2015 |
+| 8023 | `2016_onwards` | ab 2016 | Period from 2016 onwards |
+
+```sql
+CREATE TYPE construction_period AS ENUM (
+    'before_1919',   -- 8011
+    '1919_1945',     -- 8012
+    '1946_1960',     -- 8013
+    '1961_1970',     -- 8014
+    '1971_1980',     -- 8015
+    '1981_1985',     -- 8016
+    '1986_1990',     -- 8017
+    '1991_1995',     -- 8018
+    '1996_2000',     -- 8019
+    '2001_2005',     -- 8020
+    '2006_2010',     -- 8021
+    '2011_2015',     -- 8022
+    '2016_onwards'   -- 8023
 );
 ```
 
@@ -912,6 +955,7 @@ CREATE TABLE public.buildings (
   class text,
   roof_form text,
   construction_year integer,
+  construction_period text,
   renovation_year integer,
 
   -- 2. Location / Standort
