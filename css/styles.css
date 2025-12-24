@@ -71,6 +71,7 @@ html, body {
   --panel-width: 360px;
   --search-bar-height: 48px;      /* Height of search input */
   --panel-top-offset: 72px;       /* search-bar-height + space-lg = 48px + 24px */
+  --footer-height: var(--space-lg); /* 24px - height of app footer */
 
   /* Breakpoints (for reference, used in media queries) */
   /* --bp-mobile: 640px; */
@@ -503,7 +504,7 @@ main {
    ============================================ */
 .basemap-selector {
   position: absolute;
-  bottom: 80px; /* 24px footer + 16px gap + 40px clearance */
+  bottom: calc(var(--space-2xl) + var(--space-sm)); /* Above scale overlay */
   right: var(--space-lg);
   display: flex;
   flex-direction: row-reverse;
@@ -722,12 +723,8 @@ main {
    App Footer - Full width bottom bar
    ============================================ */
 .app-footer {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: var(--space-lg);
-  z-index: 15;
+  flex-shrink: 0;
+  height: var(--footer-height);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -774,12 +771,11 @@ main {
    ============================================ */
 .map-scale-overlay {
   position: absolute;
-  bottom: 40px; /* 24px footer + 16px gap */
+  bottom: var(--space-md);
   left: var(--space-md);
   z-index: 10;
   display: flex;
-  align-items: center;
-  height: 22px;
+  align-items: flex-end;
   transition: left 0.3s ease;
 }
 
@@ -792,12 +788,12 @@ main {
 .map-scale-overlay .maplibregl-ctrl-scale {
   background: transparent;
   border: none;
-  border-top: 1px solid var(--clr-slate-700);
+  border-bottom: 1px solid var(--clr-slate-700);
   border-left: 1px solid var(--clr-slate-700);
   border-right: 1px solid var(--clr-slate-700);
   font-size: 0.6875rem;
   color: var(--clr-slate-600);
-  padding: 4px 0 0 0;
+  padding: 0 var(--space-xs) var(--space-xs) var(--space-xs);
   margin: 0;
   line-height: 1;
   min-width: 60px;
