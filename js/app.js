@@ -1307,9 +1307,9 @@ async function init() {
     // Show panel for selected item from URL params
     await showSelectedPanel();
 
-    // Apply 3D mode from URL params
+    // Apply 3D mode from URL params (no animation on initial load)
     if (state.is3DMode) {
-      await setup3DTerrain();
+      await setup3DTerrain(false);
       map.setPitch(MAP_CONFIG.pitch3D);
       toggle3DButton.textContent = '2D';
     }
@@ -1465,70 +1465,106 @@ async function init() {
     }
   }
 
-  function setup3DTerrain() {
+  /**
+   * Animate terrain exaggeration smoothly from start to end value
+   * @param {number} start - Starting exaggeration value
+   * @param {number} end - Target exaggeration value
+   * @param {number} duration - Animation duration in ms
+   * @returns {Promise} Resolves when animation completes
+   */
+  function animateTerrainExaggeration(start, end, duration) {
     return new Promise((resolve) => {
-      // Add AWS Terrarium terrain source if not exists
-      const sourceExists = !!map.getSource('terrain-dem');
-      if (!sourceExists) {
-        map.addSource('terrain-dem', {
-          type: 'raster-dem',
-          tiles: ['https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png'],
-          encoding: 'terrarium',
-          tileSize: 256,
-          maxzoom: 15
-        });
-      }
+      const startTime = performance.now();
 
-      // Wait for terrain source to be loaded before enabling terrain
-      const onSourceLoaded = (e) => {
-        if (e.sourceId === 'terrain-dem' && e.isSourceLoaded) {
-          map.off('sourcedata', onSourceLoaded);
-          enableTerrainAndResolve();
-        }
-      };
+      function animate(currentTime) {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
 
-      const enableTerrainAndResolve = () => {
+        // Ease-out cubic for smooth deceleration
+        const eased = 1 - Math.pow(1 - progress, 3);
+        const currentExaggeration = start + (end - start) * eased;
+
         try {
-          map.setTerrain({ source: 'terrain-dem', exaggeration: MAP_CONFIG.terrainExaggeration });
+          map.setTerrain({ source: 'terrain-dem', exaggeration: currentExaggeration });
         } catch (err) {
-          debugWarn('Failed to enable terrain:', err);
+          debugWarn('Failed to set terrain exaggeration:', err);
         }
 
-        // Convert landcover to fill-extrusion for 3D view
-        setLandcoverLayerType(true);
-
-        // Small delay to let the terrain render before camera animation
-        requestAnimationFrame(() => {
-          requestAnimationFrame(() => resolve());
-        });
-      };
-
-      // If source already exists and is loaded, enable immediately
-      if (sourceExists && map.isSourceLoaded('terrain-dem')) {
-        enableTerrainAndResolve();
-      } else if (sourceExists) {
-        // Source exists but may not be loaded yet
-        map.on('sourcedata', onSourceLoaded);
-        // Fallback timeout in case event doesn't fire
-        setTimeout(() => {
-          map.off('sourcedata', onSourceLoaded);
-          enableTerrainAndResolve();
-        }, 100);
-      } else {
-        // New source - wait for it to load
-        map.on('sourcedata', onSourceLoaded);
-        // Fallback timeout in case tiles take too long
-        setTimeout(() => {
-          map.off('sourcedata', onSourceLoaded);
-          enableTerrainAndResolve();
-        }, 500);
+        if (progress < 1) {
+          requestAnimationFrame(animate);
+        } else {
+          resolve();
+        }
       }
+
+      requestAnimationFrame(animate);
     });
   }
 
-  function remove3DTerrain() {
-    // Disable terrain
+  async function setup3DTerrain(animate = true) {
+    // Add AWS Terrarium terrain source if not exists
+    if (!map.getSource('terrain-dem')) {
+      map.addSource('terrain-dem', {
+        type: 'raster-dem',
+        tiles: ['https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png'],
+        encoding: 'terrarium',
+        tileSize: 256,
+        maxzoom: 15
+      });
+    }
+
+    // Add sky layer for better 3D visuals if not exists
+    if (!map.getLayer('sky')) {
+      map.addLayer({
+        id: 'sky',
+        type: 'sky',
+        paint: {
+          'sky-type': 'atmosphere',
+          'sky-atmosphere-sun': [0.0, 90.0],
+          'sky-atmosphere-sun-intensity': 15
+        }
+      });
+    }
+
+    // Enable terrain with zero exaggeration first (flat)
+    try {
+      map.setTerrain({ source: 'terrain-dem', exaggeration: 0 });
+    } catch (err) {
+      debugWarn('Failed to enable terrain:', err);
+    }
+
+    // Convert landcover to fill-extrusion for 3D view
+    setLandcoverLayerType(true);
+
+    // Wait for map to be fully idle (tiles loaded, rendering complete)
+    await map.once('idle');
+
+    // Animate terrain rising from flat to full exaggeration
+    if (animate) {
+      // Run exaggeration animation in parallel with camera pitch
+      animateTerrainExaggeration(0, MAP_CONFIG.terrainExaggeration, MAP_CONFIG.standardDuration);
+    } else {
+      // Instant - for initial page load from URL params
+      map.setTerrain({ source: 'terrain-dem', exaggeration: MAP_CONFIG.terrainExaggeration });
+    }
+  }
+
+  async function remove3DTerrain() {
+    // Animate terrain flattening and camera pitch together
+    const exaggerationPromise = animateTerrainExaggeration(
+      MAP_CONFIG.terrainExaggeration,
+      0,
+      MAP_CONFIG.standardDuration
+    );
+
+    // Wait for animation to complete
+    await exaggerationPromise;
+
+    // Remove terrain and sky layer
     map.setTerrain(null);
+    if (map.getLayer('sky')) {
+      map.removeLayer('sky');
+    }
 
     // Convert landcover back to flat fill
     setLandcoverLayerType(false);
@@ -1537,25 +1573,29 @@ async function init() {
   async function toggle3D() {
     state.is3DMode = !state.is3DMode;
 
+    // Disable button during transition to prevent double-clicks
+    toggle3DButton.disabled = true;
+    toggle3DButton.textContent = '...';
+
     if (state.is3DMode) {
-      // Disable button during transition to prevent double-clicks
-      toggle3DButton.disabled = true;
-      toggle3DButton.textContent = '...';
+      // Setup terrain and wait for it to be ready
+      await setup3DTerrain(true);
 
-      // Wait for terrain to be ready before animating camera
-      await setup3DTerrain();
-
-      // Pitch camera for 3D perspective
+      // Pitch camera for 3D perspective (runs in parallel with exaggeration animation)
       map.easeTo({ pitch: MAP_CONFIG.pitch3D, duration: MAP_CONFIG.standardDuration });
+
       toggle3DButton.textContent = '2D';
-      toggle3DButton.disabled = false;
     } else {
-      remove3DTerrain();
-      // Reset camera to flat view
+      // Animate camera pitch back to flat while terrain flattens
       map.easeTo({ pitch: 0, duration: MAP_CONFIG.standardDuration });
+
+      // Remove terrain (animates exaggeration to 0)
+      await remove3DTerrain();
+
       toggle3DButton.textContent = '3D';
     }
 
+    toggle3DButton.disabled = false;
     updateUrlParams();
   }
 
