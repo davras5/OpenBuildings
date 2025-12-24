@@ -1475,13 +1475,17 @@ async function init() {
   }
 
   /**
-   * Animate terrain exaggeration smoothly from start to end value
-   * @param {number} start - Starting exaggeration value
-   * @param {number} end - Target exaggeration value
-   * @param {number} duration - Animation duration in ms
+   * Animate both terrain exaggeration and camera pitch together
+   * Uses the same easing curve for perfect synchronization
+   * @param {Object} options
+   * @param {number} options.fromExaggeration - Starting exaggeration value
+   * @param {number} options.toExaggeration - Target exaggeration value
+   * @param {number} options.fromPitch - Starting pitch value
+   * @param {number} options.toPitch - Target pitch value
+   * @param {number} options.duration - Animation duration in ms
    * @returns {Promise} Resolves when animation completes
    */
-  function animateTerrainExaggeration(start, end, duration) {
+  function animateTerrainAndCamera({ fromExaggeration, toExaggeration, fromPitch, toPitch, duration }) {
     return new Promise((resolve) => {
       const startTime = performance.now();
 
@@ -1491,12 +1495,15 @@ async function init() {
 
         // Ease-out cubic for smooth deceleration
         const eased = 1 - Math.pow(1 - progress, 3);
-        const currentExaggeration = start + (end - start) * eased;
+
+        const currentExaggeration = fromExaggeration + (toExaggeration - fromExaggeration) * eased;
+        const currentPitch = fromPitch + (toPitch - fromPitch) * eased;
 
         try {
           map.setTerrain({ source: 'terrain-dem', exaggeration: currentExaggeration });
+          map.setPitch(currentPitch);
         } catch (err) {
-          debugWarn('Failed to set terrain exaggeration:', err);
+          debugWarn('Failed to animate terrain/camera:', err);
         }
 
         if (progress < 1) {
@@ -1532,9 +1539,14 @@ async function init() {
     setLandcoverLayerType(true);
 
     if (animate) {
-      // Animate terrain rising and camera pitching together
-      animateTerrainExaggeration(0, MAP_CONFIG.terrainExaggeration, MAP_CONFIG.standardDuration);
-      map.easeTo({ pitch: MAP_CONFIG.pitch3D, duration: MAP_CONFIG.standardDuration });
+      // Animate terrain and camera together with same easing
+      await animateTerrainAndCamera({
+        fromExaggeration: 0,
+        toExaggeration: MAP_CONFIG.terrainExaggeration,
+        fromPitch: map.getPitch(),
+        toPitch: MAP_CONFIG.pitch3D,
+        duration: MAP_CONFIG.standardDuration
+      });
     } else {
       // Instant - for initial page load from URL params
       map.setTerrain({ source: 'terrain-dem', exaggeration: MAP_CONFIG.terrainExaggeration });
@@ -1550,12 +1562,14 @@ async function init() {
    */
   async function exit3DMode(animate = true) {
     if (animate) {
-      // Animate terrain flattening and camera pitch together
-      animateTerrainExaggeration(MAP_CONFIG.terrainExaggeration, 0, MAP_CONFIG.standardDuration);
-      map.easeTo({ pitch: 0, duration: MAP_CONFIG.standardDuration });
-
-      // Wait for animations to complete before cleanup
-      await map.once('idle');
+      // Animate terrain and camera together with same easing
+      await animateTerrainAndCamera({
+        fromExaggeration: MAP_CONFIG.terrainExaggeration,
+        toExaggeration: 0,
+        fromPitch: map.getPitch(),
+        toPitch: 0,
+        duration: MAP_CONFIG.standardDuration
+      });
     } else {
       map.setTerrain({ source: 'terrain-dem', exaggeration: 0 });
       map.setPitch(0);
