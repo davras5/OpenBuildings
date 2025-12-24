@@ -1585,11 +1585,10 @@ async function init() {
   });
 
   // ============================================
-  // Legend Panel
+  // Legend Accordion
   // ============================================
-  const legendToggleBtn = document.getElementById('legendToggleBtn');
-  const legendPanel = document.getElementById('legendPanel');
-  const legendPanelClose = document.getElementById('legendPanelClose');
+  const legendAccordion = document.getElementById('legendAccordion');
+  const legendAccordionHeader = document.getElementById('legendAccordionHeader');
   const buildingsLegendItems = document.getElementById('buildingsLegendItems');
   const landcoversLegendItems = document.getElementById('landcoversLegendItems');
   const legendColorButtons = document.querySelectorAll('.legend-color-btn');
@@ -1783,15 +1782,10 @@ async function init() {
     }
   }
 
-  // Legend panel toggle
-  legendToggleBtn.addEventListener('click', () => {
-    const isVisible = legendPanel.classList.toggle('visible');
-    legendToggleBtn.classList.toggle('active', isVisible);
-  });
-
-  legendPanelClose.addEventListener('click', () => {
-    legendPanel.classList.remove('visible');
-    legendToggleBtn.classList.remove('active');
+  // Legend accordion toggle
+  legendAccordionHeader.addEventListener('click', () => {
+    const isExpanded = legendAccordion.classList.toggle('expanded');
+    legendAccordionHeader.setAttribute('aria-expanded', isExpanded);
   });
 
   // Color scheme toggle buttons
@@ -1813,10 +1807,6 @@ async function init() {
   // Initialize legends on load
   populateBuildingsLegend();
   updateLandcoversLegend(null);
-
-  // Show legend panel by default
-  legendPanel.classList.add('visible');
-  legendToggleBtn.classList.add('active');
 
   // ============================================
   // 3D Toggle

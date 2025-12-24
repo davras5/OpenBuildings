@@ -640,93 +640,74 @@ main {
 }
 
 /* ============================================
-   Legend Toggle Button
+   Legend Accordion
    ============================================ */
-.legend-toggle-btn {
+.legend-accordion {
   position: absolute;
   top: var(--space-lg);
   right: var(--space-lg);
   z-index: 20;
-  height: 36px;
-  padding: 0 var(--space-md) 0 var(--space-sm);
-  background: var(--clr-surface);
-  border: none;
-  border-radius: var(--radius-md);
-  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: var(--space-xs);
-  color: var(--clr-text-secondary);
-  font-family: var(--font-main);
-  font-size: 13px;
-  font-weight: 500;
-  transition: all 0.15s ease;
-}
-
-.legend-toggle-btn:hover {
-  background: var(--clr-slate-100);
-  color: var(--clr-text);
-}
-
-.legend-toggle-btn.active {
-  background: var(--clr-deep-blue);
-  color: var(--clr-surface);
-}
-
-/* ============================================
-   Legend Panel
-   ============================================ */
-.legend-panel {
-  position: absolute;
-  top: calc(var(--space-lg) + 36px + var(--space-sm));
-  right: var(--space-lg);
-  z-index: 19;
   background: var(--clr-surface);
   border-radius: var(--radius-md);
   box-shadow: 0 2px 8px rgba(0,0,0,0.15);
   width: 220px;
-  max-height: calc(100vh - 150px);
-  overflow-y: auto;
-  display: none;
+  overflow: hidden;
 }
 
-.legend-panel.visible {
-  display: block;
-}
-
-.legend-panel-header {
+.legend-accordion-header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: var(--space-sm);
+  width: 100%;
   padding: var(--space-sm) var(--space-md);
-  border-bottom: 1px solid var(--clr-border);
-  position: sticky;
-  top: 0;
   background: var(--clr-surface);
-}
-
-.legend-panel-title {
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-main);
   font-size: 13px;
   font-weight: 600;
   color: var(--clr-text);
+  transition: background 0.15s ease;
 }
 
-.legend-panel-close {
-  background: none;
-  border: none;
-  padding: var(--space-xs);
-  cursor: pointer;
-  color: var(--clr-text-muted);
-  border-radius: var(--radius-sm);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.legend-panel-close:hover {
+.legend-accordion-header:hover {
   background: var(--clr-slate-100);
-  color: var(--clr-text);
+}
+
+.legend-icon {
+  color: var(--clr-text-muted);
+  flex-shrink: 0;
+}
+
+.legend-accordion-title {
+  flex: 1;
+  text-align: left;
+}
+
+.legend-chevron {
+  color: var(--clr-text-muted);
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+
+.legend-accordion.expanded .legend-chevron {
+  transform: rotate(180deg);
+}
+
+.legend-accordion-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.25s ease-out;
+  border-top: 1px solid var(--clr-slate-200);
+}
+
+.legend-accordion.expanded .legend-accordion-content {
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+.legend-accordion:not(.expanded) .legend-accordion-content {
+  border-top: none;
 }
 
 /* Legend Sections */
@@ -866,17 +847,15 @@ main {
 
 /* Mobile adjustments */
 @media (max-width: 640px) {
-  .legend-toggle-btn {
+  .legend-accordion {
     top: var(--space-lg);
     right: var(--space-sm);
+    left: auto;
+    width: 180px;
   }
 
-  .legend-panel {
-    top: calc(var(--space-lg) + 36px + var(--space-sm));
-    left: var(--space-sm);
-    right: var(--space-sm);
-    width: auto;
-    max-height: 50vh;
+  .legend-accordion.expanded .legend-accordion-content {
+    max-height: 40vh;
   }
 }
 

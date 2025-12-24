@@ -94,29 +94,23 @@
       </div>
     </div>
 
-    <!-- Legend Toggle Button -->
-    <button class="legend-toggle-btn" id="legendToggleBtn" title="Toggle legend" aria-label="Toggle legend">
-      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
-        <line x1="3" y1="6" x2="21" y2="6"></line>
-        <line x1="3" y1="12" x2="21" y2="12"></line>
-        <line x1="3" y1="18" x2="21" y2="18"></line>
-        <circle cx="7" cy="6" r="2" fill="currentColor"></circle>
-        <circle cx="14" cy="12" r="2" fill="currentColor"></circle>
-        <circle cx="10" cy="18" r="2" fill="currentColor"></circle>
-      </svg>
-      <span>Legende</span>
-    </button>
-
-    <!-- Unified Legend Panel -->
-    <div class="legend-panel" id="legendPanel">
-      <div class="legend-panel-header">
-        <span class="legend-panel-title">Legende</span>
-        <button class="legend-panel-close" id="legendPanelClose" aria-label="Close legend">
-          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M18 6L6 18M6 6l12 12"></path>
-          </svg>
-        </button>
-      </div>
+    <!-- Legend Accordion -->
+    <div class="legend-accordion expanded" id="legendAccordion">
+      <button class="legend-accordion-header" id="legendAccordionHeader" aria-expanded="true">
+        <svg class="legend-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <line x1="3" y1="12" x2="21" y2="12"></line>
+          <line x1="3" y1="18" x2="21" y2="18"></line>
+          <circle cx="7" cy="6" r="2" fill="currentColor"></circle>
+          <circle cx="14" cy="12" r="2" fill="currentColor"></circle>
+          <circle cx="10" cy="18" r="2" fill="currentColor"></circle>
+        </svg>
+        <span class="legend-accordion-title">Legende</span>
+        <svg class="legend-chevron" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="6 9 12 15 18 9"></polyline>
+        </svg>
+      </button>
+      <div class="legend-accordion-content" id="legendAccordionContent">
 
       <!-- Buildings Layer Section -->
       <div class="legend-section" data-layer="buildings">
@@ -163,6 +157,7 @@
             <span class="legend-label">Parzelle</span>
           </div>
         </div>
+      </div>
       </div>
     </div>
     <!-- Building Panel -->
