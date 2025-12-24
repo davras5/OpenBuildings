@@ -58,6 +58,7 @@ This document covers the Supabase components that power the vector tile system f
 - Dynamic column selection for minimal tile size
 - Returns base64-encoded data (decoded by edge function)
 - Marked `STABLE PARALLEL SAFE` for concurrent query optimization
+- Uses `geography` type for bounds to ensure GIST index usage
 
 **Security:**
 - Table name whitelist validation (only allowed tables)
@@ -111,24 +112,6 @@ SELECT mvt_tile('parcels', 14, 8594, 5747, ARRAY['id', 'label', 'type']);
 
 **Performance impact:** Reduces query time from ~500-2000ms to ~5-50ms.
 
-**SQL to create indexes:**
-```sql
--- Spatial indexes (required for tile queries)
-CREATE INDEX IF NOT EXISTS idx_buildings_geog_gist ON buildings USING GIST (geog);
-CREATE INDEX IF NOT EXISTS idx_parcels_geog_gist ON parcels USING GIST (geog);
-CREATE INDEX IF NOT EXISTS idx_landcovers_geog_gist ON landcovers USING GIST (geog);
-CREATE INDEX IF NOT EXISTS idx_projects_geog_gist ON projects USING GIST (geog);
-
--- Identifier indexes (for detail lookups)
-CREATE INDEX IF NOT EXISTS idx_buildings_egid ON buildings (egid);
-CREATE INDEX IF NOT EXISTS idx_parcels_egrid ON parcels (egrid);
-CREATE INDEX IF NOT EXISTS idx_landcovers_egid ON landcovers (egid);
-CREATE INDEX IF NOT EXISTS idx_projects_eproid ON projects (eproid);
-
--- Run ANALYZE after creating indexes
-ANALYZE buildings, parcels, landcovers, projects;
-```
-
 ---
 
 ## Layer Hierarchy
@@ -161,7 +144,7 @@ Required for the edge function:
 3. Ensure spatial indexes are created
 
 **Slow tile loading:**
-1. Run the Create Spatial Indexes SQL above
+1. Run the Create Spatial Indexes SQL below
 2. Run `ANALYZE` on tables
 3. Check edge function logs for query times
 
@@ -170,10 +153,21 @@ Required for the edge function:
 2. Check that `geog` column has valid geometries
 3. Test with: `SELECT COUNT(*) FROM {table} WHERE geog IS NOT NULL`
 
+**Verifying index usage:**
+```sql
+-- Should show "Index Scan using idx_buildings_geog_gist"
+-- If it shows "Seq Scan", the index is missing or not being used
+EXPLAIN (ANALYZE, BUFFERS)
+SELECT * FROM buildings
+WHERE geog && ST_Transform(ST_TileEnvelope(14, 8594, 5747), 4326)::geography
+LIMIT 1000;
+```
+
+---
+
 ## Edge Function
 
 ```ts
-
 /**
  * ============================================================================
  * VECTOR TILE SERVER - Supabase Edge Function
@@ -300,30 +294,24 @@ Deno.serve(async (req) => {
     )
   }
 })
-
 ```
 
-
+---
 
 ## SQL
 
 ### MVT_TILE
 
 ```sql
-
 -- =============================================================================
 -- MVT_TILE - Generate Mapbox Vector Tiles (Optimized for 1M+ records)
 -- =============================================================================
 -- 
--- Creates vector tiles for map display with configurable columns per table.
--- Called by the tiles edge function.
---
--- OPTIMIZATIONS (vs original):
+-- OPTIMIZATIONS:
 --   1. Uses && operator for fast bounding box check (O(log n) with GIST index)
 --   2. Pre-computes tile bounds outside query to avoid repeated transforms
 --   3. Adds feature LIMIT to prevent tile explosion at low zoom levels
---   4. Removes CTE overhead for simpler query planning
---   5. Uses geography type for bounds_4326 to ensure GIST index usage
+--   4. Uses geography type for bounds_4326 to ensure GIST index usage
 --
 -- PERFORMANCE CHARACTERISTICS:
 --   - 500 records:    ~5-20ms per tile
@@ -333,17 +321,6 @@ Deno.serve(async (req) => {
 -- PREREQUISITES:
 --   - GIST spatial index on geog column for each table
 --   - Example: CREATE INDEX idx_buildings_geog_gist ON buildings USING GIST (geog);
---
--- Parameters:
---   table_name : Table to query (buildings, parcels, landcovers, projects)
---   z, x, y    : Tile coordinates (zoom level, column, row)
---   columns    : Array of column names to include in tile attributes
---
--- Returns:
---   Base64-encoded MVT binary (decoded by edge function)
---
--- Example:
---   SELECT mvt_tile('buildings', 14, 8594, 5747, ARRAY['id', 'label', 'status']);
 --
 -- =============================================================================
 
@@ -358,165 +335,116 @@ CREATE OR REPLACE FUNCTION public.mvt_tile(
 )
 RETURNS text
 LANGUAGE plpgsql
-STABLE          -- Function returns same result for same inputs within a transaction
-PARALLEL SAFE   -- Safe to run in parallel query execution
+STABLE
+PARALLEL SAFE
 SET search_path = pg_catalog, public, extensions
 AS $$
 DECLARE
-  -- Pre-computed tile bounds in both coordinate systems
-  bounds_3857 geometry;    -- Web Mercator (for MVT geometry output)
-  bounds_4326 geography;   -- WGS84 geography (matches geog column type for index usage)
-  
-  mvt bytea;             -- Raw MVT binary output
-  col_list text;         -- Sanitized column list for SELECT
-  sql text;              -- Dynamic SQL query
-  max_features int;      -- Feature limit per tile (prevents explosion)
+  bounds_3857 geometry;
+  bounds_4326 geography;
+  mvt bytea;
+  col_list text;
+  sql text;
+  max_features int;
 BEGIN
-  -- ===========================================================================
-  -- SECURITY: Validate table name against whitelist
-  -- ===========================================================================
-  -- Prevents SQL injection by only allowing known table names
-  -- Add new tables here as needed (must have 'geog' geography column)
+  -- Validate table name (security)
   IF table_name NOT IN ('buildings', 'parcels', 'landcovers', 'projects') THEN
     RAISE EXCEPTION 'Invalid table name: %. Allowed: buildings, parcels, landcovers, projects', table_name;
   END IF;
 
-  -- ===========================================================================
-  -- PRE-COMPUTE TILE BOUNDS
-  -- ===========================================================================
-  -- Computing bounds once here avoids repeated ST_Transform calls inside the query
-  -- ST_TileEnvelope converts z/x/y to bounding box in Web Mercator (EPSG:3857)
+  -- Pre-compute tile bounds
   bounds_3857 := ST_TileEnvelope(z, x, y);
-  
-  -- Transform to WGS84 and cast to geography to match geog column type
-  -- This ensures the && operator uses the GIST index on geography columns
   bounds_4326 := ST_Transform(bounds_3857, 4326)::geography;
 
-  -- ===========================================================================
-  -- FEATURE LIMIT BY ZOOM LEVEL
-  -- ===========================================================================
-  -- Prevents "tile explosion" where low-zoom tiles contain millions of features
-  -- Higher zoom = smaller area = fewer features expected, so higher limit is OK
-  -- These limits ensure tiles remain < 500KB even with dense data
+  -- Feature limit by zoom level
   max_features := CASE
-    WHEN z < 10 THEN 10000   -- Country/region view: aggressive limit
-    WHEN z < 14 THEN 50000   -- City view: moderate limit
-    ELSE 100000              -- Street view: high limit (small area)
+    WHEN z < 10 THEN 10000
+    WHEN z < 14 THEN 50000
+    ELSE 100000
   END;
 
-  -- ===========================================================================
-  -- BUILD SAFE COLUMN LIST
-  -- ===========================================================================
-  -- Only allow alphanumeric column names (prevents SQL injection)
-  -- Pattern: must start with letter/underscore, contain only letters/numbers/underscores
+  -- Build safe column list
   SELECT string_agg(quote_ident(col), ', ')
   INTO col_list
   FROM unnest(columns) AS col
   WHERE col ~ '^[a-z_][a-z0-9_]*$';
 
-  -- Fallback to 'id' if no valid columns provided
   IF col_list IS NULL OR col_list = '' THEN
     col_list := 'id';
   END IF;
 
-  -- ===========================================================================
-  -- BUILD AND EXECUTE OPTIMIZED QUERY
-  -- ===========================================================================
-  -- Key optimizations:
-  --   1. t.geog && $3: Fast bounding box check using GIST index (O(log n))
-  --      The && operator checks if bounding boxes intersect
-  --      Using geography type for $3 ensures index is used (no implicit cast)
-  --   2. ST_Intersects: Precise geometry check (only runs on bbox matches)
-  --   3. LIMIT: Prevents runaway queries on dense areas
-  --   4. Direct subquery instead of CTE for simpler query planning
-  --
-  -- Query flow:
-  --   1. GIST index quickly filters to features whose bbox overlaps tile
-  --   2. ST_Intersects precisely filters to features that actually intersect
-  --   3. ST_AsMVTGeom converts geometry to tile coordinates (0-4096 range)
-  --   4. ST_AsMVT encodes features into Mapbox Vector Tile binary format
+  -- Build and execute query
   sql := format(
     $SQL$
     SELECT ST_AsMVT(tile, $2) FROM (
       SELECT
         %s,
         ST_AsMVTGeom(
-          ST_Transform(t.geog::geometry, 3857),  -- Convert to Web Mercator
-          $1,                                     -- Tile bounds for clipping
-          4096,                                   -- Tile extent (standard)
-          256,                                    -- Buffer for labels/symbols
-          true                                    -- Clip geometries to tile
+          ST_Transform(t.geog::geometry, 3857),
+          $1,
+          4096,
+          256,
+          true
         ) AS geom
       FROM public.%I t
-      WHERE t.geog && $3                          -- Fast: bbox check (uses GIST index)
-        AND ST_Intersects(t.geog, $3)             -- Precise: geometry check
-      LIMIT $4                                    -- Safety: prevent tile explosion
+      WHERE t.geog && $3
+        AND ST_Intersects(t.geog, $3)
+      LIMIT $4
     ) tile
     $SQL$,
-    col_list,      -- %s: column list (already quoted)
-    table_name     -- %I: table name (will be quoted)
+    col_list,
+    table_name
   );
 
-  -- Execute with parameters to prevent SQL injection
-  -- $1 = bounds_3857 (geometry for ST_AsMVTGeom clipping)
-  -- $2 = table_name (for MVT layer name)
-  -- $3 = bounds_4326 (geography for spatial filtering - matches column type)
-  -- $4 = max_features (for LIMIT)
   EXECUTE sql INTO mvt USING bounds_3857, table_name, bounds_4326, max_features;
 
-  -- ===========================================================================
-  -- ENCODE AND RETURN
-  -- ===========================================================================
-  -- Return as base64 for JSON transport through edge function
-  -- COALESCE handles empty tiles (no features in bounds)
   RETURN encode(COALESCE(mvt, ''), 'base64');
 END;
 $$;
 
--- =============================================================================
--- PERMISSIONS
--- =============================================================================
--- Grant execute to both authenticated users and anonymous (public) access
--- This allows the edge function to call this function with the anon key
+-- Permissions
 GRANT EXECUTE ON FUNCTION public.mvt_tile(text, integer, integer, integer, text[]) TO authenticated;
 GRANT EXECUTE ON FUNCTION public.mvt_tile(text, integer, integer, integer, text[]) TO anon;
-
--- =============================================================================
--- USAGE EXAMPLES
--- =============================================================================
--- 
--- Basic usage (default columns: id, label):
---   SELECT mvt_tile('buildings', 14, 8594, 5747);
---
--- With custom columns for styling:
---   SELECT mvt_tile('buildings', 14, 8594, 5747, ARRAY['id', 'label', 'status']);
---   SELECT mvt_tile('landcovers', 14, 8594, 5747, ARRAY['id', 'label', 'type', 'building_category']);
---
--- Verify index usage (should show "Index Scan"):
---   EXPLAIN ANALYZE SELECT mvt_tile('buildings', 14, 8594, 5747);
---
--- =============================================================================
-
 ```
+
 ### Create Indexes
 
 ```sql
+-- =============================================================================
+-- SPATIAL INDEXES - Required for vector tile performance
+-- =============================================================================
+-- Run this after initial table creation or if tile queries become slow.
+-- Without these indexes, queries will use slow sequential scans.
+-- =============================================================================
+
+-- Buildings
+CREATE INDEX IF NOT EXISTS idx_buildings_geog_gist 
+ON buildings USING GIST (geog);
+
+CREATE INDEX IF NOT EXISTS idx_buildings_egid 
+ON buildings (egid);
 
 -- Parcels
 CREATE INDEX IF NOT EXISTS idx_parcels_geog_gist 
 ON parcels USING GIST (geog);
 
+CREATE INDEX IF NOT EXISTS idx_parcels_egrid 
+ON parcels (egrid);
+
 -- Landcovers
 CREATE INDEX IF NOT EXISTS idx_landcovers_geog_gist 
 ON landcovers USING GIST (geog);
+
+CREATE INDEX IF NOT EXISTS idx_landcovers_egid 
+ON landcovers (egid);
 
 -- Projects
 CREATE INDEX IF NOT EXISTS idx_projects_geog_gist 
 ON projects USING GIST (geog);
 
--- Update statistics for all
-ANALYZE parcels;
-ANALYZE landcovers;
-ANALYZE projects;
+CREATE INDEX IF NOT EXISTS idx_projects_eproid 
+ON projects (eproid);
 
+-- Update query planner statistics
+ANALYZE buildings, parcels, landcovers, projects;
 ```
