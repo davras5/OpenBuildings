@@ -109,7 +109,7 @@ Primary entity representing individual buildings.
 | `postal_code` | Postal Code | Postleitzahl | `text` | `CHECK (postal_code ~ '^[0-9]{4}$')` | GWR | Postal code (4 digits in CH) |
 | `city` | City | Ort | `text` | | GWR | City/locality |
 | `municipality_name` | Municipality Name | Gemeindename | `text` | | GWR | Municipality name |
-| `municipality_nr` | Municipality Number | Gemeindenummer | `integer` | `CHECK (municipality_nr BETWEEN 1 AND 6999)` | GWR | BFS municipality number (GGDENR) |
+| `municipality_nr` | Municipality Number | Gemeindenummer | `text` | `CHECK (municipality_nr BETWEEN 1 AND 6999)` | GWR | BFS municipality number (GGDENR) |
 | `country` | Country | Land | `text` | `CHECK (country ~ '^[A-Z]{2}$')` | GWR | Country code (ISO 3166-1 alpha-2) |
 | `region` | Region | Region | `text` | `CHECK (region ~ '^[A-Z]{2}$')` | GWR | Region code (canton in CH) |
 | `parcel_id` | Parcel | Grundstück | `bigint` | `REFERENCES parcels(id)` | Derived | Containing parcel |
@@ -184,7 +184,7 @@ Land parcels from cadastral survey.
 | Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
 |--------|------------|------------|------|-------------|--------|-------------|
 | `municipality_name` | Municipality Name | Gemeindename | `text` | | AV | Municipality name |
-| `municipality_nr` | Municipality Number | Gemeindenummer | `integer` | `CHECK (municipality_nr BETWEEN 1 AND 6999)` | AV | BFS municipality number |
+| `municipality_nr` | Municipality Number | Gemeindenummer | `text` | `CHECK (municipality_nr BETWEEN 1 AND 6999)` | AV | BFS municipality number |
 
 #### 3. Dimensions / Dimensionen
 
@@ -287,7 +287,7 @@ Construction projects from GWR.
 
 | Column | Alias (EN) | Alias (DE) | Type | Constraints | Source | Description |
 |--------|------------|------------|------|-------------|--------|-------------|
-| `municipality_nr` | Municipality Number | Gemeindenummer | `integer` | `CHECK (municipality_nr BETWEEN 1 AND 6999)` | GWR | BFS municipality number |
+| `municipality_nr` | Municipality Number | Gemeindenummer | `text` | `CHECK (municipality_nr BETWEEN 1 AND 6999)` | GWR | BFS municipality number |
 | `parcel_id` | Parcel | Grundstück | `bigint` | `REFERENCES parcels(id)` | Derived | Associated parcel |
 | `building_id` | Building | Gebäude | `bigint` | `REFERENCES buildings(id)` | GWR | Associated building (EGID) |
 
@@ -918,7 +918,7 @@ CREATE TABLE public.parcels (
 
   -- 2. Location / Standort
   municipality_name text,
-  municipality_nr integer,
+  municipality_nr text,
 
   -- 3. Dimensions / Dimensionen
   area_m2 numeric,
@@ -964,7 +964,7 @@ CREATE TABLE public.buildings (
   postal_code text,
   city text,
   municipality_name text,
-  municipality_nr integer,
+  municipality_nr text,
   country text,
   region text,
   parcel_id bigint REFERENCES public.parcels(id),
@@ -1062,7 +1062,7 @@ CREATE TABLE public.projects (
   date_completed date,
 
   -- 2. Location / Standort
-  municipality_nr integer,
+  municipality_nr text,
   parcel_id bigint REFERENCES public.parcels(id),
   building_id bigint REFERENCES public.buildings(id),
 
