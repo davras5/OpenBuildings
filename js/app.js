@@ -159,7 +159,17 @@ const COLOR_SCHEMES = {
       '1060': '#f59e0b',  // residential_commercial - amber
       '1080': '#ef4444'   // commercial_only - red
     },
-    defaultColor: '#cbd5e1'
+    outlineColors: {
+      '1010': '#64748b',  // darker slate
+      '1020': '#16a34a',  // darker green
+      '1025': '#65a30d',  // darker lime
+      '1030': '#2563eb',  // darker blue
+      '1040': '#7c3aed',  // darker purple
+      '1060': '#d97706',  // darker amber
+      '1080': '#dc2626'   // darker red
+    },
+    defaultColor: '#cbd5e1',
+    defaultOutline: '#94a3b8'
   },
   period: {
     property: 'building_construction_period',
@@ -180,7 +190,23 @@ const COLOR_SCHEMES = {
       '8022': '#a78bfa',  // 2011-2015
       '8023': '#c084fc'   // 2016 onwards
     },
-    defaultColor: '#cbd5e1'
+    outlineColors: {
+      '8011': '#78350f',  // darker
+      '8012': '#92400e',
+      '8013': '#b45309',
+      '8014': '#d97706',
+      '8015': '#eab308',
+      '8016': '#84cc16',
+      '8017': '#22c55e',
+      '8018': '#06b6d4',
+      '8019': '#0ea5e9',
+      '8020': '#3b82f6',
+      '8021': '#6366f1',
+      '8022': '#8b5cf6',
+      '8023': '#a855f7'
+    },
+    defaultColor: '#cbd5e1',
+    defaultOutline: '#94a3b8'
   }
 };
 
@@ -1506,19 +1532,25 @@ async function init() {
   /**
    * Build MapLibre expression for data-driven fill color
    * @param {Object} scheme - Color scheme from COLOR_SCHEMES
-   * @returns {Array} MapLibre expression
+   * @param {string} colorKey - 'colors' or 'outlineColors'
+   * @returns {Array|string} MapLibre expression or default color
    */
-  function buildColorExpression(scheme) {
-    if (!scheme) return polygonLayerConfigs.landcovers.fillColor;
+  function buildColorExpression(scheme, colorKey = 'colors') {
+    if (!scheme) {
+      const config = polygonLayerConfigs.landcovers;
+      return colorKey === 'colors' ? config.fillColor : config.outlineColor;
+    }
 
-    const { property, colors, defaultColor } = scheme;
+    const { property } = scheme;
+    const colorMap = scheme[colorKey];
+    const defaultVal = colorKey === 'colors' ? scheme.defaultColor : scheme.defaultOutline;
     const matchExpression = ['match', ['get', property]];
 
-    Object.entries(colors).forEach(([key, color]) => {
+    Object.entries(colorMap).forEach(([key, color]) => {
       matchExpression.push(key, color);
     });
 
-    matchExpression.push(defaultColor); // fallback
+    matchExpression.push(defaultVal); // fallback
     return matchExpression;
   }
 
@@ -1527,20 +1559,33 @@ async function init() {
    */
   function applyColorScheme() {
     const scheme = COLOR_SCHEMES[state.colorScheme];
-    const layerExists = map.getLayer('landcovers-fill');
+    const fillLayerExists = map.getLayer('landcovers-fill');
+    const outlineLayerExists = map.getLayer('landcovers-outline');
 
-    if (!layerExists) return;
+    if (!fillLayerExists) return;
 
-    const colorExpression = buildColorExpression(scheme);
+    const config = polygonLayerConfigs.landcovers;
+    const fillExpression = buildColorExpression(scheme, 'colors');
+    const outlineExpression = buildColorExpression(scheme, 'outlineColors');
 
     // Determine if we're in 3D mode
     const layer = map.getLayer('landcovers-fill');
     const is3D = layer && layer.type === 'fill-extrusion';
 
+    // Higher opacity when color scheme is active for better visibility
+    const activeOpacity = scheme ? 0.65 : config.fillOpacity;
+
     if (is3D) {
-      map.setPaintProperty('landcovers-fill', 'fill-extrusion-color', colorExpression);
+      map.setPaintProperty('landcovers-fill', 'fill-extrusion-color', fillExpression);
+      map.setPaintProperty('landcovers-fill', 'fill-extrusion-opacity', scheme ? 0.85 : 0.8);
     } else {
-      map.setPaintProperty('landcovers-fill', 'fill-color', colorExpression);
+      map.setPaintProperty('landcovers-fill', 'fill-color', fillExpression);
+      map.setPaintProperty('landcovers-fill', 'fill-opacity', activeOpacity);
+    }
+
+    // Update outline color to match fill (darker shade)
+    if (outlineLayerExists) {
+      map.setPaintProperty('landcovers-outline', 'line-color', outlineExpression);
     }
 
     // Update legend
@@ -1612,9 +1657,13 @@ async function init() {
       const beforeLayer = map.getLayer('landcovers-outline') ? 'landcovers-outline' : undefined;
       const config = polygonLayerConfigs.landcovers;
 
-      // Get current color scheme expression
+      // Get current color scheme expressions
       const scheme = COLOR_SCHEMES[state.colorScheme];
-      const colorExpression = buildColorExpression(scheme);
+      const colorExpression = buildColorExpression(scheme, 'colors');
+      const outlineExpression = buildColorExpression(scheme, 'outlineColors');
+
+      // Higher opacity when color scheme is active
+      const activeOpacity = scheme ? 0.65 : config.fillOpacity;
 
       map.removeLayer('landcovers-fill');
       map.addLayer({
@@ -1627,16 +1676,17 @@ async function init() {
           'fill-extrusion-color': colorExpression,
           'fill-extrusion-height': 10,
           'fill-extrusion-base': 0,
-          'fill-extrusion-opacity': 0.8
+          'fill-extrusion-opacity': scheme ? 0.85 : 0.8
         } : {
           'fill-color': colorExpression,
-          'fill-opacity': [
-            'case',
-            ['==', ['get', 'id'], state.selectedLandcover || -1], config.selectedFillOpacity,
-            config.fillOpacity
-          ]
+          'fill-opacity': activeOpacity
         }
       }, beforeLayer);
+
+      // Update outline color to match
+      if (map.getLayer('landcovers-outline')) {
+        map.setPaintProperty('landcovers-outline', 'line-color', outlineExpression);
+      }
     } catch (err) {
       debugWarn(`Failed to ${is3D ? 'add' : 'restore'} landcover fill:`, err);
     }
