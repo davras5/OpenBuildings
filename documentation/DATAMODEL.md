@@ -723,6 +723,118 @@ Primary data access is through the **Federal Spatial Data Infrastructure (FSDI)*
 - **DM.01-AV-CH transition**: Will be replaced by DMAV by December 31, 2027. Plan for data model migration.
 - **geodienste.ch**: Provides cantonal AV data in multiple formats (INTERLIS, GeoPackage, Shapefile, DXF). Registration may be required for some cantons.
 
+---
+
+## Data Licensing & Attribution
+
+### Licensing Overview
+
+All data sources used in OpenBuildings.ch are Open Government Data (OGD) and can be used freely, including for commercial purposes, provided proper attribution is given.
+
+### Federal Data Sources
+
+| Source | Provider | License | Commercial Use | Attribution |
+|--------|----------|---------|----------------|-------------|
+| swissALTI3D | swisstopo | OGD | ✅ Yes | Required |
+| swissSURFACE3D | swisstopo | OGD | ✅ Yes | Required |
+| swissBUILDINGS3D | swisstopo | OGD | ✅ Yes | Required |
+| swissBOUNDARIES3D | swisstopo | OGD | ✅ Yes | Required |
+| GWR (Stufe A) | BFS | OGD | ✅ Yes | Required |
+| Bauzonen Schweiz | ARE | OGD | ✅ Yes | Required |
+| KGS Inventar | BABS | OGD | ✅ Yes | Required |
+
+### Cantonal AV Data (Amtliche Vermessung)
+
+Source: [geodienste.ch/services/av](https://www.geodienste.ch/services/av) — Status as of 2024
+
+| Canton | Availability | Open Data License | Complete | Notes |
+|--------|--------------|-------------------|----------|-------|
+| AG | Frei erhältlich | CC BY | Ja | |
+| AI | Frei erhältlich | CC BY | Ja | |
+| AR | Frei erhältlich | CC | Ja | |
+| BE | Frei erhältlich | CC BY | Ja | |
+| BL | Frei erhältlich | CC BY | Ja | |
+| BS | Frei erhältlich | CC BY | Ja | CC BY 4.0 |
+| FR | Frei erhältlich | CC BY | Ja | |
+| GE | Frei erhältlich | CC | Ja | |
+| GL | Frei erhältlich | CC | Ja | |
+| GR | Frei erhältlich | keine Angabe | Ja | Contact canton for terms |
+| JU | Frei erhältlich | keine Angabe | Ja | Contact canton for terms |
+| LU | Frei erhältlich | keine Angabe | Ja | Contact canton for terms |
+| NE | Frei erhältlich | CC BY | **Nein** | Incomplete coverage |
+| NW | Frei erhältlich | keine Angabe | Ja | Contact canton for terms |
+| OW | Frei erhältlich | keine Angabe | Ja | Contact canton for terms |
+| SG | Frei erhältlich | keine Angabe | Ja | Contact canton for terms |
+| SH | Frei erhältlich | CC | Ja | |
+| SO | Frei erhältlich | CC | Ja | |
+| SZ | Frei erhältlich | CC BY | Ja | |
+| TG | Frei erhältlich | CC BY | Ja | |
+| TI | Frei erhältlich | CC BY | **Nein** | Incomplete coverage |
+| UR | Frei erhältlich | CC BY | Ja | |
+| VD | Frei erhältlich | keine Angabe | Ja | Contact canton for terms |
+| VS | Frei erhältlich | CC BY | **Nein** | Incomplete coverage |
+| ZG | Frei erhältlich | CC BY | Ja | |
+| ZH | Frei erhältlich | CC | Ja | |
+| FL | Registrierung erforderlich | keine Angabe | Ja | Registration required |
+
+**Legend:**
+- **CC BY** = Creative Commons Attribution (commercial use allowed with attribution)
+- **CC** = Creative Commons (check specific canton terms)
+- **keine Angabe** = No license specified (assume standard OGD terms, contact canton if uncertain)
+
+### Required Attribution Formats
+
+**swisstopo products:**
+```
+© swisstopo
+```
+or
+```
+Source: Federal Office of Topography swisstopo
+```
+
+**GWR (BFS):**
+```
+Quelle: Bundesamt für Statistik, Eidg. Gebäude- und Wohnungsregister (GWR)
+https://www.housing-stat.ch/
+```
+
+**Amtliche Vermessung:**
+```
+Quelle: Amtliche Vermessung, [Canton Name]
+via geodienste.ch
+```
+
+**ARE Bauzonen:**
+```
+Quelle: Bundesamt für Raumentwicklung ARE
+```
+
+### OpenBuildings.ch Combined Attribution
+
+For the platform, use:
+```
+Datenquellen / Data Sources:
+- Gebäudedaten: BFS Gebäude- und Wohnungsregister (GWR)
+- Höhenmodelle: © swisstopo (swissALTI3D, swissSURFACE3D)
+- Katasterdaten: Amtliche Vermessung via geodienste.ch
+- Nutzungszonen: Bundesamt für Raumentwicklung ARE
+- Kulturgüterschutz: Bundesamt für Bevölkerungsschutz BABS
+```
+
+### Legal References
+
+| Document | Description |
+|----------|-------------|
+| [swisstopo OGD Terms](https://www.swisstopo.admin.ch/en/home/meta/conditions/geodata/ogd.html) | Terms for free swisstopo geodata |
+| [opendata.swiss Terms of Use](https://opendata.swiss/en/terms-of-use) | Standard Swiss OGD terms |
+| [GWR Public Data](https://www.housing-stat.ch/de/madd/public.html) | GWR Stufe A data access |
+| [geodienste.ch AV](https://www.geodienste.ch/services/av) | Cantonal AV data availability |
+| [GeoIG SR 510.62](https://www.fedlex.admin.ch/eli/cc/2008/388/de) | Federal Geoinformation Act |
+| [GeoIV SR 510.620](https://www.fedlex.admin.ch/eli/cc/2008/389/de) | Geoinformation Ordinance |
+
+---
+
 ## SQL
 
 ```sql

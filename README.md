@@ -124,21 +124,30 @@ erDiagram
 
 ---
 
-## Data Sources
+## Data Sources & Licensing
 
 Primary access via the **Federal Spatial Data Infrastructure (FSDI)** / geo.admin.ch.
 
-| Source           | Provider  | Content                         |
-| ---------------- | --------- | ------------------------------- |
-| GWR              | BFS       | Building attributes & addresses |
-| Geodienste.ch / AV | Cantons   | Parcels, footprints, landcover  |
-| swissALTI3D      | swisstopo | Terrain model (DTM)             |
-| swissSURFACE3D   | swisstopo | Surface model (DSM)             |
-| swissBUILDINGS3D | swisstopo | 3D building models              |
-| ARE              | ARE       | Zoning                          |
-| KGS              | BABS      | Heritage protection             |
+| Source | Provider | Content | License |
+| ------ | -------- | ------- | ------- |
+| [GWR](https://www.housing-stat.ch/) | BFS | Building attributes & addresses | OGD |
+| [Geodienste.ch / AV](https://www.geodienste.ch/services/av) | Cantons | Parcels, footprints, landcover | OGD / CC BY |
+| [swissALTI3D](https://www.swisstopo.admin.ch/de/hoehenmodell-swissalti3d) | swisstopo | Terrain model (DTM) | OGD |
+| [swissSURFACE3D](https://www.swisstopo.admin.ch/de/hoehenmodell-swisssurface3d) | swisstopo | Surface model (DSM) | OGD |
+| [swissBUILDINGS3D](https://www.swisstopo.admin.ch/de/geodata/height/buildings3d.html) | swisstopo | 3D building models | OGD |
+| [Bauzonen](https://www.are.admin.ch/bauzonen) | ARE | Zoning | OGD |
+| [KGS Inventar](https://www.babs.admin.ch/de/aufgabenbabs/kgs/inventar.html) | BABS | Heritage protection | OGD |
 
-All sources are **Swiss Open Government Data**.
+All sources are **Swiss Open Government Data** — free for commercial and non-commercial use with attribution.
+
+→ **Detailed licensing & attribution:** [documentation/DATAMODEL.md](documentation/DATAMODEL.md#data-licensing--attribution)
+
+### Attribution
+
+When using OpenBuildings data, please credit:
+```
+Datenquellen: BFS (GWR), © swisstopo, Amtliche Vermessung via geodienste.ch, ARE, BABS
+```
 
 ---
 
