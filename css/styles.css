@@ -770,38 +770,37 @@ main {
 }
 
 /* ============================================
-   Map Scale Overlay - Bottom right corner
+   Map Scale Overlay - Bottom left corner
    ============================================ */
 .map-scale-overlay {
   position: absolute;
   bottom: 40px; /* 24px footer + 16px gap */
-  right: var(--space-md);
+  left: var(--space-md);
   z-index: 10;
   display: flex;
   align-items: center;
   height: 22px;
-  transition: right 0.3s ease;
+  transition: left 0.3s ease;
 }
 
 /* Shift scale when panel is open */
 .building-panel.open ~ .map-scale-overlay {
-  right: calc(var(--panel-width) + var(--space-md));
+  left: calc(var(--panel-width) + var(--space-md));
 }
 
-/* Override MapLibre scale control styles */
+/* Override MapLibre scale control styles - classic cartographic style */
 .map-scale-overlay .maplibregl-ctrl-scale {
-  background: rgba(255, 255, 255, 0.9);
-  backdrop-filter: blur(4px);
+  background: transparent;
   border: none;
-  border-bottom: 2px solid var(--clr-slate-600);
-  font-size: 0.75rem;
-  font-weight: 500;
-  color: var(--clr-slate-700);
-  padding: 2px 8px;
+  border-top: 1px solid var(--clr-slate-700);
+  border-left: 1px solid var(--clr-slate-700);
+  border-right: 1px solid var(--clr-slate-700);
+  font-size: 0.6875rem;
+  color: var(--clr-slate-600);
+  padding: 4px 0 0 0;
   margin: 0;
   line-height: 1;
-  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  min-width: 60px;
 }
 
 /* Hide scale on small screens */
