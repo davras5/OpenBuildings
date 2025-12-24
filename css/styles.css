@@ -645,7 +645,7 @@ main {
 .legend-toggle-btn {
   position: absolute;
   top: var(--space-lg);
-  left: calc(var(--panel-width) + var(--space-sm));
+  right: var(--space-lg);
   z-index: 20;
   height: 36px;
   padding: 0 var(--space-md) 0 var(--space-sm);
@@ -680,7 +680,7 @@ main {
 .legend-panel {
   position: absolute;
   top: calc(var(--space-lg) + 36px + var(--space-sm));
-  left: calc(var(--panel-width) + var(--space-sm));
+  right: var(--space-lg);
   z-index: 19;
   background: var(--clr-surface);
   border-radius: var(--radius-md);
@@ -868,7 +868,7 @@ main {
 @media (max-width: 640px) {
   .legend-toggle-btn {
     top: var(--space-lg);
-    left: var(--space-sm);
+    right: var(--space-sm);
   }
 
   .legend-panel {

@@ -1814,6 +1814,10 @@ async function init() {
   populateBuildingsLegend();
   updateLandcoversLegend(null);
 
+  // Show legend panel by default
+  legendPanel.classList.add('visible');
+  legendToggleBtn.classList.add('active');
+
   // ============================================
   // 3D Toggle
   // ============================================
