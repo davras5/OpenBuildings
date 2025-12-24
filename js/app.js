@@ -1642,15 +1642,11 @@ async function init() {
     const layer = map.getLayer('landcovers-fill');
     const is3D = layer && layer.type === 'fill-extrusion';
 
-    // Higher opacity when color scheme is active for better visibility
-    const activeOpacity = scheme ? 0.65 : config.fillOpacity;
-
+    // Update colors
     if (is3D) {
       map.setPaintProperty('landcovers-fill', 'fill-extrusion-color', fillExpression);
-      map.setPaintProperty('landcovers-fill', 'fill-extrusion-opacity', scheme ? 0.85 : 0.8);
     } else {
       map.setPaintProperty('landcovers-fill', 'fill-color', fillExpression);
-      map.setPaintProperty('landcovers-fill', 'fill-opacity', activeOpacity);
     }
 
     // Update outline color to match fill (darker shade)
@@ -1660,6 +1656,11 @@ async function init() {
 
     // Update landcovers legend section
     updateLandcoversLegend(scheme);
+
+    // Force re-apply selection styling (reset cache to ensure update runs)
+    // This ensures opacity is set correctly whether or not a landcover is selected
+    lastRenderedPolygonSelection['landcovers'] = undefined;
+    updateLandcoverStyles();
   }
 
   /**
