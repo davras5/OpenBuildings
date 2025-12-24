@@ -115,10 +115,14 @@
       <!-- Buildings Layer Section -->
       <div class="legend-section" data-layer="buildings">
         <div class="legend-section-header">
-          <span class="legend-section-title">Gebäude (Status)</span>
+          <span class="legend-section-title">Gebäude</span>
           <button class="legend-layer-toggle active" data-layer="buildings" title="Toggle layer visibility">
             <span class="toggle-dot"></span>
           </button>
+        </div>
+        <div class="legend-color-toggle" id="buildingColorToggle">
+          <button class="legend-color-btn" data-building-color="none">Keine</button>
+          <button class="legend-color-btn active" data-building-color="status">Status</button>
         </div>
         <div class="legend-section-content" id="buildingsLegendItems">
           <!-- Populated dynamically -->

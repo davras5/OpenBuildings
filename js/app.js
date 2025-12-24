@@ -109,23 +109,24 @@ const BUILDING_STATUS = {
     '1007': 'Abgebrochen',
     '1008': 'Nicht realisiert'
   },
+  // Cool-toned palette for construction states (distinct from category)
   colors: {
-    '1004': '#22c55e',  // existing - green
-    '1003': '#f59e0b',  // under_construction - amber
-    '1002': '#3b82f6',  // approved - blue
-    '1001': '#8b5cf6',  // planned - purple
-    '1005': '#94a3b8',  // unusable - slate
-    '1007': '#ef4444',  // demolished - red
-    '1008': '#64748b'   // not_realized - gray
+    '1004': '#059669',  // existing - emerald (stable/complete)
+    '1003': '#eab308',  // under_construction - yellow (active work)
+    '1002': '#0891b2',  // approved - cyan (ready to build)
+    '1001': '#6366f1',  // planned - indigo (future)
+    '1005': '#9ca3af',  // unusable - gray
+    '1007': '#dc2626',  // demolished - red
+    '1008': '#6b7280'   // not_realized - darker gray
   },
   outlineColors: {
-    '1004': '#16a34a',
-    '1003': '#d97706',
-    '1002': '#2563eb',
-    '1001': '#7c3aed',
-    '1005': '#64748b',
-    '1007': '#dc2626',
-    '1008': '#475569'
+    '1004': '#047857',
+    '1003': '#ca8a04',
+    '1002': '#0e7490',
+    '1001': '#4f46e5',
+    '1005': '#6b7280',
+    '1007': '#b91c1c',
+    '1008': '#4b5563'
   },
   defaultColor: '#475569',
   defaultOutline: '#334155',
@@ -186,23 +187,24 @@ const COLOR_SCHEMES = {
       '1060': 'Gebäude mit Wohnnutzung',
       '1080': 'Gebäude ohne Wohnnutzung'
     },
+    // Warm earth-toned palette for residential categories (distinct from status)
     colors: {
-      '1010': '#94a3b8',  // provisional - slate
-      '1020': '#22c55e',  // single_family - green
-      '1025': '#84cc16',  // row_house - lime
-      '1030': '#3b82f6',  // multi_family - blue
-      '1040': '#8b5cf6',  // residential_mixed - purple
-      '1060': '#f59e0b',  // residential_commercial - amber
-      '1080': '#ef4444'   // commercial_only - red
+      '1010': '#a8a29e',  // provisional - stone gray
+      '1020': '#f97316',  // single_family - orange
+      '1025': '#fb923c',  // row_house - light orange
+      '1030': '#0d9488',  // multi_family - teal
+      '1040': '#7c3aed',  // residential_mixed - violet
+      '1060': '#be185d',  // residential_commercial - pink
+      '1080': '#475569'   // commercial_only - slate
     },
     outlineColors: {
-      '1010': '#64748b',  // darker slate
-      '1020': '#16a34a',  // darker green
-      '1025': '#65a30d',  // darker lime
-      '1030': '#2563eb',  // darker blue
-      '1040': '#7c3aed',  // darker purple
-      '1060': '#d97706',  // darker amber
-      '1080': '#dc2626'   // darker red
+      '1010': '#78716c',  // darker stone
+      '1020': '#ea580c',  // darker orange
+      '1025': '#f97316',  // darker light orange
+      '1030': '#0f766e',  // darker teal
+      '1040': '#6d28d9',  // darker violet
+      '1060': '#9d174d',  // darker pink
+      '1080': '#334155'   // darker slate
     },
     defaultColor: '#64748b',
     defaultOutline: '#475569',
@@ -530,7 +532,8 @@ async function init() {
     markerClickHandled: false,
     is3DMode: false,
     searchMarker: null,
-    colorScheme: 'none'
+    colorScheme: 'none',
+    buildingColorScheme: 'status'  // 'none' or 'status'
   };
 
   /**
@@ -833,11 +836,18 @@ async function init() {
   /**
    * Build MapLibre expression for building status colors
    * @param {string} colorKey - 'colors' or 'outlineColors'
-   * @returns {Array} MapLibre match expression
+   * @param {boolean} useStatusColors - Whether to use status-based colors or default
+   * @returns {Array|string} MapLibre match expression or default color
    */
-  function buildBuildingStatusColorExpression(colorKey = 'colors') {
-    const colorMap = BUILDING_STATUS[colorKey];
+  function buildBuildingStatusColorExpression(colorKey = 'colors', useStatusColors = true) {
     const defaultVal = colorKey === 'colors' ? BUILDING_STATUS.defaultColor : BUILDING_STATUS.defaultOutline;
+
+    // If not using status colors, return default
+    if (!useStatusColors) {
+      return defaultVal;
+    }
+
+    const colorMap = BUILDING_STATUS[colorKey];
     const matchExpression = ['match', ['get', BUILDING_STATUS.property]];
 
     Object.entries(colorMap).forEach(([key, color]) => {
@@ -888,9 +898,10 @@ async function init() {
       }
     });
 
-    // Build status color expression for buildings
-    const buildingColorExpr = buildBuildingStatusColorExpression('colors');
-    const buildingOutlineExpr = buildBuildingStatusColorExpression('outlineColors');
+    // Build color expression for buildings based on current scheme
+    const useStatusColors = state.buildingColorScheme === 'status';
+    const buildingColorExpr = buildBuildingStatusColorExpression('colors', useStatusColors);
+    const buildingOutlineExpr = buildBuildingStatusColorExpression('outlineColors', useStatusColors);
 
     // Circle layer for individual buildings (visible at zoom 10+)
     map.addLayer({
@@ -931,17 +942,25 @@ async function init() {
   // Track previous selection to avoid unnecessary paint updates
   let lastRenderedBuildingSelection = undefined;
 
-  function updateBuildingStyles() {
+  // Track if building color scheme changed to force style update
+  let lastRenderedBuildingColorScheme = undefined;
+
+  function updateBuildingStyles(forceUpdate = false) {
     if (!map.getLayer('unclustered-point')) return;
 
-    // Skip update if selection hasn't changed
     const currentSelection = state.selectedBuilding || -1;
-    if (lastRenderedBuildingSelection === currentSelection) return;
-    lastRenderedBuildingSelection = currentSelection;
+    const colorSchemeChanged = lastRenderedBuildingColorScheme !== state.buildingColorScheme;
 
-    // Get status-based color expressions
-    const buildingColorExpr = buildBuildingStatusColorExpression('colors');
-    const buildingOutlineExpr = buildBuildingStatusColorExpression('outlineColors');
+    // Skip update if nothing changed (unless forced)
+    if (!forceUpdate && !colorSchemeChanged && lastRenderedBuildingSelection === currentSelection) return;
+
+    lastRenderedBuildingSelection = currentSelection;
+    lastRenderedBuildingColorScheme = state.buildingColorScheme;
+
+    // Get color expressions based on current scheme
+    const useStatusColors = state.buildingColorScheme === 'status';
+    const buildingColorExpr = buildBuildingStatusColorExpression('colors', useStatusColors);
+    const buildingOutlineExpr = buildBuildingStatusColorExpression('outlineColors', useStatusColors);
 
     // Batch all paint property updates (MapLibre batches synchronous calls internally)
     map.setPaintProperty('unclustered-point', 'circle-radius', [
@@ -1664,11 +1683,25 @@ async function init() {
   }
 
   /**
-   * Populate the buildings legend with status colors
+   * Populate the buildings legend based on current color scheme
+   * @param {boolean} showStatusColors - Whether to show status color legend
    */
-  function populateBuildingsLegend() {
+  function populateBuildingsLegend(showStatusColors = true) {
     buildingsLegendItems.innerHTML = '';
 
+    if (!showStatusColors) {
+      // Show simple single-color entry when no status colors
+      const item = document.createElement('div');
+      item.className = 'legend-item';
+      item.innerHTML = `
+        <span class="legend-swatch" style="background-color: ${BUILDING_STATUS.defaultColor}"></span>
+        <span class="legend-label">Gebäude</span>
+      `;
+      buildingsLegendItems.appendChild(item);
+      return;
+    }
+
+    // Show full status color legend
     Object.entries(BUILDING_STATUS.colors).forEach(([key, color]) => {
       const label = BUILDING_STATUS.labels[key] || key;
       const item = document.createElement('div');
@@ -1751,6 +1784,24 @@ async function init() {
   }
 
   /**
+   * Set the active color scheme for buildings
+   * @param {string} schemeName - 'none' or 'status'
+   */
+  function setBuildingColorScheme(schemeName) {
+    state.buildingColorScheme = schemeName;
+
+    // Update button states
+    const buildingColorButtons = document.querySelectorAll('[data-building-color]');
+    buildingColorButtons.forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.buildingColor === schemeName);
+    });
+
+    // Update map styles and legend
+    updateBuildingStyles(true);
+    populateBuildingsLegend(schemeName === 'status');
+  }
+
+  /**
    * Toggle layer visibility
    * @param {string} layerName - 'buildings', 'landcovers', or 'parcels'
    * @param {boolean} visible - Whether the layer should be visible
@@ -1794,10 +1845,18 @@ async function init() {
     legendAccordionHeader.setAttribute('aria-expanded', isExpanded);
   });
 
-  // Color scheme toggle buttons
+  // Landcover color scheme toggle buttons
   legendColorButtons.forEach(btn => {
     btn.addEventListener('click', () => {
       setColorScheme(btn.dataset.color);
+    });
+  });
+
+  // Building color scheme toggle buttons
+  const buildingColorButtons = document.querySelectorAll('[data-building-color]');
+  buildingColorButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      setBuildingColorScheme(btn.dataset.buildingColor);
     });
   });
 
@@ -1811,7 +1870,7 @@ async function init() {
   });
 
   // Initialize legends on load
-  populateBuildingsLegend();
+  populateBuildingsLegend(state.buildingColorScheme === 'status');
   updateLandcoversLegend(null);
 
   // ============================================
