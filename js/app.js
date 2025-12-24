@@ -1166,9 +1166,14 @@ async function init() {
     const is3DLandcover = layerName === 'landcovers' && state.is3DMode;
     const opacityProp = is3DLandcover ? 'fill-extrusion-opacity' : 'fill-opacity';
 
+    // For landcovers, use higher opacity when color scheme is active
+    const hasColorScheme = layerName === 'landcovers' && state.colorScheme && COLOR_SCHEMES[state.colorScheme];
+    const baseOpacity = hasColorScheme ? 0.65 : config.fillOpacity;
+    const base3DOpacity = hasColorScheme ? 0.85 : 0.8;
+
     // Adjust opacity values for 3D mode (higher visibility needed)
     const selectedOpacity = is3DLandcover ? 0.6 : config.selectedFillOpacity;
-    const defaultOpacity = is3DLandcover ? 0.4 : config.fillOpacity;
+    const defaultOpacity = is3DLandcover ? base3DOpacity : baseOpacity;
 
     if (selectedId) {
       map.setPaintProperty(`${layerName}-fill`, opacityProp, [
