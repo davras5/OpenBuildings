@@ -118,38 +118,46 @@ const BUILDING_CATEGORY_LABELS = {
   commercial_only: 'Commercial Only'
 };
 
-/** Construction period labels (GBAUP) */
+/** Construction period labels (GBAUP) - using GWR codes */
 const CONSTRUCTION_PERIOD_LABELS = {
-  before_1919: 'Before 1919',
-  '1919_1945': '1919–1945',
-  '1946_1960': '1946–1960',
-  '1961_1970': '1961–1970',
-  '1971_1980': '1971–1980',
-  '1981_1985': '1981–1985',
-  '1986_1990': '1986–1990',
-  '1991_1995': '1991–1995',
-  '1996_2000': '1996–2000',
-  '2001_2005': '2001–2005',
-  '2006_2010': '2006–2010',
-  '2011_2015': '2011–2015',
-  '2016_onwards': '2016 onwards'
+  '8011': 'Before 1919',
+  '8012': '1919–1945',
+  '8013': '1946–1960',
+  '8014': '1961–1970',
+  '8015': '1971–1980',
+  '8016': '1981–1985',
+  '8017': '1986–1990',
+  '8018': '1991–1995',
+  '8019': '1996–2000',
+  '8020': '2001–2005',
+  '8021': '2006–2010',
+  '8022': '2011–2015',
+  '8023': '2016 onwards'
 };
 
-/** Color schemes for landcover visualization */
+/** Color schemes for landcover visualization - using GWR codes */
 const COLOR_SCHEMES = {
   none: null,
   category: {
     property: 'building_category',
     title: 'Building Category',
-    labels: BUILDING_CATEGORY_LABELS,
+    labels: {
+      '1010': 'Provisional Dwelling',
+      '1020': 'Single-Family House',
+      '1025': 'Row House',
+      '1030': 'Multi-Family House',
+      '1040': 'Residential (Mixed Use)',
+      '1060': 'Residential/Commercial',
+      '1080': 'Commercial Only'
+    },
     colors: {
-      provisional: '#94a3b8',
-      single_family: '#22c55e',
-      row_house: '#84cc16',
-      multi_family: '#3b82f6',
-      residential_mixed: '#8b5cf6',
-      residential_commercial: '#f59e0b',
-      commercial_only: '#ef4444'
+      '1010': '#94a3b8',  // provisional - slate
+      '1020': '#22c55e',  // single_family - green
+      '1025': '#84cc16',  // row_house - lime
+      '1030': '#3b82f6',  // multi_family - blue
+      '1040': '#8b5cf6',  // residential_mixed - purple
+      '1060': '#f59e0b',  // residential_commercial - amber
+      '1080': '#ef4444'   // commercial_only - red
     },
     defaultColor: '#cbd5e1'
   },
@@ -158,19 +166,19 @@ const COLOR_SCHEMES = {
     title: 'Construction Period',
     labels: CONSTRUCTION_PERIOD_LABELS,
     colors: {
-      before_1919: '#92400e',
-      '1919_1945': '#b45309',
-      '1946_1960': '#d97706',
-      '1961_1970': '#f59e0b',
-      '1971_1980': '#fbbf24',
-      '1981_1985': '#a3e635',
-      '1986_1990': '#4ade80',
-      '1991_1995': '#22d3ee',
-      '1996_2000': '#38bdf8',
-      '2001_2005': '#60a5fa',
-      '2006_2010': '#818cf8',
-      '2011_2015': '#a78bfa',
-      '2016_onwards': '#c084fc'
+      '8011': '#92400e',  // before 1919
+      '8012': '#b45309',  // 1919-1945
+      '8013': '#d97706',  // 1946-1960
+      '8014': '#f59e0b',  // 1961-1970
+      '8015': '#fbbf24',  // 1971-1980
+      '8016': '#a3e635',  // 1981-1985
+      '8017': '#4ade80',  // 1986-1990
+      '8018': '#22d3ee',  // 1991-1995
+      '8019': '#38bdf8',  // 1996-2000
+      '8020': '#60a5fa',  // 2001-2005
+      '8021': '#818cf8',  // 2006-2010
+      '8022': '#a78bfa',  // 2011-2015
+      '8023': '#c084fc'   // 2016 onwards
     },
     defaultColor: '#cbd5e1'
   }
