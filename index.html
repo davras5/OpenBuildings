@@ -26,7 +26,8 @@
   <!-- Scripts with defer - downloads in parallel, executes after HTML parsing -->
   <script defer src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js" crossorigin="anonymous"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
-  <script defer src="js/app.js"></script>
+  <!-- Main app as ES module for code-splitting support -->
+  <script type="module" src="js/app.js"></script>
 </head>
 <body>
   <!-- SVG Symbol Definitions (hidden, referenced via <use>) -->
