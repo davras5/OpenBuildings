@@ -244,6 +244,7 @@ Landcover polygons from cadastral survey. Landcovers can represent building foot
 |--------|------------|------------|------|-------------|--------|-------------|
 | `area_m2` | Polygon Area | Polygonfläche | `numeric` | `CHECK (area_m2 >= 0)` | Derived | 2D projected area calculated from polygon geometry (for validation against official area) |
 | `volume_total_m3` | Volume | Volumen | `numeric` | `CHECK (volume_total_m3 >= 0)` | Derived | Building volume in m³ (for type=building) |
+| `elevation_base_m` | Base Elevation | Terrainhöhe | `numeric` | | swissALTI3D | Terrain elevation at base (m.a.s.l.) |
 | `height_mean_m` | Mean Height | Mittlere Höhe | `numeric` | `CHECK (height_mean_m >= 0)` | Derived | Mean height in m (for type=building) |
 | `height_max_m` | Max Height | Maximale Höhe | `numeric` | `CHECK (height_max_m >= 0)` | Derived | Maximum height in m (for type=building) |
 
@@ -986,6 +987,7 @@ CREATE TABLE public.landcovers (
   volume_total_m3 numeric,
   height_mean_m numeric,
   height_max_m numeric,
+  elevation_base_m numeric,
 
   -- 4. Features / Eigenschaften
   -- (Reserved for future material/usage properties)
