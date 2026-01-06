@@ -1033,11 +1033,16 @@ async function init() {
       ['==', ['get', 'id'], currentSelection], selectedFillColor,
       buildingColorExpr
     ]);
-    map.setPaintProperty('buildings-fill', opacityProp, [
-      'case',
-      ['==', ['get', 'id'], currentSelection], isExtrusionLayer ? 0.95 : 0.7,
-      isExtrusionLayer ? 0.85 : 0.5
-    ]);
+    // fill-extrusion-opacity doesn't support data expressions in MapLibre
+    if (isExtrusionLayer) {
+      map.setPaintProperty('buildings-fill', opacityProp, 0.85);
+    } else {
+      map.setPaintProperty('buildings-fill', opacityProp, [
+        'case',
+        ['==', ['get', 'id'], currentSelection], 0.7,
+        0.5
+      ]);
+    }
 
     // Update outline layer
     map.setPaintProperty('buildings-outline', 'line-color', [
