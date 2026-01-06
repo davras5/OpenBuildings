@@ -39,7 +39,7 @@ const MAP_CONFIG = {
 
   // 3D settings
   pitch3D: 60,
-  terrainExaggeration: 1.5,
+  terrainExaggeration: 1.0,
 
   // Fit bounds padding
   boundsPadding: 40
