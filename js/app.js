@@ -172,11 +172,21 @@ const CONSTRUCTION_PERIOD_LABELS = {
   '8023': 'ab 2016'
 };
 
-/** Color schemes for landcover visualization - using GWR codes */
-const COLOR_SCHEMES = {
+/** Color schemes for building visualization - using GWR codes */
+const BUILDING_COLOR_SCHEMES = {
   none: null,
+  status: {
+    property: 'status',
+    title: 'Gebäudestatus',
+    labels: BUILDING_STATUS.labels,
+    colors: BUILDING_STATUS.colors,
+    outlineColors: BUILDING_STATUS.outlineColors,
+    defaultColor: BUILDING_STATUS.defaultColor,
+    defaultOutline: BUILDING_STATUS.defaultOutline,
+    missingLabel: BUILDING_STATUS.missingLabel
+  },
   category: {
-    property: 'building_category',
+    property: 'category',
     title: 'Gebäudekategorie',
     labels: {
       '1010': 'Provisorische Unterkunft',
@@ -187,7 +197,7 @@ const COLOR_SCHEMES = {
       '1060': 'Gebäude mit Wohnnutzung',
       '1080': 'Gebäude ohne Wohnnutzung'
     },
-    // Warm earth-toned palette for residential categories (distinct from status)
+    // Warm earth-toned palette for residential categories
     colors: {
       '1010': '#a8a29e',  // provisional - stone gray
       '1020': '#f97316',  // single_family - orange
@@ -211,7 +221,7 @@ const COLOR_SCHEMES = {
     missingLabel: 'Keine Angaben'
   },
   period: {
-    property: 'building_construction_period',
+    property: 'construction_period',
     title: 'Bauperiode',
     labels: CONSTRUCTION_PERIOD_LABELS,
     colors: {
@@ -248,6 +258,11 @@ const COLOR_SCHEMES = {
     defaultOutline: '#475569',
     missingLabel: 'Keine Angaben'
   }
+};
+
+/** Color schemes for landcovers (simplified - no UI toggle) */
+const LANDCOVER_COLOR_SCHEMES = {
+  none: null  // Always use default color
 };
 
 /** Parcel status labels */
@@ -552,8 +567,8 @@ async function init() {
     markerClickHandled: false,
     is3DMode: false,
     searchMarker: null,
-    colorScheme: 'none',
-    buildingColorScheme: 'status'  // 'none' or 'status'
+    colorScheme: 'none',  // landcovers always use default color (no UI toggle)
+    buildingColorScheme: 'category'  // 'none', 'status', 'category', or 'period'
   };
 
   // Lazy-loaded module references (hoisted for use in event handlers)
@@ -859,21 +874,23 @@ async function init() {
   }
 
   /**
-   * Build MapLibre expression for building status colors
+   * Build MapLibre expression for building colors based on current scheme
    * @param {string} colorKey - 'colors' or 'outlineColors'
-   * @param {boolean} useStatusColors - Whether to use status-based colors or default
    * @returns {Array|string} MapLibre match expression or default color
    */
-  function buildBuildingStatusColorExpression(colorKey = 'colors', useStatusColors = true) {
-    const defaultVal = colorKey === 'colors' ? BUILDING_STATUS.defaultColor : BUILDING_STATUS.defaultOutline;
+  function buildBuildingColorExpression(colorKey = 'colors') {
+    const scheme = BUILDING_COLOR_SCHEMES[state.buildingColorScheme];
+    const defaultColor = '#64748b';  // slate-500
+    const defaultOutline = '#475569';  // slate-600
 
-    // If not using status colors, return default
-    if (!useStatusColors) {
-      return defaultVal;
+    // If no scheme (none), return default color
+    if (!scheme) {
+      return colorKey === 'colors' ? defaultColor : defaultOutline;
     }
 
-    const colorMap = BUILDING_STATUS[colorKey];
-    const matchExpression = ['match', ['get', BUILDING_STATUS.property]];
+    const defaultVal = colorKey === 'colors' ? scheme.defaultColor : scheme.defaultOutline;
+    const colorMap = scheme[colorKey];
+    const matchExpression = ['match', ['get', scheme.property]];
 
     Object.entries(colorMap).forEach(([key, color]) => {
       matchExpression.push(key, color);
@@ -924,9 +941,8 @@ async function init() {
     });
 
     // Build color expression for buildings based on current scheme
-    const useStatusColors = state.buildingColorScheme === 'status';
-    const buildingColorExpr = buildBuildingStatusColorExpression('colors', useStatusColors);
-    const buildingOutlineExpr = buildBuildingStatusColorExpression('outlineColors', useStatusColors);
+    const buildingColorExpr = buildBuildingColorExpression('colors');
+    const buildingOutlineExpr = buildBuildingColorExpression('outlineColors');
 
     // Fill layer for building footprints (visible at zoom 10+)
     map.addLayer({
@@ -994,9 +1010,8 @@ async function init() {
     lastRenderedBuildingColorScheme = state.buildingColorScheme;
 
     // Get color expressions based on current scheme
-    const useStatusColors = state.buildingColorScheme === 'status';
-    const buildingColorExpr = buildBuildingStatusColorExpression('colors', useStatusColors);
-    const buildingOutlineExpr = buildBuildingStatusColorExpression('outlineColors', useStatusColors);
+    const buildingColorExpr = buildBuildingColorExpression('colors');
+    const buildingOutlineExpr = buildBuildingColorExpression('outlineColors');
 
     // Update fill layer
     map.setPaintProperty('buildings-fill', 'fill-color', [
@@ -1223,7 +1238,7 @@ async function init() {
     const opacityProp = is3DLandcover ? 'fill-extrusion-opacity' : 'fill-opacity';
 
     // For landcovers, use higher opacity when color scheme is active
-    const hasColorScheme = layerName === 'landcovers' && state.colorScheme && COLOR_SCHEMES[state.colorScheme];
+    const hasColorScheme = layerName === 'landcovers' && state.colorScheme && LANDCOVER_COLOR_SCHEMES[state.colorScheme];
     const baseOpacity = hasColorScheme ? 0.65 : config.fillOpacity;
     const base3DOpacity = hasColorScheme ? 0.85 : 0.8;
 
@@ -1535,7 +1550,7 @@ async function init() {
         map,
         state,
         config: MAP_CONFIG,
-        colorSchemes: COLOR_SCHEMES,
+        colorSchemes: LANDCOVER_COLOR_SCHEMES,
         polygonLayerConfigs,
         buildColorExpression,
         updateLandcoverStyles,
@@ -1660,12 +1675,11 @@ async function init() {
   const legendAccordionHeader = document.getElementById('legendAccordionHeader');
   const buildingsLegendItems = document.getElementById('buildingsLegendItems');
   const landcoversLegendItems = document.getElementById('landcoversLegendItems');
-  const legendColorButtons = document.querySelectorAll('.legend-color-btn[data-color]');
   const legendLayerToggles = document.querySelectorAll('.legend-layer-toggle');
 
   /**
-   * Build MapLibre expression for data-driven fill color
-   * @param {Object} scheme - Color scheme from COLOR_SCHEMES
+   * Build MapLibre expression for data-driven fill color (landcovers)
+   * @param {Object} scheme - Color scheme object or null
    * @param {string} colorKey - 'colors' or 'outlineColors'
    * @returns {Array|string} MapLibre expression or default color
    */
@@ -1692,7 +1706,7 @@ async function init() {
    * Update landcover layer colors based on current color scheme
    */
   function applyColorScheme() {
-    const scheme = COLOR_SCHEMES[state.colorScheme];
+    const scheme = LANDCOVER_COLOR_SCHEMES[state.colorScheme];
     const fillLayerExists = map.getLayer('landcovers-fill');
     const outlineLayerExists = map.getLayer('landcovers-outline');
 
@@ -1729,26 +1743,26 @@ async function init() {
 
   /**
    * Populate the buildings legend based on current color scheme
-   * @param {boolean} showStatusColors - Whether to show status color legend
    */
-  function populateBuildingsLegend(showStatusColors = true) {
+  function populateBuildingsLegend() {
     buildingsLegendItems.innerHTML = '';
+    const scheme = BUILDING_COLOR_SCHEMES[state.buildingColorScheme];
 
-    if (!showStatusColors) {
-      // Show simple single-color entry when no status colors
+    if (!scheme) {
+      // Show simple single-color entry when no scheme selected
       const item = document.createElement('div');
       item.className = 'legend-item';
       item.innerHTML = `
-        <span class="legend-swatch" style="background-color: ${BUILDING_STATUS.defaultColor}"></span>
+        <span class="legend-swatch" style="background-color: #64748b"></span>
         <span class="legend-label">Gebäude</span>
       `;
       buildingsLegendItems.appendChild(item);
       return;
     }
 
-    // Show full status color legend
-    Object.entries(BUILDING_STATUS.colors).forEach(([key, color]) => {
-      const label = BUILDING_STATUS.labels[key] || key;
+    // Show full color legend for the current scheme
+    Object.entries(scheme.colors).forEach(([key, color]) => {
+      const label = scheme.labels[key] || key;
       const item = document.createElement('div');
       item.className = 'legend-item';
       item.innerHTML = `
@@ -1759,12 +1773,12 @@ async function init() {
     });
 
     // Add missing values entry
-    if (BUILDING_STATUS.missingLabel) {
+    if (scheme.missingLabel) {
       const missingItem = document.createElement('div');
       missingItem.className = 'legend-item';
       missingItem.innerHTML = `
-        <span class="legend-swatch" style="background-color: ${BUILDING_STATUS.defaultColor}"></span>
-        <span class="legend-label">${BUILDING_STATUS.missingLabel}</span>
+        <span class="legend-swatch" style="background-color: ${scheme.defaultColor}"></span>
+        <span class="legend-label">${scheme.missingLabel}</span>
       `;
       buildingsLegendItems.appendChild(missingItem);
     }
@@ -1814,23 +1828,8 @@ async function init() {
   }
 
   /**
-   * Set the active color scheme for landcovers
-   * @param {string} schemeName - 'none', 'category', or 'period'
-   */
-  function setColorScheme(schemeName) {
-    state.colorScheme = schemeName;
-
-    // Update button states
-    legendColorButtons.forEach(btn => {
-      btn.classList.toggle('active', btn.dataset.color === schemeName);
-    });
-
-    applyColorScheme();
-  }
-
-  /**
    * Set the active color scheme for buildings
-   * @param {string} schemeName - 'none' or 'status'
+   * @param {string} schemeName - 'none', 'status', 'category', or 'period'
    */
   function setBuildingColorScheme(schemeName) {
     state.buildingColorScheme = schemeName;
@@ -1843,7 +1842,7 @@ async function init() {
 
     // Update map styles and legend
     updateBuildingStyles(true);
-    populateBuildingsLegend(schemeName === 'status');
+    populateBuildingsLegend();
   }
 
   /**
@@ -1893,13 +1892,6 @@ async function init() {
     legendAccordionHeader.setAttribute('aria-expanded', isExpanded);
   });
 
-  // Landcover color scheme toggle buttons
-  legendColorButtons.forEach(btn => {
-    btn.addEventListener('click', () => {
-      setColorScheme(btn.dataset.color);
-    });
-  });
-
   // Building color scheme toggle buttons
   const buildingColorButtons = document.querySelectorAll('[data-building-color]');
   buildingColorButtons.forEach(btn => {
@@ -1918,7 +1910,7 @@ async function init() {
   });
 
   // Initialize legends on load
-  populateBuildingsLegend(state.buildingColorScheme === 'status');
+  populateBuildingsLegend();
   updateLandcoversLegend(null);
 
   // ============================================
@@ -1937,7 +1929,7 @@ async function init() {
         map,
         state,
         config: MAP_CONFIG,
-        colorSchemes: COLOR_SCHEMES,
+        colorSchemes: LANDCOVER_COLOR_SCHEMES,
         polygonLayerConfigs,
         buildColorExpression,
         updateLandcoverStyles,
