@@ -133,12 +133,12 @@ function setBuildingsLayerType(is3D) {
         ],
         // Use accurate elevation data from swissALTI3D
         // Base: ground elevation, Height: ground + building height (absolute top)
-        // Note: values come as strings from vector tiles, need to-number conversion
-        'fill-extrusion-base': ['to-number', ['coalesce', ['get', 'elevation_base_m'], 0]],
+        // Note: values come as strings from vector tiles, convert then coalesce
+        'fill-extrusion-base': ['coalesce', ['to-number', ['get', 'elevation_base_m']], 0],
         'fill-extrusion-height': [
           '+',
-          ['to-number', ['coalesce', ['get', 'elevation_base_m'], 0]],
-          ['to-number', ['coalesce', ['get', 'height_max_m'], 10]]
+          ['coalesce', ['to-number', ['get', 'elevation_base_m']], 0],
+          ['coalesce', ['to-number', ['get', 'height_max_m']], 10]
         ],
         // Note: fill-extrusion-opacity doesn't support data expressions in MapLibre
         'fill-extrusion-opacity': 0.85
