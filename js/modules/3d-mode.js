@@ -131,7 +131,7 @@ function setBuildingsLayerType(is3D) {
           buildingColorExpr
         ],
         // Use height from data if available, otherwise default to 10 meters
-        'fill-extrusion-height': ['coalesce', ['get', 'height'], 10],
+        'fill-extrusion-height': ['coalesce', ['get', 'height_mean_m'], 10],
         'fill-extrusion-base': 0,
         'fill-extrusion-opacity': [
           'case',
