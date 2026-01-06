@@ -112,7 +112,9 @@ function setBuildingsLayerType(is3D) {
     const buildingColorExpr = moduleDeps.buildBuildingColorExpression
       ? moduleDeps.buildBuildingColorExpression('colors')
       : '#64748b';
-    const selectedColor = '#059669'; // Leaf green when selected
+
+    // Selection colors - cyan to contrast with all color schemes
+    const selectedFillColor = '#06b6d4';   // cyan-500
     const currentSelection = state.selectedBuilding || -1;
 
     map.removeLayer('buildings-fill');
@@ -125,7 +127,7 @@ function setBuildingsLayerType(is3D) {
       paint: is3D ? {
         'fill-extrusion-color': [
           'case',
-          ['==', ['get', 'id'], currentSelection], selectedColor,
+          ['==', ['get', 'id'], currentSelection], selectedFillColor,
           buildingColorExpr
         ],
         // Use height from data if available, otherwise default to 10 meters
@@ -133,18 +135,18 @@ function setBuildingsLayerType(is3D) {
         'fill-extrusion-base': 0,
         'fill-extrusion-opacity': [
           'case',
-          ['==', ['get', 'id'], currentSelection], 0.9,
+          ['==', ['get', 'id'], currentSelection], 0.95,
           0.85
         ]
       } : {
         'fill-color': [
           'case',
-          ['==', ['get', 'id'], currentSelection], selectedColor,
+          ['==', ['get', 'id'], currentSelection], selectedFillColor,
           buildingColorExpr
         ],
         'fill-opacity': [
           'case',
-          ['==', ['get', 'id'], currentSelection], 0.6,
+          ['==', ['get', 'id'], currentSelection], 0.7,
           0.5
         ]
       }
