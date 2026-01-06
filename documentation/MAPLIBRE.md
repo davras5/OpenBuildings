@@ -56,7 +56,7 @@ All data layers use vector tile sources from Supabase Edge Functions:
 
 | Source | Type | Zoom Range | Geometry |
 |--------|------|------------|----------|
-| `buildings` | vector | 0-14 | Point |
+| `buildings` | vector | 0-14 | Polygon |
 | `parcels` | vector | 10-14 | Polygon |
 | `landcovers` | vector | 10-14 | Polygon |
 | `terrain-dem` | raster-dem | 0-15 | Elevation (lazy) |
@@ -72,7 +72,8 @@ All data layers use vector tile sources from Supabase Edge Functions:
 | `landcovers-fill` | landcovers | fill / fill-extrusion | zoom ≥ 12 |
 | `landcovers-outline` | landcovers | line | zoom ≥ 12 |
 | `buildings-heat` | buildings | heatmap | zoom < 12 |
-| `unclustered-point` | buildings | circle | zoom ≥ 10 |
+| `buildings-fill` | buildings | fill | zoom ≥ 10 |
+| `buildings-outline` | buildings | line | zoom ≥ 10 |
 | `sky` | none | sky | 3D mode only |
 
 ### Layer Colors
@@ -170,7 +171,11 @@ const lastRenderedPolygonSelection = { parcels: undefined, landcovers: undefined
 ```javascript
 const layerHandlers = {
   buildings: {
-    click: (e) => selectBuilding(e.features[0].properties.id, coords),
+    click: (e) => {
+      // Use click location for polygon features
+      const coords = [e.lngLat.lng, e.lngLat.lat];
+      selectBuilding(e.features[0].properties.id, coords);
+    },
     mouseenter: () => { map.getCanvas().style.cursor = 'pointer'; },
     mouseleave: () => { map.getCanvas().style.cursor = ''; }
   },
@@ -193,7 +198,7 @@ function manageLayerHandlers(action, layerName, layerId) {
 
 ### Click Priority (highest to lowest)
 
-1. **Buildings** - Direct layer click handler on `unclustered-point`
+1. **Buildings** - Direct layer click handler on `buildings-fill`
 2. **Landcovers** - Query `landcovers-fill` at click point
 3. **Parcels** - Query `parcels-fill` at click point
 
@@ -223,9 +228,9 @@ Click Event
 
 | Type | Columns from Supabase |
 |------|----------------------|
-| Building | `id, label, egid, geog` |
-| Parcel | `id, label, egrid, type` |
-| Landcover | `id, label, type, egid` |
+| Building | `id, label, egid, lon, lat` (+ address, dimensions, features) |
+| Parcel | `id, label, egrid, type` (+ area, zone) |
+| Landcover | `id, label, type, egid` (+ dimensions) |
 
 ---
 

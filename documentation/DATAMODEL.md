@@ -13,7 +13,7 @@
 
 | Entity | Primary Key | Unique Key | Geometry | Description |
 |--------|-------------|------------|----------|-------------|
-| `buildings` | `id` | `source_fid` | Point | Individual buildings linked to parcels, with attributes from GWR and volumes from elevation models |
+| `buildings` | `id` | `source_fid` | Polygon | Individual buildings linked to parcels, with attributes from GWR and volumes from elevation models |
 | `parcels` | `id` | `source_fid` | Polygon | Land parcels from cadastral survey |
 | `landcovers` | `id` | `source_fid` | Polygon | Landcover polygons including building footprints |
 | `projects` | `id` | `source_fid` | Polygon | Construction projects linked to buildings and parcels |
@@ -161,7 +161,7 @@ Primary entity representing individual buildings.
 | `source_fid` | Source Feature ID | Quell-Feature-ID | `text` | `UNIQUE, NOT NULL` | Various | Feature ID from source system. Used for upserts and data synchronization. |
 | `created_at` | Created | Erstellt | `timestamptz` | `NOT NULL DEFAULT NOW()` | System | Record creation timestamp |
 | `updated_at` | Updated | Aktualisiert | `timestamptz` | `NOT NULL DEFAULT NOW()` | System | Record last update timestamp |
-| `geog` | Location | Standort | `geography(POINT, 4326)` | `NOT NULL` | GWR | Building centroid
+| `geog` | Footprint | Grundriss | `geography(POLYGON, 4326)` | | AV | Building footprint polygon
 
 ---
 
@@ -1007,7 +1007,7 @@ CREATE TABLE public.buildings (
   source_fid text UNIQUE NOT NULL,
   created_at timestamptz DEFAULT now(),
   updated_at timestamptz DEFAULT now(),
-  geog geography(POINT, 4326)
+  geog geography(POLYGON, 4326)
 );
 
 -- =============================================================================
