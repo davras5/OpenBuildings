@@ -695,7 +695,7 @@ main {
   background: var(--clr-surface);
   border-radius: var(--radius-md);
   box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-  width: 220px;
+  width: 280px;
   overflow: hidden;
 }
 
@@ -899,7 +899,7 @@ main {
     top: var(--space-lg);
     right: var(--space-sm);
     left: auto;
-    width: 180px;
+    width: 240px;
   }
 
   .legend-accordion.expanded .legend-accordion-content {

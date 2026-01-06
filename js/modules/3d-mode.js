@@ -16,7 +16,8 @@ let config = null;
  * @param {Object} deps.config - MAP_CONFIG constants
  * @param {Object} deps.colorSchemes - COLOR_SCHEMES object
  * @param {Object} deps.polygonLayerConfigs - Layer configuration
- * @param {Function} deps.buildColorExpression - Color expression builder
+ * @param {Function} deps.buildColorExpression - Landcover color expression builder
+ * @param {Function} deps.buildBuildingColorExpression - Building color expression builder
  * @param {Function} deps.updateLandcoverStyles - Style update function
  * @param {Function} deps.updateUrlParams - URL parameter update function
  * @param {Function} deps.debugWarn - Debug warning function
@@ -98,6 +99,64 @@ function setLandcoverLayerType(is3D) {
 }
 
 /**
+ * Convert buildings layer between flat fill and 3D fill-extrusion
+ * @param {boolean} is3D - Whether to use 3D fill-extrusion or flat fill
+ */
+function setBuildingsLayerType(is3D) {
+  if (!map.getLayer('buildings-fill')) return;
+
+  try {
+    const beforeLayer = map.getLayer('buildings-outline') ? 'buildings-outline' : undefined;
+
+    // Get current color expressions from the building color expression builder
+    const buildingColorExpr = moduleDeps.buildBuildingColorExpression
+      ? moduleDeps.buildBuildingColorExpression('colors')
+      : '#64748b';
+    const selectedColor = '#059669'; // Leaf green when selected
+    const currentSelection = state.selectedBuilding || -1;
+
+    map.removeLayer('buildings-fill');
+    map.addLayer({
+      id: 'buildings-fill',
+      type: is3D ? 'fill-extrusion' : 'fill',
+      source: 'buildings',
+      'source-layer': 'buildings',
+      minzoom: 10,
+      paint: is3D ? {
+        'fill-extrusion-color': [
+          'case',
+          ['==', ['get', 'id'], currentSelection], selectedColor,
+          buildingColorExpr
+        ],
+        // Use height from data if available, otherwise default to 10 meters
+        'fill-extrusion-height': ['coalesce', ['get', 'height'], 10],
+        'fill-extrusion-base': 0,
+        'fill-extrusion-opacity': [
+          'case',
+          ['==', ['get', 'id'], currentSelection], 0.9,
+          0.85
+        ]
+      } : {
+        'fill-color': [
+          'case',
+          ['==', ['get', 'id'], currentSelection], selectedColor,
+          buildingColorExpr
+        ],
+        'fill-opacity': [
+          'case',
+          ['==', ['get', 'id'], currentSelection], 0.6,
+          0.5
+        ]
+      }
+    }, beforeLayer);
+  } catch (err) {
+    if (moduleDeps.debugWarn) {
+      moduleDeps.debugWarn(`Failed to ${is3D ? 'add' : 'restore'} buildings fill:`, err);
+    }
+  }
+}
+
+/**
  * Animate both terrain exaggeration and camera pitch together
  * Uses the same easing curve for perfect synchronization
  * @param {Object} options
@@ -168,8 +227,9 @@ export async function setup3DMode(animate = true) {
     });
   }
 
-  // Convert landcover to fill-extrusion for 3D view
+  // Convert landcover and buildings to fill-extrusion for 3D view
   setLandcoverLayerType(true);
+  setBuildingsLayerType(true);
 
   if (animate) {
     // Animate terrain and camera together with same easing
@@ -211,8 +271,9 @@ export async function exit3DMode(animate = true) {
     map.removeLayer('sky');
   }
 
-  // Convert landcover back to flat fill
+  // Convert landcover and buildings back to flat fill
   setLandcoverLayerType(false);
+  setBuildingsLayerType(false);
 }
 
 /**

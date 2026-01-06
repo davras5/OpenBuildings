@@ -1553,6 +1553,7 @@ async function init() {
         colorSchemes: LANDCOVER_COLOR_SCHEMES,
         polygonLayerConfigs,
         buildColorExpression,
+        buildBuildingColorExpression,
         updateLandcoverStyles,
         updateUrlParams,
         debugWarn
@@ -1932,6 +1933,7 @@ async function init() {
         colorSchemes: LANDCOVER_COLOR_SCHEMES,
         polygonLayerConfigs,
         buildColorExpression,
+        buildBuildingColorExpression,
         updateLandcoverStyles,
         updateUrlParams,
         debugWarn
