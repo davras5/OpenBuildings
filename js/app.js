@@ -1002,7 +1002,8 @@ async function init() {
   let lastRenderedBuildingColorScheme = undefined;
 
   function updateBuildingStyles(forceUpdate = false) {
-    if (!map.getLayer('buildings-fill')) return;
+    const fillLayer = map.getLayer('buildings-fill');
+    if (!fillLayer) return;
 
     const currentSelection = state.selectedBuilding || -1;
     const colorSchemeChanged = lastRenderedBuildingColorScheme !== state.buildingColorScheme;
@@ -1021,16 +1022,21 @@ async function init() {
     const selectedFillColor = '#06b6d4';   // cyan-500
     const selectedOutlineColor = '#0891b2'; // cyan-600
 
+    // Check the actual layer type (not just state) to determine which properties to use
+    const isExtrusionLayer = fillLayer.type === 'fill-extrusion';
+    const colorProp = isExtrusionLayer ? 'fill-extrusion-color' : 'fill-color';
+    const opacityProp = isExtrusionLayer ? 'fill-extrusion-opacity' : 'fill-opacity';
+
     // Update fill layer
-    map.setPaintProperty('buildings-fill', 'fill-color', [
+    map.setPaintProperty('buildings-fill', colorProp, [
       'case',
       ['==', ['get', 'id'], currentSelection], selectedFillColor,
       buildingColorExpr
     ]);
-    map.setPaintProperty('buildings-fill', 'fill-opacity', [
+    map.setPaintProperty('buildings-fill', opacityProp, [
       'case',
-      ['==', ['get', 'id'], currentSelection], 0.7,
-      0.5
+      ['==', ['get', 'id'], currentSelection], isExtrusionLayer ? 0.95 : 0.7,
+      isExtrusionLayer ? 0.85 : 0.5
     ]);
 
     // Update outline layer
@@ -1232,7 +1238,8 @@ async function init() {
    * @param {'parcels'|'landcover'} layerName - Name of the layer to update
    */
   function updatePolygonStyles(layerName) {
-    if (!map.getLayer(`${layerName}-fill`)) return;
+    const fillLayer = map.getLayer(`${layerName}-fill`);
+    if (!fillLayer) return;
 
     const config = polygonLayerConfigs[layerName];
     const selectedId = config.getSelectedId();
@@ -1241,10 +1248,10 @@ async function init() {
     if (lastRenderedPolygonSelection[layerName] === selectedId) return;
     lastRenderedPolygonSelection[layerName] = selectedId;
 
-    // Landcover in 3D mode uses fill-extrusion properties
-    const is3DLandcover = layerName === 'landcovers' && state.is3DMode;
-    const opacityProp = is3DLandcover ? 'fill-extrusion-opacity' : 'fill-opacity';
-    const colorProp = is3DLandcover ? 'fill-extrusion-color' : 'fill-color';
+    // Check the actual layer type (not just state) to determine which properties to use
+    const isExtrusionLayer = fillLayer.type === 'fill-extrusion';
+    const opacityProp = isExtrusionLayer ? 'fill-extrusion-opacity' : 'fill-opacity';
+    const colorProp = isExtrusionLayer ? 'fill-extrusion-color' : 'fill-color';
 
     // For landcovers, use higher opacity when color scheme is active
     const hasColorScheme = layerName === 'landcovers' && state.colorScheme && LANDCOVER_COLOR_SCHEMES[state.colorScheme];
@@ -1252,8 +1259,8 @@ async function init() {
     const base3DOpacity = hasColorScheme ? 0.85 : 0.8;
 
     // Adjust opacity values for 3D mode (higher visibility needed)
-    const selectedOpacity = is3DLandcover ? 0.6 : config.selectedFillOpacity;
-    const defaultOpacity = is3DLandcover ? base3DOpacity : baseOpacity;
+    const selectedOpacity = isExtrusionLayer ? 0.6 : config.selectedFillOpacity;
+    const defaultOpacity = isExtrusionLayer ? base3DOpacity : baseOpacity;
 
     if (selectedId) {
       // Update fill color
