@@ -748,7 +748,7 @@ async function init() {
       name: 'parcels',
       fillColor: '#1e3a5f',      // Deep Blue default
       outlineColor: '#1e3a5f',
-      selectedColor: '#059669',  // Green when selected
+      selectedColor: '#06b6d4',  // Cyan when selected (contrasts with building colors)
       fillOpacity: 0.1,
       selectedFillOpacity: 0.25,
       getSelectedId: () => state.selectedParcel
@@ -757,7 +757,7 @@ async function init() {
       name: 'landcovers',
       fillColor: '#8b5cf6',      // Purple default
       outlineColor: '#7c3aed',   // Darker purple for outline
-      selectedColor: '#059669',  // Green when selected
+      selectedColor: '#06b6d4',  // Cyan when selected (contrasts with building colors)
       fillOpacity: 0.2,
       selectedFillOpacity: 0.4,
       getSelectedId: () => state.selectedLandcover
@@ -944,6 +944,10 @@ async function init() {
     const buildingColorExpr = buildBuildingColorExpression('colors');
     const buildingOutlineExpr = buildBuildingColorExpression('outlineColors');
 
+    // Selection colors - cyan to contrast with all color schemes
+    const selectedFillColor = '#06b6d4';   // cyan-500
+    const selectedOutlineColor = '#0891b2'; // cyan-600
+
     // Fill layer for building footprints (visible at zoom 10+)
     map.addLayer({
       id: 'buildings-fill',
@@ -954,13 +958,13 @@ async function init() {
       paint: {
         'fill-color': [
           'case',
-          ['==', ['get', 'id'], state.selectedBuilding || -1], '#059669', // Leaf green when selected
+          ['==', ['get', 'id'], state.selectedBuilding || -1], selectedFillColor,
           buildingColorExpr
         ],
         'fill-opacity': [
           'interpolate', ['linear'], ['zoom'],
           10, 0.3,
-          12, ['case', ['==', ['get', 'id'], state.selectedBuilding || -1], 0.6, 0.5]
+          12, ['case', ['==', ['get', 'id'], state.selectedBuilding || -1], 0.7, 0.5]
         ]
       }
     });
@@ -975,7 +979,7 @@ async function init() {
       paint: {
         'line-color': [
           'case',
-          ['==', ['get', 'id'], state.selectedBuilding || -1], '#1e3a5f', // Deep Blue when selected
+          ['==', ['get', 'id'], state.selectedBuilding || -1], selectedOutlineColor,
           buildingOutlineExpr
         ],
         'line-width': [
@@ -1013,22 +1017,26 @@ async function init() {
     const buildingColorExpr = buildBuildingColorExpression('colors');
     const buildingOutlineExpr = buildBuildingColorExpression('outlineColors');
 
+    // Selection colors - cyan to contrast with all color schemes
+    const selectedFillColor = '#06b6d4';   // cyan-500
+    const selectedOutlineColor = '#0891b2'; // cyan-600
+
     // Update fill layer
     map.setPaintProperty('buildings-fill', 'fill-color', [
       'case',
-      ['==', ['get', 'id'], currentSelection], '#059669', // Leaf green when selected
+      ['==', ['get', 'id'], currentSelection], selectedFillColor,
       buildingColorExpr
     ]);
     map.setPaintProperty('buildings-fill', 'fill-opacity', [
       'case',
-      ['==', ['get', 'id'], currentSelection], 0.6,
+      ['==', ['get', 'id'], currentSelection], 0.7,
       0.5
     ]);
 
     // Update outline layer
     map.setPaintProperty('buildings-outline', 'line-color', [
       'case',
-      ['==', ['get', 'id'], currentSelection], '#1e3a5f', // Deep Blue when selected
+      ['==', ['get', 'id'], currentSelection], selectedOutlineColor,
       buildingOutlineExpr
     ]);
     map.setPaintProperty('buildings-outline', 'line-width', [
@@ -1233,9 +1241,10 @@ async function init() {
     if (lastRenderedPolygonSelection[layerName] === selectedId) return;
     lastRenderedPolygonSelection[layerName] = selectedId;
 
-    // Landcover in 3D mode uses fill-extrusion-opacity, otherwise fill-opacity
+    // Landcover in 3D mode uses fill-extrusion properties
     const is3DLandcover = layerName === 'landcovers' && state.is3DMode;
     const opacityProp = is3DLandcover ? 'fill-extrusion-opacity' : 'fill-opacity';
+    const colorProp = is3DLandcover ? 'fill-extrusion-color' : 'fill-color';
 
     // For landcovers, use higher opacity when color scheme is active
     const hasColorScheme = layerName === 'landcovers' && state.colorScheme && LANDCOVER_COLOR_SCHEMES[state.colorScheme];
@@ -1247,18 +1256,34 @@ async function init() {
     const defaultOpacity = is3DLandcover ? base3DOpacity : baseOpacity;
 
     if (selectedId) {
+      // Update fill color
+      map.setPaintProperty(`${layerName}-fill`, colorProp, [
+        'case',
+        ['==', ['get', 'id'], selectedId], config.selectedColor,
+        config.fillColor
+      ]);
+      // Update fill opacity
       map.setPaintProperty(`${layerName}-fill`, opacityProp, [
         'case',
         ['==', ['get', 'id'], selectedId], selectedOpacity,
         defaultOpacity
       ]);
+      // Update outline color
+      map.setPaintProperty(`${layerName}-outline`, 'line-color', [
+        'case',
+        ['==', ['get', 'id'], selectedId], config.selectedColor,
+        config.outlineColor
+      ]);
+      // Update outline width
       map.setPaintProperty(`${layerName}-outline`, 'line-width', [
         'case',
         ['==', ['get', 'id'], selectedId], 3,
         1.5
       ]);
     } else {
+      map.setPaintProperty(`${layerName}-fill`, colorProp, config.fillColor);
       map.setPaintProperty(`${layerName}-fill`, opacityProp, defaultOpacity);
+      map.setPaintProperty(`${layerName}-outline`, 'line-color', config.outlineColor);
       map.setPaintProperty(`${layerName}-outline`, 'line-width', 1.5);
     }
   }
