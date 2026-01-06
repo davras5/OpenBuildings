@@ -133,11 +133,8 @@ function setBuildingsLayerType(is3D) {
         // Use height from data if available, otherwise default to 10 meters
         'fill-extrusion-height': ['coalesce', ['get', 'height_mean_m'], 10],
         'fill-extrusion-base': 0,
-        'fill-extrusion-opacity': [
-          'case',
-          ['==', ['get', 'id'], currentSelection], 0.95,
-          0.85
-        ]
+        // Note: fill-extrusion-opacity doesn't support data expressions in MapLibre
+        'fill-extrusion-opacity': 0.85
       } : {
         'fill-color': [
           'case',
@@ -216,18 +213,7 @@ export async function setup3DMode(animate = true) {
     map.setTerrain({ source: 'terrain-dem', exaggeration: 0 });
   }
 
-  // Add sky layer for better 3D visuals
-  if (!map.getLayer('sky')) {
-    map.addLayer({
-      id: 'sky',
-      type: 'sky',
-      paint: {
-        'sky-type': 'atmosphere',
-        'sky-atmosphere-sun': [0.0, 90.0],
-        'sky-atmosphere-sun-intensity': 15
-      }
-    });
-  }
+  // Note: Sky layer is not supported in MapLibre GL JS (Mapbox-only feature)
 
   // Convert landcover and buildings to fill-extrusion for 3D view
   setLandcoverLayerType(true);
@@ -266,11 +252,6 @@ export async function exit3DMode(animate = true) {
   } else {
     map.setTerrain({ source: 'terrain-dem', exaggeration: 0 });
     map.setPitch(0);
-  }
-
-  // Remove sky layer
-  if (map.getLayer('sky')) {
-    map.removeLayer('sky');
   }
 
   // Convert landcover and buildings back to flat fill
