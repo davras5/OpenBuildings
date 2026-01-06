@@ -131,14 +131,9 @@ function setBuildingsLayerType(is3D) {
           ['==', ['get', 'id'], currentSelection], selectedFillColor,
           buildingColorExpr
         ],
-        // Use accurate elevation data from swissALTI3D
-        // Base: ground elevation, Height: ground + building height (absolute top)
-        'fill-extrusion-base': ['coalesce', ['get', 'elevation_base_m'], 0],
-        'fill-extrusion-height': [
-          '+',
-          ['coalesce', ['get', 'elevation_base_m'], 0],
-          ['coalesce', ['get', 'height_max_m'], 10]
-        ],
+        // Use height_max_m for building extrusion (roof peak height)
+        'fill-extrusion-base': 0,
+        'fill-extrusion-height': ['coalesce', ['get', 'height_max_m'], 10],
         // Note: fill-extrusion-opacity doesn't support data expressions in MapLibre
         'fill-extrusion-opacity': 0.85
       } : {
