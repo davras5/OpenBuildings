@@ -437,6 +437,9 @@ async function init() {
     maxBounds: [[5.5, 45.5], [11.0, 48.0]] // Restrict to Switzerland region
   });
 
+  // Expose map for debugging (access via window.map in console)
+  window.map = map;
+
   // Custom zoom controls
   document.getElementById('zoomInBtn').addEventListener('click', () => {
     map.zoomIn({ duration: MAP_CONFIG.quickDuration });
