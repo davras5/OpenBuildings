@@ -593,7 +593,8 @@ async function init() {
       click: (e) => {
         state.markerClickHandled = true;
         const props = e.features[0].properties;
-        const coords = e.features[0].geometry.coordinates;
+        // Use click location for map centering (polygon doesn't have simple coordinates)
+        const coords = [e.lngLat.lng, e.lngLat.lat];
         selectBuilding(props.id, coords);
         setTimeout(() => { state.markerClickHandled = false; }, UI_TIMING.clickDebounce);
       },
@@ -887,7 +888,7 @@ async function init() {
     if (map.getSource('buildings')) return;
 
     // Remove any existing handlers (prevents memory leaks on style change)
-    manageLayerHandlers('remove', 'buildings', 'unclustered-point');
+    manageLayerHandlers('remove', 'buildings', 'buildings-fill');
 
     // Add vector tile source (streams data on-demand)
     map.addSource('buildings', {
@@ -927,40 +928,51 @@ async function init() {
     const buildingColorExpr = buildBuildingStatusColorExpression('colors', useStatusColors);
     const buildingOutlineExpr = buildBuildingStatusColorExpression('outlineColors', useStatusColors);
 
-    // Circle layer for individual buildings (visible at zoom 10+)
+    // Fill layer for building footprints (visible at zoom 10+)
     map.addLayer({
-      id: 'unclustered-point',
-      type: 'circle',
+      id: 'buildings-fill',
+      type: 'fill',
       source: 'buildings',
       'source-layer': 'buildings',
       minzoom: 10,
       paint: {
-        'circle-radius': [
-          'interpolate', ['linear'], ['zoom'],
-          10, 2,
-          14, ['case', ['==', ['get', 'id'], state.selectedBuilding || -1], 10, 7]
-        ],
-        'circle-color': [
+        'fill-color': [
           'case',
           ['==', ['get', 'id'], state.selectedBuilding || -1], '#059669', // Leaf green when selected
           buildingColorExpr
         ],
-        'circle-stroke-width': [
+        'fill-opacity': [
           'interpolate', ['linear'], ['zoom'],
-          10, 0,
-          12, ['case', ['==', ['get', 'id'], state.selectedBuilding || -1], 3, 2]
-        ],
-        'circle-stroke-color': [
+          10, 0.3,
+          12, ['case', ['==', ['get', 'id'], state.selectedBuilding || -1], 0.6, 0.5]
+        ]
+      }
+    });
+
+    // Outline layer for building footprints
+    map.addLayer({
+      id: 'buildings-outline',
+      type: 'line',
+      source: 'buildings',
+      'source-layer': 'buildings',
+      minzoom: 10,
+      paint: {
+        'line-color': [
           'case',
-          ['==', ['get', 'id'], state.selectedBuilding || -1], '#1e3a5f', // Deep Blue
+          ['==', ['get', 'id'], state.selectedBuilding || -1], '#1e3a5f', // Deep Blue when selected
           buildingOutlineExpr
         ],
-        'circle-opacity': ['interpolate', ['linear'], ['zoom'], 10, 0.3, 12, 1]
+        'line-width': [
+          'interpolate', ['linear'], ['zoom'],
+          10, 0.5,
+          12, ['case', ['==', ['get', 'id'], state.selectedBuilding || -1], 3, 1.5]
+        ],
+        'line-opacity': ['interpolate', ['linear'], ['zoom'], 10, 0.3, 12, 1]
       }
     });
 
     // Add click and hover handlers (using named handlers for cleanup)
-    manageLayerHandlers('add', 'buildings', 'unclustered-point');
+    manageLayerHandlers('add', 'buildings', 'buildings-fill');
   }
 
   // Track previous selection to avoid unnecessary paint updates
@@ -970,7 +982,7 @@ async function init() {
   let lastRenderedBuildingColorScheme = undefined;
 
   function updateBuildingStyles(forceUpdate = false) {
-    if (!map.getLayer('unclustered-point')) return;
+    if (!map.getLayer('buildings-fill')) return;
 
     const currentSelection = state.selectedBuilding || -1;
     const colorSchemeChanged = lastRenderedBuildingColorScheme !== state.buildingColorScheme;
@@ -986,26 +998,28 @@ async function init() {
     const buildingColorExpr = buildBuildingStatusColorExpression('colors', useStatusColors);
     const buildingOutlineExpr = buildBuildingStatusColorExpression('outlineColors', useStatusColors);
 
-    // Batch all paint property updates (MapLibre batches synchronous calls internally)
-    map.setPaintProperty('unclustered-point', 'circle-radius', [
-      'case',
-      ['==', ['get', 'id'], currentSelection], 10,
-      7
-    ]);
-    map.setPaintProperty('unclustered-point', 'circle-color', [
+    // Update fill layer
+    map.setPaintProperty('buildings-fill', 'fill-color', [
       'case',
       ['==', ['get', 'id'], currentSelection], '#059669', // Leaf green when selected
       buildingColorExpr
     ]);
-    map.setPaintProperty('unclustered-point', 'circle-stroke-width', [
+    map.setPaintProperty('buildings-fill', 'fill-opacity', [
+      'case',
+      ['==', ['get', 'id'], currentSelection], 0.6,
+      0.5
+    ]);
+
+    // Update outline layer
+    map.setPaintProperty('buildings-outline', 'line-color', [
+      'case',
+      ['==', ['get', 'id'], currentSelection], '#1e3a5f', // Deep Blue when selected
+      buildingOutlineExpr
+    ]);
+    map.setPaintProperty('buildings-outline', 'line-width', [
       'case',
       ['==', ['get', 'id'], currentSelection], 3,
-      2
-    ]);
-    map.setPaintProperty('unclustered-point', 'circle-stroke-color', [
-      'case',
-      ['==', ['get', 'id'], currentSelection], '#1e3a5f', // Deep Blue
-      buildingOutlineExpr
+      1.5
     ]);
   }
 
@@ -1096,7 +1110,7 @@ async function init() {
   const featureConfigs = {
     building: {
       table: 'buildings',
-      select: `id, label, egid, geog,
+      select: `id, label, egid, lon, lat,
         street, street_nr, postal_code, city,
         status, category,
         construction_year,
@@ -1172,15 +1186,14 @@ async function init() {
    */
   function displayFeatureData(featureType, data, coords, config) {
     if (featureType === 'building') {
+      // Use click coords if provided, otherwise use stored lon/lat from building record
       let lon, lat;
       if (coords) {
         [lon, lat] = coords;
-      } else if (data.geog) {
-        const geojson = wkbToGeoJSON(data.geog);
-        if (geojson) {
-          lon = geojson.coordinates[0];
-          lat = geojson.coordinates[1];
-        }
+      } else if (data.lon && data.lat) {
+        // lon/lat are stored as text in the database
+        lon = parseFloat(data.lon);
+        lat = parseFloat(data.lat);
       }
       config.showPanel({ ...data, lon, lat });
     } else {
@@ -1845,8 +1858,11 @@ async function init() {
       if (map.getLayer('buildings-heat')) {
         map.setLayoutProperty('buildings-heat', 'visibility', visibility);
       }
-      if (map.getLayer('unclustered-point')) {
-        map.setLayoutProperty('unclustered-point', 'visibility', visibility);
+      if (map.getLayer('buildings-fill')) {
+        map.setLayoutProperty('buildings-fill', 'visibility', visibility);
+      }
+      if (map.getLayer('buildings-outline')) {
+        map.setLayoutProperty('buildings-outline', 'visibility', visibility);
       }
     } else if (layerName === 'landcovers') {
       if (map.getLayer('landcovers-fill')) {
