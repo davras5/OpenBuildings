@@ -77,7 +77,8 @@ function setLandcoverLayerType(is3D) {
       minzoom: 12,
       paint: is3D ? {
         'fill-extrusion-color': colorExpression,
-        'fill-extrusion-height': 10,
+        // Multiply by terrain exaggeration to match the exaggerated terrain
+        'fill-extrusion-height': 10 * config.terrainExaggeration,
         'fill-extrusion-base': 0,
         'fill-extrusion-opacity': scheme ? 0.85 : 0.8
       } : {
@@ -130,9 +131,9 @@ function setBuildingsLayerType(is3D) {
           ['==', ['get', 'id'], currentSelection], selectedFillColor,
           buildingColorExpr
         ],
-        // Use height from data if available, otherwise default to 10 meters
-        'fill-extrusion-height': ['coalesce', ['get', 'height_mean_m'], 10],
+        // Use height_max_m for building extrusion (roof peak height)
         'fill-extrusion-base': 0,
+        'fill-extrusion-height': ['coalesce', ['get', 'height_max_m'], 10],
         // Note: fill-extrusion-opacity doesn't support data expressions in MapLibre
         'fill-extrusion-opacity': 0.85
       } : {

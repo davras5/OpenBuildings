@@ -39,7 +39,7 @@ const MAP_CONFIG = {
 
   // 3D settings
   pitch3D: 60,
-  terrainExaggeration: 1.5,
+  terrainExaggeration: 1.0,
 
   // Fit bounds padding
   boundsPadding: 40
@@ -436,6 +436,9 @@ async function init() {
     zoom: initialZoom,
     maxBounds: [[5.5, 45.5], [11.0, 48.0]] // Restrict to Switzerland region
   });
+
+  // Expose map for debugging (access via window.map in console)
+  window.map = map;
 
   // Custom zoom controls
   document.getElementById('zoomInBtn').addEventListener('click', () => {
