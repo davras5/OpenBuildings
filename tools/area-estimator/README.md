@@ -2,6 +2,24 @@
 
 A tool for estimating building gross floor areas (Geschossflächen) using LIDAR-derived volumes, building footprints, and GWR building classifications.
 
+## Table of Contents
+
+- [Overview](#overview)
+- [Methodology](#methodology)
+- [Data Sources](#data-sources)
+- [GWR Building Classification](#gwr-building-classification)
+- [Floor Height Assumptions](#floor-height-assumptions)
+- [Roof Type and Attic Estimation](#roof-type-and-attic-estimation)
+- [Output Format](#output-format)
+- [Accuracy & Limitations](#accuracy--limitations)
+- [References](#references)
+- [Version History](#version-history)
+- [License](#license)
+- [Contributing](#contributing)
+- [Acknowledgments](#acknowledgments)
+
+---
+
 ## Overview
 
 This estimator calculates approximate gross floor areas for Swiss buildings by combining:
@@ -200,7 +218,7 @@ The estimator produces both minimum and maximum estimates:
 | `gfa_max_m2` | Maximum gross floor area estimate |
 | `gfa_mean_m2` | Mean of min/max estimates |
 
-## Accuracy and Limitations
+## Accuracy & Limitations
 
 ### Expected Accuracy
 
@@ -239,6 +257,26 @@ Based on validation against reference data (Canton Zurich study), the estimator 
 ## License
 
 MIT License — See LICENSE file for details.
+
+---
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+**Areas for improvement:**
+- Validation against additional reference datasets
+- Support for additional building classification systems
+- Integration with other cantonal methodologies
+
+---
+
+## Acknowledgments
+
+- Canton Zurich / Amt für Raumentwicklung for the methodology documentation
+- SEILER & SEILER GmbH for the original study
+- Federal Office of Topography swisstopo for elevation and building data
+- Swiss Federal Statistical Office for GWR data and documentation
 
 ---
 

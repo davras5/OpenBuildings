@@ -1,14 +1,31 @@
-# ⚠️ DEPRECATED - DO NOT USE ⚠️
+# Volume Estimator (DEPRECATED)
 
 > **This tool has been deprecated and is no longer maintained.**
 >
 > Please use the **[LIDAR-based Volume Estimator](../volume-estimator/)** instead, which provides more consistent and reliable results.
 
+## Table of Contents
+
+- [Deprecation Notice](#deprecation-notice)
+- [Why This Tool Was Deprecated](#why-this-tool-was-deprecated)
+- [The Better Alternative](#the-better-alternative)
+- [Archived Documentation](#archived-documentation)
+  - [Overview](#overview)
+  - [Requirements](#requirements)
+  - [Usage](#usage)
+  - [Output Format](#output-format)
+- [Version History](#version-history)
+- [License](#license)
+
+---
+
+## Deprecation Notice
+
+This tool attempted to calculate building volumes by processing **3D mesh geometries** (multipatch) from Swisstopo's swissBUILDINGS3D dataset. While the approach was technically sophisticated, it produced **highly inconsistent results** across different buildings.
+
 ---
 
 ## Why This Tool Was Deprecated
-
-This tool attempted to calculate building volumes by processing **3D mesh geometries** (multipatch) from Swisstopo's swissBUILDINGS3D dataset. While the approach was technically sophisticated, it produced **highly inconsistent results** across different buildings.
 
 ### The Inconsistency Problem
 
@@ -61,23 +78,19 @@ The **[current Volume Estimator](../volume-estimator/)** uses a completely diffe
 
 ---
 
-## Historical Documentation
+## Archived Documentation
 
 The sections below are preserved for historical reference only.
 
----
-
-# [ARCHIVED] Swisstopo 3D Building Volume and Surface Analysis Tools
-
-## Overview
+### Overview
 
 This toolset processed [Swisstopo 3D building data](https://www.swisstopo.admin.ch/en/landscape-model-swissbuildings3d-3-0-beta) (multipatch geometries) to calculate building volumes and analyze surface areas. It was designed to handle large datasets efficiently using parallel processing, providing detailed metrics for each building including volume, roof area, footprint, and wall areas.
 
-## Result
+### Result
 The full processed dataset as a CSV file (1.2 GB) is available at:
 - [Download from Google Drive](https://drive.google.com/file/d/1AS-dI3VbV52xkmuAYBvPIzVNZnVGNWXG/view?usp=sharing)
 
-## What the Toolset Did
+### What the Toolset Did
 
 1. **Read** Swisstopo 3D building data from GDB (geodatabase) files
 2. **Repaired** mesh geometries to ensure they are watertight for accurate volume calculation
@@ -85,7 +98,7 @@ The full processed dataset as a CSV file (1.2 GB) is available at:
 4. **Analyzed** surface areas, classifying them as roof, footprint, or walls
 5. **Output** comprehensive results in CSV format
 
-## Requirements
+### Requirements
 
 - Python 3.8 or higher
 - Required Python packages:
@@ -99,22 +112,22 @@ Install with:
 python -m pip install fiona pandas numpy trimesh
 ```
 
-## Files
+### Files
 
 - `main.py` - Main orchestrator script
 - `mesh_repair_volume.py` - Mesh repair and volume calculation module
 - `surface_analysis.py` - Surface area analysis module
 - `test_imports.py` - Utility to verify installation
 
-## Usage
+### Usage
 
-### Basic Command Structure
+#### Basic Command Structure
 
 ```bash
 python main.py <input_gdb_path> <output_directory> [options]
 ```
 
-### Parameters
+#### Parameters
 
 - `<input_gdb_path>` - Path to Swisstopo GDB file (required)
 - `<output_directory>` - Where to save results (required)
@@ -124,7 +137,7 @@ python main.py <input_gdb_path> <output_directory> [options]
 - `--chunk-size` - Number of buildings per chunk (default: 100000)
 - `--keep-chunks` - Keep individual chunk CSV files after merging
 
-### Example Usage
+#### Example Usage
 
 1. **Test run 100 buildings with 8 workers:**
    ```bash
@@ -137,17 +150,17 @@ python main.py <input_gdb_path> <output_directory> [options]
    python main.py "C:\DEV\Inputs\SWISSBUILDINGS3D_3_0.gdb" "C:\DEV\Output" --layer Building_solid --workers 8
    ```
 
-## Output Files
+### Output Format
 
-### Generated Files
+#### Generated Files
 
 - `building_analysis_YYYYMMDD_HHMMSS.csv` - Complete results in CSV format
 - `building_analysis_YYYYMMDD_HHMMSS_chunk_XXXX.csv` - Individual chunk files (if `--keep-chunks` is used)
 - `processing.log` - Detailed processing log
 
-### Output Variables
+#### Output Variables
 
-#### Input Fields (preserved from GDB)
+**Input Fields (preserved from GDB)**
 
 - `OBJECTID` - Original Swisstopo building ID
 - `UUID` - Unique identifier
@@ -158,7 +171,7 @@ python main.py <input_gdb_path> <output_directory> [options]
 - `EGID` - Federal building ID
 - (and all other original fields)
 
-#### Mesh Processing Fields (prefix: mesh_)
+**Mesh Processing Fields (prefix: mesh_)**
 
 | Field | Type | Description |
 |-------|------|-------------|
@@ -170,7 +183,7 @@ python main.py <input_gdb_path> <output_directory> [options]
 | `mesh_repair_steps` | string | Description of repair process |
 | `mesh_process_error` | string | Error message if processing failed |
 
-#### Surface Analysis Fields (prefix: surf_)
+**Surface Analysis Fields (prefix: surf_)**
 
 | Field | Type | Description |
 |-------|------|-------------|
@@ -189,26 +202,26 @@ python main.py <input_gdb_path> <output_directory> [options]
 | `surf_sloped_faces` | int | Count of sloped faces |
 | `surf_analysis_error` | string | Error message if analysis failed |
 
-#### Processing Status Fields
+**Processing Status Fields**
 
 - `processing_status` - "success" or "failed"
 - `processing_error` - Overall error message if failed
 
-## Performance Tips
+### Performance Tips
 
 1. **Test First**: Always run with `--limit 100` to verify everything works
 2. **Workers**: Use `--workers` equal to your CPU cores minus 1
 3. **Memory**: For large datasets (>500k buildings), the chunking system handles memory automatically
 4. **Storage**: Ensure sufficient disk space for output files (estimate ~300-500 bytes per building)
 
-## Troubleshooting
+### Troubleshooting
 
 1. **Import Errors**: Run `python test_imports.py` to verify installation
 2. **Memory Issues**: Reduce `--workers` or decrease `--chunk-size`
 3. **GDB Access**: Ensure the GDB file path has no special characters
 4. **Missing Libraries**: Install with `python -m pip install [library_name]`
 
-## Processing Time Estimates
+### Processing Time Estimates
 
 - 100 buildings: ~10-30 seconds
 - 10,000 buildings: ~5-10 minutes
@@ -217,7 +230,7 @@ python main.py <input_gdb_path> <output_directory> [options]
 - 2,500,000 buildings: ~6-8 hours (depending on CPU and workers)
 
 
-## Notes
+### Notes
 
 - Surface classification uses 10° tolerance for horizontal/vertical determination
 - Footprint is defined as horizontal surfaces in the lowest 10% of building height
@@ -227,6 +240,21 @@ python main.py <input_gdb_path> <output_directory> [options]
 - Coordinates are preserved in the original Swiss coordinate system
 - For datasets exceeding 1 million rows, only CSV output is generated (Excel has a 1,048,576 row limit)
 
-## Authors
+### Authors
 
 Developed by the Federal Office for Buildings and Logistics BBL for processing Swisstopo 3D building data (swissBUILDINGS3D 3.0).
+
+---
+
+## Version History
+
+| Version | Date | Changes |
+|---------|------|---------|
+| 1.0 | 2024-XX | Initial release |
+| — | 2025-01 | Deprecated in favor of LIDAR-based Volume Estimator |
+
+---
+
+## License
+
+MIT License — See LICENSE file for details.
