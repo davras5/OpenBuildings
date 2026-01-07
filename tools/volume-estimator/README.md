@@ -66,7 +66,6 @@ The volume estimation follows these steps:
   <img src="images/Preview_4.jpg" />
 </p>
 
-
 ### Why Orientation-Aligned Grids?
 
 For a rectangular building rotated 45°:
