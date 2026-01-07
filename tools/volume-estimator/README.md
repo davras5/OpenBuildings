@@ -3,6 +3,7 @@
 A tool to estimate building volumes using building footprints and high-resolution Swiss elevation models (swissALTI3D and swissSURFACE3D).
 
 ## Table of Contents
+
 - [Overview](#overview)
 - [How It Works](#how-it-works)
 - [Requirements](#requirements)
@@ -12,8 +13,12 @@ A tool to estimate building volumes using building footprints and high-resolutio
 - [Command-Line Reference](#command-line-reference)
 - [Output](#output)
 - [Technical Details](#technical-details)
-- [Performance & Limitations](#performance--limitations)
+- [Accuracy & Limitations](#accuracy--limitations)
 - [Data Sources](#data-sources)
+- [Version History](#version-history)
+- [License](#license)
+- [Contributing](#contributing)
+- [Acknowledgments](#acknowledgments)
 
 ---
 
@@ -400,7 +405,7 @@ For each building:
 
 ---
 
-## Performance & Limitations
+## Accuracy & Limitations
 
 ### Performance
 
@@ -462,6 +467,15 @@ Both available from [Federal Office of Topography swisstopo](https://www.swissto
 
 ### Coordinate Systems
 - [Swiss coordinate system documentation](https://www.swisstopo.admin.ch/en/knowledge-facts/surveying-geodesy/reference-systems.html)
+
+---
+
+## Version History
+
+| Version | Date | Changes |
+|---------|------|---------|
+| 1.0 | 2024-XX | Initial release with orientation-aligned grid generation |
+| 1.1 | 2025-01 | Added database integration and CSV export options |
 
 ---
 
