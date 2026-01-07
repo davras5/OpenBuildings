@@ -1,8 +1,8 @@
 # Roof Estimator
 
-> Documentation in progress
-
 A tool for estimating roof characteristics of Swiss buildings.
+
+> Documentation in progress
 
 ## Table of Contents
 
