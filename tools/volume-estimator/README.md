@@ -416,6 +416,7 @@ For each building:
 - Complex building shapes
 - Mixed tile years
 - Large-scale processing
+- **Official survey data advantage:** Uses official cadastral survey building footprints, which prevents footprint merging issues common with computer vision or point cloud clustering methods
 
 **Known Issues:**
 - Missing elevation data → `status: no_height_data`
@@ -423,6 +424,7 @@ For each building:
 - Underground portions are set to 0 (cannot estimate below-ground volume from DSM)
 - Accuracy limited by 0.5m resolution of elevation models
 - Grid alignment uses minimum bounding rectangle (may not be optimal for very irregular shapes)
+- **swissSURFACE3D class merging:** The raster model merges multiple classes (Ground/Class 2, Vegetation/Class 3, Buildings/Class 6, Bridges/Class 17, Water/Class 9). Small buildings covered by tall trees may show inaccurate heights, though this is uncommon as most roofs are not vegetation-covered
 
 **Requirements:**
 - Both swissALTI3D and swissSURFACE3D tiles must be available locally
