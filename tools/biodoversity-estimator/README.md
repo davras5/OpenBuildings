@@ -1,8 +1,8 @@
 # Biodiversity Estimator
 
-> Documentation in progress
-
 A tool for estimating biodiversity metrics related to Swiss buildings and their surroundings.
+
+> Documentation in progress
 
 ## Table of Contents
 
