@@ -62,7 +62,7 @@ The **[current Volume Estimator](../volume-estimator/)** uses a completely diffe
 
 | Aspect | This Tool (Deprecated) | Current Tool |
 |--------|------------------------|--------------|
-| **Method** | 3D mesh reconstruction | LIDAR elevation sampling |
+| **Method** | 3D mesh reconstruction | DTM (elevation model) sampling |
 | **Data Source** | swissBUILDINGS3D multipatch (GDB) | Building footprints + swissALTI3D + swissSURFACE3D |
 | **Consistency** | Variable (50-80% success rate) | High (95%+ success rate) |
 | **Accuracy** | Good when it works, unreliable otherwise | Consistent ±5-10% for well-defined buildings |
