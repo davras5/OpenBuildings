@@ -5,11 +5,15 @@ A tool for estimating building gross floor areas (Geschossflächen) using LIDAR-
 ## Table of Contents
 
 - [Overview](#overview)
+- [Quick Start](#quick-start)
+- [Requirements](#requirements)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Command-Line Reference](#command-line-reference)
 - [Methodology](#methodology)
 - [Data Sources](#data-sources)
 - [GWR Building Classification](#gwr-building-classification)
 - [Floor Height Assumptions](#floor-height-assumptions)
-- [Roof Type and Attic Estimation](#roof-type-and-attic-estimation)
 - [Output Format](#output-format)
 - [Accuracy & Limitations](#accuracy--limitations)
 - [References](#references)
@@ -29,6 +33,149 @@ This estimator calculates approximate gross floor areas for Swiss buildings by c
 - **Building classifications** from GWR (Gebäude- und Wohnungsregister)
 
 The methodology is based on the Canton Zurich approach documented in ["Modell zur Berechnung der bestehenden Geschossfläche pro Grundstück im Kanton Zürich"](https://are.zh.ch/) (SEILER & SEILER GmbH, December 2020).
+
+**Prerequisites:** This tool requires buildings to have volume data calculated by the [Volume Estimator](../volume-estimator/).
+
+---
+
+## Quick Start
+
+### Estimate floor areas for 10 buildings (CSV output)
+
+```bash
+python python/main.py \
+    "postgresql://user:password@host:5432/database" \
+    --limit 10 \
+    -o results.csv
+```
+
+### Update database with floor area estimates
+
+```bash
+python python/main.py \
+    "postgresql://user:password@host:5432/database" \
+    --limit 100 \
+    --write-to-db
+```
+
+### Process specific buildings
+
+```bash
+python python/main.py \
+    "postgresql://user:password@host:5432/database" \
+    --building-ids 6767 8921 12345 \
+    -o specific_buildings.csv
+```
+
+---
+
+## Requirements
+
+### Python Dependencies
+
+```bash
+pip install psycopg2-binary pandas numpy
+```
+
+### Database Requirements
+
+Buildings must have the following data populated (typically by the [Volume Estimator](../volume-estimator/)):
+
+| Column | Required | Description |
+|--------|----------|-------------|
+| `area_footprint_m2` | Yes | Building footprint area |
+| `volume_above_ground_m3` | Yes | LIDAR-derived building volume |
+| `height_mean_m` | Optional | Mean building height (calculated from volume/footprint if missing) |
+| `category` | Recommended | GWR GKAT code |
+| `class` | Recommended | GWR GKLAS code |
+
+---
+
+## Installation
+
+### 1. Clone Repository
+
+```bash
+git clone https://github.com/davras5/OpenBuildings.git
+cd OpenBuildings/tools/area-estimator
+```
+
+### 2. Install Dependencies
+
+```bash
+pip install psycopg2-binary pandas numpy
+```
+
+### 3. Ensure Volume Data Exists
+
+Run the [Volume Estimator](../volume-estimator/) first to populate `volume_above_ground_m3` and `area_footprint_m2` for buildings.
+
+---
+
+## Usage
+
+### Export to CSV Only
+
+```bash
+python python/main.py \
+    "postgresql://user:password@host:5432/database" \
+    --limit 100 \
+    -o output.csv
+```
+
+### Update Database Only
+
+```bash
+python python/main.py \
+    "postgresql://user:password@host:5432/database" \
+    --limit 100 \
+    --write-to-db
+```
+
+### Both CSV and Database
+
+```bash
+python python/main.py \
+    "postgresql://user:password@host:5432/database" \
+    --limit 100 \
+    -o output.csv \
+    --write-to-db
+```
+
+### Process Buildings in Bounding Box
+
+```bash
+python python/main.py \
+    "postgresql://user:password@host:5432/database" \
+    --bbox 7.5 47.5 8.0 48.0 \
+    --write-to-db
+```
+
+---
+
+## Command-Line Reference
+
+### Required Arguments
+
+| Argument | Description |
+|----------|-------------|
+| `db_connection` | PostgreSQL connection string<br>Format: `postgresql://user:password@host:port/database` |
+
+### Optional Arguments
+
+| Argument | Type | Default | Description |
+|----------|------|---------|-------------|
+| `-o, --output` | string | - | CSV output file path |
+| `--write-to-db` | flag | false | Write results to database |
+| `-l, --limit` | int | - | Limit number of buildings to process |
+| `--building-ids` | int list | - | Process specific building IDs (space-separated) |
+| `-b, --bbox` | 4 floats | - | Bounding box in WGS84: `MINLON MINLAT MAXLON MAXLAT` |
+| `--table-name` | string | `public.buildings` | Database table name |
+| `--include-missing-volume` | flag | false | Include buildings without volume data |
+
+**Important:** You must specify at least one of `--output` or `--write-to-db`.
+
+---
 
 ## Methodology
 
@@ -180,43 +327,48 @@ When determining floor height:
 2. If not found, fall back to the **GKAT** category
 3. If neither is found, use the default residential values (2.70–3.30m)
 
-## Roof Type and Attic Estimation
-
-For buildings with pitched roofs, the attic space contributes partially to usable floor area. The estimator applies the following adjustments:
-
-| Roof Type | Attic Factor | Description |
-|-----------|--------------|-------------|
-| Flat roof | 0.0 | No attic space |
-| Pitched roof (< 30°) | 0.3 | Limited headroom |
-| Pitched roof (30–45°) | 0.5 | Partial usable space |
-| Pitched roof (> 45°) | 0.7 | More usable space |
-
-The attic contribution is calculated as:
-```
-attic_area = footprint_area × attic_factor
-```
-
-This is added to the estimated gross floor area when applicable.
-
 ## Output Format
 
-The estimator produces both minimum and maximum estimates:
+### Database Output
 
-| Field | Description |
-|-------|-------------|
-| `egid` | GWR building identifier |
-| `footprint_area_m2` | Building footprint area in m² |
-| `volume_m3` | LIDAR-derived building volume in m³ |
-| `mean_height_m` | Calculated mean height (volume/footprint) |
-| `gkat` | GWR building category code |
-| `gklas` | GWR building class code |
-| `floor_height_min` | Minimum assumed floor height |
-| `floor_height_max` | Maximum assumed floor height |
-| `floor_count_min` | Minimum estimated floor count |
-| `floor_count_max` | Maximum estimated floor count |
-| `gfa_min_m2` | Minimum gross floor area estimate |
-| `gfa_max_m2` | Maximum gross floor area estimate |
-| `gfa_mean_m2` | Mean of min/max estimates |
+When using `--write-to-db`, the following columns are updated:
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `area_floor_total_m2` | numeric | Total gross floor area estimate |
+| `area_floor_above_ground_m2` | numeric | Above-ground floor area (same as total) |
+| `area_accuracy` | text | Accuracy level: `high`, `medium`, or `low` |
+| `floors_total` | integer | Estimated total floor count |
+| `floors_above` | integer | Above-ground floors (same as total) |
+| `floors_accuracy` | text | Accuracy level for floor count |
+
+### CSV Output
+
+When using `--output`, additional debug columns are included:
+
+| Column | Description |
+|--------|-------------|
+| `id` | Building ID |
+| `area_floor_total_m2` | Total gross floor area estimate |
+| `area_floor_above_ground_m2` | Above-ground floor area |
+| `area_accuracy` | Accuracy level |
+| `floors_total` | Estimated floor count |
+| `floors_above` | Above-ground floors |
+| `floors_accuracy` | Accuracy level |
+| `status` | Processing status (`success` or `error`) |
+| `error_message` | Error description if failed |
+| `_height_mean_m` | Mean building height used |
+| `_floor_height_used` | Floor height assumption applied |
+| `_schema_used` | Classification schema (`GKLAS`, `GKAT`, or `DEFAULT`) |
+| `_building_type` | Building type description |
+
+### Accuracy Levels
+
+| Level | Expected Accuracy | Building Types |
+|-------|-------------------|----------------|
+| `high` | ±10–15% | Residential buildings (GKAT 1020, GKLAS 11xx) |
+| `medium` | ±15–25% | Commercial, office, schools, hospitals |
+| `low` | ±25–40% | Industrial, special use, or missing classification |
 
 ## Accuracy & Limitations
 
