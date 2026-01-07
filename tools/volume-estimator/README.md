@@ -33,6 +33,14 @@ The calculation is based on a voxel approach: creating a 1×1 meter grid within 
 - Dynamic tile indexing (year-agnostic)
 - Flexible output (CSV export and/or database update)
 
+<p align="center">
+  <img src="images/Preview_2.jpg" width="45%" />
+  <img src="images/Preview_3.jpg" width="45%" />
+</p>
+<p align="center">
+  <img src="images/Preview_4.jpg" />
+</p>
+
 ---
 
 ## How It Works
@@ -57,14 +65,6 @@ The volume estimation follows these steps:
    - Base height = minimum terrain elevation across all grid points
    - Building height at each point = surface elevation - base height
    - Volume = Σ(building heights) × 1m²
-
-<p align="center">
-  <img src="images/Preview_2.jpg" width="45%" />
-  <img src="images/Preview_3.jpg" width="45%" />
-</p>
-<p align="center">
-  <img src="images/Preview_4.jpg" />
-</p>
 
 ### Why Orientation-Aligned Grids?
 
