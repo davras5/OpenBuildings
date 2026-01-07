@@ -1,5 +1,7 @@
 # Base Worker
 
+> Documentation in progress
+
 The main worker for updating and aggregating official Swiss cadastral survey data (Amtliche Vermessung) for buildings and parcels.
 
 ## Table of Contents
