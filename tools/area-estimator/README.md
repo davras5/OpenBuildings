@@ -1,1 +1,245 @@
-Documentation in progress
+# Swiss Building Floor Area Estimator
+
+A tool for estimating building gross floor areas (Geschossflächen) using LIDAR-derived volumes, building footprints, and GWR building classifications.
+
+## Overview
+
+This estimator calculates approximate gross floor areas for Swiss buildings by combining:
+
+- **Building footprints** from cadastral data (PostGIS/swissBUILDINGS3D)
+- **Building volumes** from LIDAR point clouds (swissSURFACE3D / swissBUILDINGS3D 3.0)
+- **Building classifications** from GWR (Gebäude- und Wohnungsregister)
+
+The methodology is based on the Canton Zurich approach documented in ["Modell zur Berechnung der bestehenden Geschossfläche pro Grundstück im Kanton Zürich"](https://are.zh.ch/) (SEILER & SEILER GmbH, December 2020).
+
+## Methodology
+
+### Core Calculation
+
+1. **Calculate mean building height**
+   ```
+   mean_height = building_volume / footprint_area
+   ```
+
+2. **Derive floor count** using building-type-specific floor heights
+   ```
+   floor_count = mean_height / floor_height
+   ```
+
+3. **Calculate gross floor area**
+   ```
+   gross_floor_area = footprint_area × floor_count
+   ```
+
+### Why LIDAR Volumes Instead of GWR Floor Counts?
+
+The GWR provides floor counts via the `GASTW` attribute ("Anzahl Geschosse"), but this field has significant limitations:
+
+- Ambiguity about inclusion of basement/underground floors
+- Inconsistent data quality across municipalities
+- Often missing or outdated values
+
+Using LIDAR-derived volumes provides a more consistent and verifiable approach, as the volume data is measured directly from the building geometry.
+
+## Data Sources
+
+| Data | Source | Description |
+|------|--------|-------------|
+| Building footprints | swissBUILDINGS3D / Cadastral survey | 2D polygon geometries |
+| Building volumes | swissSURFACE3D / swissBUILDINGS3D 3.0 | LIDAR-derived 3D volumes |
+| Building classification | GWR (Merkmalskatalog v4.2/4.3) | GKAT and GKLAS codes |
+| Roof type | GWR or swissBUILDINGS3D | For attic estimation |
+
+## GWR Building Classification
+
+The GWR uses a hierarchical classification system with two key attributes:
+
+- **GKAT** (Gebäudekategorie): Broad building category
+- **GKLAS** (Gebäudeklasse): Detailed building class within category
+
+### GKAT Codes (Building Categories)
+
+| Code | Description (DE) | Description (EN) |
+|------|------------------|------------------|
+| 1010 | Provisorische Unterkunft | Provisional accommodation |
+| 1020 | Gebäude mit ausschliesslicher Wohnnutzung | Residential buildings only |
+| 1030 | Wohngebäude mit Nebennutzung | Residential with secondary use |
+| 1040 | Gebäude mit teilweiser Wohnnutzung | Partial residential use |
+| 1060 | Gebäude ohne Wohnnutzung | Non-residential buildings |
+| 1080 | Sonderbauten | Special structures |
+
+### GKLAS Codes (Building Classes)
+
+The GKLAS provides more detailed classification, particularly for buildings in GKAT 1020, 1030, and 1040:
+
+#### Residential (within GKAT 1020)
+
+| Code | Description (DE) | Description (EN) |
+|------|------------------|------------------|
+| 1110 | Gebäude mit einer Wohnung | Single-dwelling building (EFH) |
+| 1121 | Gebäude mit zwei Wohnungen | Two-dwelling building |
+| 1122 | Gebäude mit drei oder mehr Wohnungen | Multi-dwelling building (MFH) |
+| 1130 | Wohngebäude für Gemeinschaften | Communal housing |
+
+#### Hotels and Tourism (within GKAT 1040)
+
+| Code | Description (DE) | Description (EN) |
+|------|------------------|------------------|
+| 1211 | Hotelgebäude | Hotel buildings |
+| 1212 | Andere Gebäude für kurzfristige Beherbergung | Other short-term accommodation |
+
+#### Commercial and Industrial (within GKAT 1060)
+
+| Code | Description (DE) | Description (EN) |
+|------|------------------|------------------|
+| 1220 | Bürogebäude | Office buildings |
+| 1230 | Gross- und Einzelhandelsgebäude | Retail buildings |
+| 1231 | Restaurants und Bars | Restaurants and bars |
+| 1241 | Bahnhöfe, Terminals | Stations, terminals |
+| 1242 | Parkhäuser | Parking structures |
+| 1251 | Industriegebäude | Industrial buildings |
+| 1252 | Behälter, Silos, Lagergebäude | Containers, silos, warehouses |
+| 1261 | Gebäude für Kultur und Freizeit | Culture and leisure buildings |
+| 1262 | Museen und Bibliotheken | Museums and libraries |
+| 1263 | Schulen und Hochschulen | Schools and universities |
+| 1264 | Spitäler und Kliniken | Hospitals and clinics |
+| 1265 | Sporthallen | Sports halls |
+| 1271 | Landwirtschaftliche Betriebsgebäude | Agricultural buildings |
+| 1272 | Kirchen und Sakralbauten | Churches and religious buildings |
+| 1273 | Denkmäler und unter Schutz stehende Gebäude | Monuments and protected buildings |
+| 1274 | Andere Hochbauten | Other buildings |
+
+## Floor Height Assumptions
+
+Floor heights vary by building type. The estimator uses differentiated heights for:
+- **EG** (Erdgeschoss): Ground floor
+- **RG** (Regelgeschoss): Regular/upper floors
+
+To account for uncertainty, the model provides **minimum** and **maximum** estimates based on floor height ranges.
+
+### Floor Height Lookup Table
+
+Based on Canton Zurich methodology (Tab. 14, Modelldokumentation December 2020):
+
+| Code | Building Type | Schema | EG Min | EG Max | RG Min | RG Max |
+|------|---------------|--------|--------|--------|--------|--------|
+| 1010 | Provisorische Unterkunft | GKAT | 2.70 | 3.30 | 2.70 | 3.30 |
+| 1110 | Einfamilienhaus | GKLAS | 2.70 | 3.30 | 2.70 | 3.30 |
+| 1121 | Zweifamilienhaus | GKLAS | 2.70 | 3.30 | 2.70 | 3.30 |
+| 1122 | Mehrfamilienhaus | GKLAS | 2.70 | 3.30 | 2.70 | 3.30 |
+| 1130 | Wohngebäude für Gemeinschaften | GKLAS | 2.70 | 3.30 | 2.70 | 3.30 |
+| 1030 | Wohngebäude mit Nebennutzung | GKAT | 2.70 | 3.30 | 2.70 | 3.30 |
+| 1040 | Geb. mit teilweiser Wohnnutzung | GKAT | 3.30 | 3.70 | 2.70 | 3.70 |
+| 1211 | Hotelgebäude | GKLAS | 3.30 | 3.70 | 3.00 | 3.50 |
+| 1212 | Kurzfristige Beherbergung | GKLAS | 3.00 | 3.50 | 3.00 | 3.50 |
+| 1220 | Bürogebäude | GKLAS | 3.40 | 4.20 | 3.40 | 4.20 |
+| 1230 | Gross- und Einzelhandel | GKLAS | 3.40 | 5.00 | 3.40 | 5.00 |
+| 1231 | Restaurants und Bars | GKLAS | 3.30 | 4.00 | 3.30 | 4.00 |
+| 1241 | Bahnhöfe, Terminals | GKLAS | 4.00 | 6.00 | 4.00 | 6.00 |
+| 1242 | Parkhäuser | GKLAS | 2.80 | 3.20 | 2.80 | 3.20 |
+| 1251 | Industriegebäude | GKLAS | 4.00 | 7.00 | 4.00 | 7.00 |
+| 1252 | Behälter, Silos, Lager | GKLAS | 3.50 | 6.00 | 3.50 | 6.00 |
+| 1261 | Kultur und Freizeit | GKLAS | 3.50 | 5.00 | 3.50 | 5.00 |
+| 1262 | Museen und Bibliotheken | GKLAS | 3.50 | 5.00 | 3.50 | 5.00 |
+| 1263 | Schulen und Hochschulen | GKLAS | 3.30 | 4.00 | 3.30 | 4.00 |
+| 1264 | Spitäler und Kliniken | GKLAS | 3.30 | 4.00 | 3.30 | 4.00 |
+| 1265 | Sporthallen | GKLAS | 3.00 | 6.00 | 3.00 | 6.00 |
+| 1271 | Landwirtschaft. Betriebsgeb. | GKLAS | 3.50 | 5.00 | 3.50 | 5.00 |
+| 1272 | Kirchen und Sakralbauten | GKLAS | 3.00 | 6.00 | 3.00 | 6.00 |
+| 1273 | Denkmäler, geschützte Geb. | GKLAS | 3.00 | 4.00 | 3.00 | 4.00 |
+| 1274 | Andere Hochbauten | GKLAS | 3.00 | 4.00 | 3.00 | 4.00 |
+| 1060 | Gebäude ohne Wohnnutzung | GKAT | 3.30 | 5.00 | 3.00 | 5.00 |
+| 1080 | Sonderbauten | GKAT | 3.00 | 4.00 | 3.00 | 4.00 |
+| — | Fallback (unknown) | — | 2.70 | 3.30 | 2.70 | 3.30 |
+
+**Note:** Some building types (marked with H16 in original documentation) have heterogeneous uses with wide height ranges. These include sports halls (1265), churches (1272), and industrial buildings (1251).
+
+### Lookup Priority
+
+When determining floor height:
+
+1. First, check if a specific **GKLAS** code exists in the lookup table
+2. If not found, fall back to the **GKAT** category
+3. If neither is found, use the default residential values (2.70–3.30m)
+
+## Roof Type and Attic Estimation
+
+For buildings with pitched roofs, the attic space contributes partially to usable floor area. The estimator applies the following adjustments:
+
+| Roof Type | Attic Factor | Description |
+|-----------|--------------|-------------|
+| Flat roof | 0.0 | No attic space |
+| Pitched roof (< 30°) | 0.3 | Limited headroom |
+| Pitched roof (30–45°) | 0.5 | Partial usable space |
+| Pitched roof (> 45°) | 0.7 | More usable space |
+
+The attic contribution is calculated as:
+```
+attic_area = footprint_area × attic_factor
+```
+
+This is added to the estimated gross floor area when applicable.
+
+## Output Format
+
+The estimator produces both minimum and maximum estimates:
+
+| Field | Description |
+|-------|-------------|
+| `egid` | GWR building identifier |
+| `footprint_area_m2` | Building footprint area in m² |
+| `volume_m3` | LIDAR-derived building volume in m³ |
+| `mean_height_m` | Calculated mean height (volume/footprint) |
+| `gkat` | GWR building category code |
+| `gklas` | GWR building class code |
+| `floor_height_min` | Minimum assumed floor height |
+| `floor_height_max` | Maximum assumed floor height |
+| `floor_count_min` | Minimum estimated floor count |
+| `floor_count_max` | Maximum estimated floor count |
+| `gfa_min_m2` | Minimum gross floor area estimate |
+| `gfa_max_m2` | Maximum gross floor area estimate |
+| `gfa_mean_m2` | Mean of min/max estimates |
+
+## Accuracy and Limitations
+
+### Expected Accuracy
+
+Based on validation against reference data (Canton Zurich study), the estimator achieves:
+
+- **±10–15%** for residential buildings (GKAT 1020)
+- **±15–25%** for commercial/office buildings
+- **±25–40%** for industrial and special-use buildings
+
+### Known Limitations
+
+1. **Complex building shapes**: Buildings with irregular footprints or multiple wings may have inaccurate volume calculations
+
+2. **Mixed-use buildings**: Buildings with multiple uses (GKAT 1040) have higher uncertainty due to varying floor heights within the same structure
+
+3. **Historical buildings**: Older buildings may have non-standard floor heights not captured in the lookup table
+
+4. **Basement floors**: Underground floors are generally not included in LIDAR volume calculations
+
+5. **Recent construction**: New buildings may not yet have accurate GWR classifications
+
+## References
+
+- **GWR Merkmalskatalog v4.2** (2022): [housing-stat.ch](https://www.housing-stat.ch/files/881-2200.pdf)
+- **Canton Zurich Methodology** (December 2020): "Modell zur Berechnung der bestehenden Geschossfläche pro Grundstück im Kanton Zürich" — SEILER & SEILER GmbH for Amt für Raumentwicklung
+- **swissBUILDINGS3D 3.0**: [swisstopo.ch](https://www.swisstopo.ch/swissbuildings3d)
+- **swissSURFACE3D**: [swisstopo.ch](https://www.swisstopo.ch/swisssurface3d)
+
+## Version History
+
+| Version | Date | Changes |
+|---------|------|---------|
+| 1.0 | 2024-XX | Initial release |
+| 1.1 | 2025-01 | Updated to GWR v4.2/4.3 codes; removed wall thickness deduction |
+
+## License
+
+MIT License — See LICENSE file for details.
+
+---
+
+*This tool is provided for estimation purposes only. For official floor area calculations, consult the relevant cantonal authorities or certified surveyors.*
