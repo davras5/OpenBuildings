@@ -2,7 +2,7 @@
 
 > **This tool has been deprecated and is no longer maintained.**
 >
-> Please use the **[LIDAR-based Volume Estimator](../volume-estimator/)** instead, which provides more consistent and reliable results.
+> Please use the **[DTM-based Volume Estimator](../volume-estimator/)** instead, which provides more consistent and reliable results.
 
 ## Table of Contents
 
