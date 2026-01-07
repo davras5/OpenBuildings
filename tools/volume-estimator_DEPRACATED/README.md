@@ -1,20 +1,89 @@
-# Swisstopo 3D Building Volume and Surface Analysis Tools
+# ⚠️ DEPRECATED - DO NOT USE ⚠️
+
+> **This tool has been deprecated and is no longer maintained.**
+>
+> Please use the **[LIDAR-based Volume Estimator](../volume-estimator/)** instead, which provides more consistent and reliable results.
+
+---
+
+## Why This Tool Was Deprecated
+
+This tool attempted to calculate building volumes by processing **3D mesh geometries** (multipatch) from Swisstopo's swissBUILDINGS3D dataset. While the approach was technically sophisticated, it produced **highly inconsistent results** across different buildings.
+
+### The Inconsistency Problem
+
+**Some buildings achieved excellent, accurate results** while **others failed completely or produced unreliable volumes**. The root cause was the variable quality of the source 3D mesh data and the inherent difficulty of repairing complex 3D geometries.
+
+### Technical Reasons for Failure
+
+| Issue | Impact | Why It Caused Inconsistency |
+|-------|--------|----------------------------|
+| **Mesh Quality Variance** | High | Source 3D models from Swisstopo varied significantly in quality. Clean, watertight meshes → accurate results. Meshes with holes or errors → failed or inaccurate results. |
+| **Non-Watertight Meshes** | High | Volume calculation requires "watertight" (closed) meshes. Many building meshes had gaps, holes, or missing faces that couldn't be reliably repaired. |
+| **Inside-Out Meshes** | Medium | Some meshes had inverted face normals, producing negative volumes. While detectable, this indicated underlying geometry issues. |
+| **Fan Triangulation Limitations** | Medium | The geometry parser used fan triangulation, which works for simple convex polygons but fails for complex concave shapes common in detailed building models. |
+| **Repair Algorithm Uncertainty** | High | The repair pipeline (merge vertices → remove degenerate faces → fix normals → fill holes) had no guarantee of success. Each building required different repairs. |
+| **Complex Building Geometries** | Medium | Buildings with courtyards, overhangs, or complex roof structures often had mesh issues that couldn't be automatically resolved. |
+
+### What Happened During Processing
+
+```
+Building A: Clean mesh → Watertight → Accurate volume ✓
+Building B: Minor gaps → Repaired successfully → Good volume ✓
+Building C: Major holes → Repair failed → No volume ✗
+Building D: Inside-out mesh → Corrected → Questionable accuracy ~
+Building E: Complex geometry → Partial repair → Unreliable volume ✗
+```
+
+This unpredictability made the tool unsuitable for production use.
+
+---
+
+## The Better Alternative
+
+The **[current Volume Estimator](../volume-estimator/)** uses a completely different approach:
+
+| Aspect | This Tool (Deprecated) | Current Tool |
+|--------|------------------------|--------------|
+| **Method** | 3D mesh reconstruction | LIDAR elevation sampling |
+| **Data Source** | swissBUILDINGS3D multipatch (GDB) | Building footprints + swissALTI3D + swissSURFACE3D |
+| **Consistency** | Variable (50-80% success rate) | High (95%+ success rate) |
+| **Accuracy** | Good when it works, unreliable otherwise | Consistent ±5-10% for well-defined buildings |
+| **Integration** | Standalone (GDB files only) | Database-integrated (PostGIS/Supabase) |
+| **Maintenance** | Complex mesh repair logic | Simple elevation sampling |
+
+### Why LIDAR Is More Reliable
+
+1. **Pre-processed Data**: Swiss elevation models are professionally surveyed and validated
+2. **No Mesh Repair Needed**: Raster data doesn't have holes, inverted faces, or topology issues
+3. **Consistent Method**: Same calculation approach works for all buildings
+4. **Official Footprints**: Uses cadastral survey footprints, avoiding geometry merging issues
+
+---
+
+## Historical Documentation
+
+The sections below are preserved for historical reference only.
+
+---
+
+# [ARCHIVED] Swisstopo 3D Building Volume and Surface Analysis Tools
 
 ## Overview
 
-This toolset processes [Swisstopo 3D building data](https://www.swisstopo.admin.ch/en/landscape-model-swissbuildings3d-3-0-beta) (multipatch geometries) to calculate building volumes and analyze surface areas. It's designed to handle large datasets efficiently using parallel processing, providing detailed metrics for each building including volume, roof area, footprint, and wall areas.
+This toolset processed [Swisstopo 3D building data](https://www.swisstopo.admin.ch/en/landscape-model-swissbuildings3d-3-0-beta) (multipatch geometries) to calculate building volumes and analyze surface areas. It was designed to handle large datasets efficiently using parallel processing, providing detailed metrics for each building including volume, roof area, footprint, and wall areas.
 
 ## Result
 The full processed dataset as a CSV file (1.2 GB) is available at:
 - [Download from Google Drive](https://drive.google.com/file/d/1AS-dI3VbV52xkmuAYBvPIzVNZnVGNWXG/view?usp=sharing)
 
-## What the Toolset Does
+## What the Toolset Did
 
-1. **Reads** Swisstopo 3D building data from GDB (geodatabase) files
-2. **Repairs** mesh geometries to ensure they are watertight for accurate volume calculation
-3. **Calculates** building volumes using advanced mesh repair techniques
-4. **Analyzes** surface areas, classifying them as roof, footprint, or walls
-5. **Outputs** comprehensive results in CSV format
+1. **Read** Swisstopo 3D building data from GDB (geodatabase) files
+2. **Repaired** mesh geometries to ensure they are watertight for accurate volume calculation
+3. **Calculated** building volumes using advanced mesh repair techniques
+4. **Analyzed** surface areas, classifying them as roof, footprint, or walls
+5. **Output** comprehensive results in CSV format
 
 ## Requirements
 
