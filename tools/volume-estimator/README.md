@@ -27,11 +27,11 @@ This tool estimates building volumes by combining:
 The calculation is based on a voxel approach: creating a 1×1 meter grid within each building footprint and sampling elevations at each point.
 
 **Key Features:**
-- ✅ Orientation-aligned grid generation for better accuracy
-- ✅ Direct PostGIS/Supabase database integration
-- ✅ Automatic WGS84 → LV95 coordinate transformation
-- ✅ Dynamic tile indexing (year-agnostic)
-- ✅ Flexible output (CSV export and/or database update)
+- Orientation-aligned grid generation for better accuracy
+- Direct PostGIS/Supabase database integration
+- Automatic WGS84 → LV95 coordinate transformation
+- Dynamic tile indexing (year-agnostic)
+- Flexible output (CSV export and/or database update)
 
 <p align="center">
   <img src="images/Preview_2.jpg" width="45%" />
@@ -387,9 +387,9 @@ Tile ID → File Path
 ```
 
 This approach:
-- ✅ Handles any year automatically (2019-2025+)
-- ✅ Fast O(1) lookup during processing
-- ✅ Works with mixed years (e.g., 2023 Surface + 2025 ALTI)
+- Handles any year automatically (2019-2025+)
+- Fast O(1) lookup during processing
+- Works with mixed years (e.g., 2023 Surface + 2025 ALTI)
 
 ### Tile Selection
 
@@ -412,22 +412,22 @@ For each building:
 ### Limitations
 
 **What Works:**
-- ✅ Buildings spanning multiple tiles
-- ✅ Complex building shapes
-- ✅ Mixed tile years
-- ✅ Large-scale processing
+- Buildings spanning multiple tiles
+- Complex building shapes
+- Mixed tile years
+- Large-scale processing
 
 **Known Issues:**
-- ⚠️ Missing elevation data → `status: no_height_data`
-- ⚠️ Very small buildings (<1m²) → `status: no_grid_points`
-- ⚠️ Underground portions are set to 0 (cannot estimate below-ground volume from DSM)
-- ⚠️ Accuracy limited by 0.5m resolution of elevation models
-- ⚠️ Grid alignment uses minimum bounding rectangle (may not be optimal for very irregular shapes)
+- Missing elevation data → `status: no_height_data`
+- Very small buildings (<1m²) → `status: no_grid_points`
+- Underground portions are set to 0 (cannot estimate below-ground volume from DSM)
+- Accuracy limited by 0.5m resolution of elevation models
+- Grid alignment uses minimum bounding rectangle (may not be optimal for very irregular shapes)
 
 **Requirements:**
-- 📍 Both swissALTI3D and swissSURFACE3D tiles must be available locally
-- 📍 Buildings must have valid geometry in database
-- 📍 Building must be within coverage area of available tiles
+- Both swissALTI3D and swissSURFACE3D tiles must be available locally
+- Buildings must have valid geometry in database
+- Building must be within coverage area of available tiles
 
 ### Accuracy Considerations
 
@@ -445,7 +445,7 @@ For each building:
 ## Data Sources
 
 ### Building Footprints
-Your PostGIS/Supabase database containing building polygons.
+Your PostGIS/Supabase database containing building polygons. Building footprint data can be sourced from [Swiss Cadastral Surveying Services](https://www.geodienste.ch/services/av).
 
 ### Elevation Models
 Both available from [Federal Office of Topography swisstopo](https://www.swisstopo.admin.ch):
