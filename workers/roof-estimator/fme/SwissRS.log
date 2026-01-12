@@ -1,0 +1,104 @@
+2026-01-12 22:40:37|   0.0|  0.0|INFORM|Current FME version: FME 2025.0.3.0 (20250602 - Build 25241 - WIN64)
+2026-01-12 22:40:37|   0.0|  0.0|INFORM|System Time: 20260112214037 UTC
+2026-01-12 22:40:37|   0.0|  0.0|INFORM|FME_HOME is 'C:\Program Files\FME\'
+2026-01-12 22:40:37|   0.0|  0.0|INFORM|FME Form (floating)
+2026-01-12 22:40:37|   0.0|  0.0|INFORM|Permanent License.
+2026-01-12 22:40:37|   0.0|  0.0|INFORM|Machine host name is: DESKTOP-BIEK64S
+2026-01-12 22:40:37|   0.0|  0.0|INFORM|OS Locale Name     : en_CH
+2026-01-12 22:40:37|   0.0|  0.0|INFORM|OS Locale Encoding : windows-1252
+2026-01-12 22:40:37|   0.0|  0.0|INFORM|Process Encoding   : UTF-8
+2026-01-12 22:40:37|   0.0|  0.0|INFORM|FME API version: '4.0 20240722'
+2026-01-12 22:40:37|   0.0|  0.0|INFORM|FME Configuration: FME_BASE is 'no'
+2026-01-12 22:40:37|   0.0|  0.0|INFORM|FME Configuration: FME_MF_DIR is 'C:\Users\DavidRasner\Documents\GitHub\OpenBuildings\workers\roof-estimator\fme/'
+2026-01-12 22:40:37|   0.0|  0.0|INFORM|FME Configuration: FME_MF_NAME is 'SwissRS.fmw'
+2026-01-12 22:40:37|   0.0|  0.0|INFORM|FME Configuration: FME_PRODUCT_NAME is 'FME(R) 2025.0.3.0'
+2026-01-12 22:40:37|   0.0|  0.0|INFORM|Operating System: Microsoft Windows 10 64-bit  (Build 19045)
+2026-01-12 22:40:37|   0.0|  0.0|INFORM|FME Platform: WIN64
+2026-01-12 22:40:37|   0.0|  0.0|INFORM|System Status: 123.32 GB of disk space available in the FME temporary folder (C:\Users\DAVIDR~1\AppData\Local\Temp\wbrun_1768248992585_23288\fmetmp_17)
+2026-01-12 22:40:37|   0.0|  0.0|INFORM|System Status: 31.72 GB of physical memory available
+2026-01-12 22:40:37|   0.0|  0.0|INFORM|System Status: 126.88 GB of virtual memory available
+2026-01-12 22:40:37|   0.0|  0.0|INFORM|START - ProcessID: 22340, peak process memory usage: 41604 kB, current process memory usage: 41600 kB
+2026-01-12 22:40:37|   0.0|  0.0|INFORM|FME Configuration: Command line arguments are `C:\Program Files\FME\fme.exe' `C:\Users\DavidRasner\Documents\GitHub\OpenBuildings\workers\roof-estimator\fme\wb-xlate-1768254036756_23288' `--FME_LAUNCH_VIEWER_APP' `WORKBENCH' `LOG_STANDARDOUT' `YES' `LOG_TIMINGS' `YES' `LogCountServerName' `53334' `LOG_STANDARDOUT' `No' `WORKBENCH_LOG_SERVER' `53333'
+2026-01-12 22:40:37|   0.0|  0.0|INFORM|FME Configuration: Connection Storage: 'C:\Users\DavidRasner\AppData\Roaming\Safe Software\FME\'
+2026-01-12 22:40:37|   0.0|  0.0|INFORM|Shared folders for formats are : C:\Program Files\FME\datasources;C:\Users\DavidRasner\AppData\Roaming\Safe Software\FME\FME Store\Formats;C:\Users\DavidRasner\Documents\FME\Formats
+2026-01-12 22:40:37|   0.0|  0.0|INFORM|Shared folders for transformers are : C:\Users\DavidRasner\AppData\Roaming\Safe Software\FME\Packages\25241-win64\transformers;C:\Program Files\FME\transformers;C:\Users\DavidRasner\AppData\Roaming\Safe Software\FME\FME Store\Transformers
+2026-01-12 22:40:37|   0.0|  0.0|INFORM|Shared folders for coordinate systems are : C:\Users\DavidRasner\Documents\FME\CoordinateSystems
+2026-01-12 22:40:37|   0.0|  0.0|INFORM|Shared folders for coordinate system exceptions are : C:\Users\DavidRasner\Documents\FME\CoordinateSystemExceptions
+2026-01-12 22:40:37|   0.0|  0.0|INFORM|Shared folders for coordinate system grid overrides are : C:\Users\DavidRasner\Documents\FME\CoordinateSystemGridOverrides
+2026-01-12 22:40:37|   0.0|  0.0|INFORM|Shared folders for CS-MAP transformation exceptions are : C:\Users\DavidRasner\Documents\FME\CsmapTransformationExceptions
+2026-01-12 22:40:37|   0.0|  0.0|INFORM|Shared folders for transformer categories are : C:\Users\DavidRasner\Documents\FME\TransformerCategories
+2026-01-12 22:40:37|   0.0|  0.0|INFORM|FME Configuration: No destination coordinate system set
+2026-01-12 22:40:37|   0.0|  0.0|INFORM|FME Configuration: Current working folder is `C:\Users\DavidRasner\Documents\GitHub\OpenBuildings\workers\roof-estimator\fme'
+2026-01-12 22:40:37|   0.0|  0.0|INFORM|FME Configuration: Temporary folder is `C:\Users\DAVIDR~1\AppData\Local\Temp\wbrun_1768248992585_23288\fmetmp_17', set from environment variable `FME_TEMP'
+2026-01-12 22:40:37|   0.0|  0.0|INFORM|FME Configuration: Cache folder is 'C:\Users\DAVIDR~1\AppData\Local\Temp'
+2026-01-12 22:40:37|   0.0|  0.0|INFORM|FME Configuration: FME_HOME is `C:\Program Files\FME\'
+2026-01-12 22:40:37|   0.0|  0.0|INFORM|FME Configuration: Start freeing memory when the process exceeds 95.16 GB
+2026-01-12 22:40:37|   0.0|  0.0|INFORM|FME Configuration: Stop freeing memory when the process is below 71.37 GB
+2026-01-12 22:40:37|   0.1|  0.1|INFORM|Creating writer for format: 
+2026-01-12 22:40:37|   0.1|  0.0|INFORM|Creating reader for format: 
+2026-01-12 22:40:37|   0.1|  0.0|INFORM|MULTI_READER(MULTI_READER): Will fail with first member reader failure
+2026-01-12 22:40:37|   0.1|  0.0|INFORM|Using Multi Reader with keyword `MULTI_READER' to read multiple datasets
+2026-01-12 22:40:37|   0.1|  0.0|INFORM|Using MultiWriter with keyword `MULTI_DEST' to output data (ID_ATTRIBUTE is `multi_writer_id')
+2026-01-12 22:40:37|   0.1|  0.0|INFORM|Emptying factory pipeline
+2026-01-12 22:40:37|   0.1|  0.0|STATS |Restoring 100 feature(s) from FME feature store file `C:\Users\DAVIDR~1\AppData\Local\Temp\wb-cache-SwissRS-Xwxipn\Main_AttributeManager -1 32 fo 0 OUTPUT  0  0ca07f1298606269a828c89f66676d17189dd40a.ffs'
+2026-01-12 22:40:37|   0.3|  0.2|INFORM|Creating reader for format: GeoTIFF (Geo-referenced Tagged Image File Format)
+2026-01-12 22:40:37|   0.3|  0.0|INFORM|Trying to find a DYNAMIC plugin for reader named `GEOTIFF'
+2026-01-12 22:40:37|   0.3|  0.0|INFORM|GEOTIFF reader: Directive '_READ_OFFSETS_IN_CS_UNITS' has value 'No'
+2026-01-12 22:40:37|   0.3|  0.0|INFORM|GEOTIFF reader: Directive '_PREFER_FILE_CS_UNITS' has value 'Yes'
+2026-01-12 22:40:37|   0.3|  0.0|INFORM|GEOTIFF reader: Directive '_IGNORE_RASTER_TYPE_KEY' has value 'No'
+2026-01-12 22:40:37|   0.3|  0.0|INFORM|GEOTIFF reader: Directive '_LENIENT_READ' has value 'Yes'
+2026-01-12 22:40:37|   0.3|  0.0|INFORM|GEOTIFF reader: Opening file 'D:\SwissRS\SWISSIMAGE-RS_10cm_Example.tif'
+2026-01-12 22:40:37|   0.3|  0.0|INFORM|GEOTIFF reader: Directive '_SCALE_COLOR_TO_STANDARD_BIT_DEPTH' has value 'NO'
+2026-01-12 22:40:37|   0.3|  0.0|INFORM|GEOTIFF reader: Directive '_APPLY_GCPS' has the value 'NO'
+2026-01-12 22:40:37|   0.3|  0.0|INFORM|Successfully read world file 'D:\SwissRS\SWISSIMAGE-RS_10cm_Example.tfw'
+2026-01-12 22:40:37|   0.3|  0.0|INFORM|Creating writer for format: 
+2026-01-12 22:40:37|   0.3|  0.0|INFORM|Using MultiWriter with keyword `FeatureWriter' to output data (ID_ATTRIBUTE is `multi_writer_id')
+2026-01-12 22:40:37|   0.4|  0.1|INFORM|Creating writer for format: CSV (Comma Separated Value)
+2026-01-12 22:40:37|   0.4|  0.0|INFORM|Trying to find a DYNAMIC plugin for writer named `CSV2'
+2026-01-12 22:40:37|   0.4|  0.0|INFORM|FME Configuration: No destination coordinate system set
+2026-01-12 22:40:37|   0.4|  0.0|INFORM|Writer `FeatureWriter_0' of type `CSV2' using group definition keyword `FeatureWriter_0_DEF'
+2026-01-12 22:40:37|   0.5|  0.1|INFORM|CSV writer: Directive '_EXTENSION' has the value 'csv'
+2026-01-12 22:40:37|   0.5|  0.0|INFORM|CSV writer: Directive '_DELIMITER' has the value ','
+2026-01-12 22:40:37|   0.5|  0.0|INFORM|CSV writer: Directive '_ENCODING' has the value 'UTF-8'
+2026-01-12 22:40:37|   0.5|  0.0|INFORM|CSV writer: Directive '_WRITE_BOM_FOR_UNICODE' has the value 'Yes'
+2026-01-12 22:40:37|   0.5|  0.0|INFORM|CSV writer: Directive '_QUALIFY_FIELD_NAMES' has the value 'if_needed'
+2026-01-12 22:40:37|   0.5|  0.0|INFORM|CSV writer: Directive '_QUALIFY_FIELD_VALUES' has the value 'if_needed'
+2026-01-12 22:40:37|   0.5|  0.0|INFORM|CSV writer: Directive '_TREAT_EMBEDDED_FIELD_QUALIFIERS_AS_UNSAFE' has the value 'Yes'
+2026-01-12 22:40:37|   0.5|  0.0|INFORM|CSV writer: Directive '_FIELD_QUALIFIER_CHARACTER' has the value '"'
+2026-01-12 22:40:37|   0.5|  0.0|INFORM|CSV writer: Directive '_FIELD_QUALIFIER_ESCAPE_CHARACTER' has the value '"'
+2026-01-12 22:40:37|   0.5|  0.0|INFORM|CSV writer: Directive '_ROW_TERMINATION' has the value 'System'
+2026-01-12 22:40:37|   0.5|  0.0|INFORM|CSV writer: Directive '_WRITE_SCHEMA_FILE' has the value 'NO'
+2026-01-12 22:40:37|   0.5|  0.0|INFORM|CSV writer: Opening dataset 'C:\Users\DavidRasner\Documents\GitHub\OpenBuildings\workers\roof-estimator\fme\output\swissRS_analysis_20260112_201037.csv'
+2026-01-12 22:40:41|   4.3|  3.8|INFORM|=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+2026-01-12 22:40:41|   4.3|  0.0|INFORM|Feature output statistics for `CSV2' writer using keyword `FeatureWriter_0':
+2026-01-12 22:40:41|   4.3|  0.0|STATS |=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+2026-01-12 22:40:41|   4.3|  0.0|STATS |                               Features Written
+2026-01-12 22:40:41|   4.3|  0.0|STATS |=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+2026-01-12 22:40:41|   4.3|  0.0|STATS |swissRS_analysis_20260112_201037                                           100
+2026-01-12 22:40:41|   4.3|  0.0|STATS |==============================================================================
+2026-01-12 22:40:41|   4.3|  0.0|STATS |Total Features Written                                                     100
+2026-01-12 22:40:41|   4.3|  0.0|STATS |=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+2026-01-12 22:40:41|   4.3|  0.0|STATS |Destination Feature Type Routing Correlator (RoutingFactory): Tested 0 input feature(s), wrote 0 output feature(s): 0 matched merge filters, 0 were routed to output, 0 could not be routed.
+2026-01-12 22:40:41|   4.3|  0.0|STATS |Final Output Nuker (TeeFactory): Cloned 0 input feature(s) into 0 output feature(s)
+2026-01-12 22:40:41|   4.3|  0.0|STATS |=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+2026-01-12 22:40:41|   4.3|  0.0|STATS |                            Features Read Summary
+2026-01-12 22:40:41|   4.3|  0.0|STATS |=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+2026-01-12 22:40:41|   4.3|  0.0|STATS |==============================================================================
+2026-01-12 22:40:41|   4.3|  0.0|STATS |Total Features Read                                                          0
+2026-01-12 22:40:41|   4.3|  0.0|STATS |=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+2026-01-12 22:40:41|   4.3|  0.0|STATS |=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+2026-01-12 22:40:41|   4.3|  0.0|STATS |                           Features Written Summary
+2026-01-12 22:40:41|   4.3|  0.0|STATS |=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+2026-01-12 22:40:41|   4.3|  0.0|STATS |==============================================================================
+2026-01-12 22:40:41|   4.3|  0.0|STATS |Total Features Written                                                       0
+2026-01-12 22:40:41|   4.3|  0.0|STATS |=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+2026-01-12 22:40:41|   4.3|  0.0|WARN  |-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-
+2026-01-12 22:40:41|   4.3|  0.0|WARN  |-~                                                                             ~-
+2026-01-12 22:40:41|   4.3|  0.0|WARN  |-~    Feature caches have been recorded at every stage of the translation.     ~-
+2026-01-12 22:40:41|   4.3|  0.0|WARN  |-~                      To inspect the recorded features,                      ~-
+2026-01-12 22:40:41|   4.3|  0.0|WARN  |-~              click the feature cache icons next to the ports.               ~-
+2026-01-12 22:40:41|   4.3|  0.0|WARN  |-~                                                                             ~-
+2026-01-12 22:40:41|   4.3|  0.0|WARN  |-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-
+2026-01-12 22:40:41|   4.3|  0.0|INFORM|Translation was SUCCESSFUL with 7 warning(s) (0 feature(s) output)
+2026-01-12 22:40:41|   4.3|  0.0|INFORM|FME Session Duration: 4.4 seconds. (CPU: 1.9s user, 2.4s system)
+2026-01-12 22:40:41|   4.3|  0.0|INFORM|END - ProcessID: 22340, peak process memory usage: 196640 kB, current process memory usage: 65208 kB
