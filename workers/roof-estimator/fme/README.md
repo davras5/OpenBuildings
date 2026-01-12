@@ -34,6 +34,8 @@ This FME workspace analyzes building rooftops using near-infrared (NIR) and red 
 
 ## Transformer Configuration
 
+<img title="a title" alt="Alt text" src="FME Workflow.JPG">
+
 ### RasterSelector
 Selects NIR and Red bands for NDVI calculation:
 ```
