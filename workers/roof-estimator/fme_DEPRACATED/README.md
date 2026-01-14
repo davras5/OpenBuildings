@@ -80,7 +80,7 @@ These thresholds can be adjusted in the Python script.
 # FME PythonCaller Script: Green Roof Statistics from NDVI raster
 # Input: Single-band NDVI raster (output from RasterExpressionEvaluator)
 # Expression used: (A[0] - A[1]) / (A[0] + A[1])
-# Output: Green roof statistics
+# Output: Green roof statistics with preserved incoming attributes
 
 import fmeobjects
 import numpy as np
@@ -92,17 +92,22 @@ NDVI_THRESHOLD = 0.25  # Threshold for "green" classification
 class FeatureProcessor(object):
     
     def __init__(self):
-        pass
+        self._incoming_attributes = []  # Store attribute names to preserve
     
     def input(self, feature):
         debug_info = []
+        
+        # Store all incoming attribute names and values
+        incoming_attrs = {}
+        for attr_name in feature.getAllAttributeNames():
+            incoming_attrs[attr_name] = feature.getAttribute(attr_name)
         
         try:
             debug_info.append("Step 1: Get raster")
             geom = feature.getGeometry()
             
             if geom is None or not isinstance(geom, fmeobjects.FMERaster):
-                self._set_error(feature, debug_info, "Not a raster")
+                self._set_error(feature, debug_info, "Not a raster", incoming_attrs)
                 return
             
             raster = geom
@@ -149,7 +154,7 @@ class FeatureProcessor(object):
                     continue
             
             if data is None:
-                self._set_error(feature, debug_info, "Could not read NDVI tile")
+                self._set_error(feature, debug_info, "Could not read NDVI tile", incoming_attrs)
                 return
             
             # Convert to numpy
@@ -164,7 +169,7 @@ class FeatureProcessor(object):
             debug_info.append(f"Valid pixels: {len(valid_ndvi)}")
             
             if len(valid_ndvi) == 0:
-                self._set_error(feature, debug_info, "No valid NDVI values")
+                self._set_error(feature, debug_info, "No valid NDVI values", incoming_attrs)
                 return
             
             # Calculate statistics
@@ -184,7 +189,11 @@ class FeatureProcessor(object):
             debug_info.append(f"Green: {green_percentage:.1f}% ({green_area_m2:.1f} m2)")
             debug_info.append(f"Result: {is_green_roof}")
             
-            # Set attributes
+            # Re-apply all incoming attributes first (ensures they're preserved)
+            for attr_name, attr_value in incoming_attrs.items():
+                feature.setAttribute(attr_name, attr_value)
+            
+            # Set new output attributes (will overwrite if names conflict)
             feature.setAttribute('_ndvi_avg', round(ndvi_avg, 4))
             feature.setAttribute('_ndvi_min', round(ndvi_min, 4))
             feature.setAttribute('_ndvi_max', round(ndvi_max, 4))
@@ -198,13 +207,18 @@ class FeatureProcessor(object):
             
         except Exception as e:
             debug_info.append(f"ERROR: {str(e)}")
-            self._set_error(feature, debug_info, str(e))
+            self._set_error(feature, debug_info, str(e), incoming_attrs)
             return
         
         feature.setAttribute('_debug', ' | '.join(debug_info))
         self.pyoutput(feature)
     
-    def _set_error(self, feature, debug_info, msg):
+    def _set_error(self, feature, debug_info, msg, incoming_attrs=None):
+        # Re-apply incoming attributes even on error
+        if incoming_attrs:
+            for attr_name, attr_value in incoming_attrs.items():
+                feature.setAttribute(attr_name, attr_value)
+        
         feature.setAttribute('_is_green_roof', 'Error')
         feature.setAttribute('_error_message', msg)
         feature.setAttribute('_debug', ' | '.join(debug_info))
